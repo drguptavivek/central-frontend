@@ -101,7 +101,7 @@ const loaders = new Map()
   )))
   .set('FieldKeyList', loader(() => import(
     /* webpackChunkName: "component-field-key-list" */
-    '../components/field-key/list.vue'
+    '../components/field-key/vg-list.vue'
   )))
   .set('FormEdit', loader(() => import(
     /* webpackChunkName: "component-form-edit" */

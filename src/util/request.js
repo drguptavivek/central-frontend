@@ -187,6 +187,10 @@ export const apiPaths = {
   entityVersions: entityPath('/versions'),
   entityRestore: entityPath('/restore'),
   fieldKeys: projectPath('/app-users'),
+  fieldKeyLogin: (projectId) => `/v1/projects/${projectId}/app-users/login`,
+  fieldKeyResetPassword: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/password/reset`,
+  fieldKeyRevoke: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/revoke-admin`,
+  fieldKeyActive: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/active`,
   serverUrlForFieldKey: (token, projectId) =>
     `/v1/key/${token}/projects/${projectId}`,
   audits: (query) => `/v1/audits${queryString(query)}`,

@@ -1,0 +1,25 @@
+FROM node:22.21.1-slim
+
+# Install Nginx and git (git is often needed for dependencies)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx \
+    git \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose Vite port
+EXPOSE 8989
+
+# Start the dev server (runs both Vite and Nginx via foreman)
+CMD ["npm", "run", "dev"]

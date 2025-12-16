@@ -30,6 +30,7 @@ const proxyPaths = [
   '/version.txt'
 ];
 const devServer = {
+  host: true,
   port: 8989,
   proxy: Object.fromEntries(proxyPaths.map(path => [path, 'http://localhost:8686'])),
   // Because we proxy to nginx, which itself proxies to Backend and other
