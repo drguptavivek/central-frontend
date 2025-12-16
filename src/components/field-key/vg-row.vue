@@ -17,6 +17,9 @@ except according to the terms contained in the LICENSE file.
     <td class="username">
       <span v-tooltip.text>{{ fieldKey.username }}</span>
     </td>
+    <td class="phone">
+      <span v-tooltip.text>{{ fieldKey.phone }}</span>
+    </td>
     <td>
       <time-and-user :iso="fieldKey.createdAt" :user="fieldKey.createdBy"/>
     </td>
@@ -83,7 +86,7 @@ export default {
 .field-key-row {
   .table tbody & td { vertical-align: middle; }
 
-  .display-name, .username {
+  .display-name, .username, .phone {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

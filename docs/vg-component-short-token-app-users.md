@@ -1,93 +1,128 @@
-# VG Component: Short-Token App User Authentication
+# VG Component: Short-Lived Token App Users
 
-## Overview
-This document details the frontend implementation of the new App User Authentication System, which transitions from long-lived tokens to a more secure, short-lived token system backed by username/password credentials.
+This document describes the technical implementation of the "VG App User Auth" system, which introduces username/password authentication and short-lived session tokens for App Users (Field Keys), replacing the legacy long-lived token model.
 
-## Architecture
+## 1. Overview
 
-### Core Concepts
--   **Short-Lived Tokens**: Tokens are no longer generated at creation time and stored indefinitely. Instead, they are obtained via a login process and have a limited lifespan (3 days).
--   **Password-Based Auth**: App Users are now created with a username and password. These credentials are used by the client (e.g., ODK Collect) to authenticate and obtain tokens.
--   **Namespacing**: To ensure modularity and minimize impact on the existing codebase, all new components for this feature are namespaced with the `vg-` prefix.
+Legacy ODK Central App Users rely on a long-lived API token (valid for 10+ years) embedded in the QR code. This poses a security risk if the QR code is compromised.
 
-### API Integration
-The frontend interacts with the following new/updated API endpoints (defined in `client/src/util/request.js`):
+The VG implementation introduces:
+-   **Username/Password Authentication**: App Users must log in to obtain a session token.
+-   **Short-Lived Tokens**: Session tokens have a configurable expiration (default 3 days).
+-   **Enhanced Management**: Support for phone numbers, password resets, and explicit revocation/restoration.
 
--   `POST /projects/:projectId/app-users`: Create a new App User (now accepts `username` and `password`).
--   `POST /projects/:projectId/app-users/login`: Authenticate an App User to get a token.
--   `POST /projects/:projectId/app-users/:id/password/reset`: Reset an App User's password.
--   `POST /projects/:projectId/app-users/:id/revoke-admin`: Revoke all sessions for an App User.
--   `POST /projects/:projectId/app-users/:id/active`: Activate/deactivate an App User.
+## 2. Database Schema
 
-## Components
+The system extends the `field_keys` and `actors` tables using sidecar tables.
 
-The implementation introduces a set of new Vue components located in `client/src/components/field-key/`.
-
-### 1. `vg-list.vue` (`VgFieldKeyList`)
--   **Purpose**: The main container for managing App Users.
--   **Changes**: Replaces the standard `FieldKeyList`. It integrates the `vg-` namespaced sub-components and handles the display logic for the new auth flow.
--   **Integration**: Loaded via `client/src/util/load-async.js` to replace the default `FieldKeyList`.
-
-### 2. `vg-new.vue` (`VgFieldKeyNew`)
--   **Purpose**: Modal for creating new App Users.
--   **Changes**:
-    -   Adds input fields for `Username` and `Password`.
-    -   Submits these credentials to the backend.
-    -   Passes the credentials to `vg-qr-panel` upon success.
-
-### 3. `vg-row.vue` (`VgFieldKeyRow`)
--   **Purpose**: Represents a single App User in the list.
--   **Changes**:
-    -   Removes the "See code" link (as tokens are not available in the list).
-    -   Adds a "Reset Password" action to the dropdown menu.
-    -   Updates "Access revoked" display logic.
-
-### 4. `vg-qr-panel.vue` (`VgFieldKeyQrPanel`)
--   **Purpose**: Generates the configuration QR code for ODK Collect.
--   **Changes**:
-    -   Accepts `username` and `password` props.
-    -   Constructs a configuration object that embeds these credentials instead of a token.
-    -   Sets the `server_url` to the project root (e.g., `/v1/projects/:id`) rather than the key-based URL.
-
-### 5. `vg-revoke.vue` (`VgFieldKeyRevoke`)
--   **Purpose**: Modal for revoking App User access.
--   **Changes**: Uses the `revoke-admin` endpoint to invalidate all sessions for the user.
-
-### 6. `vg-reset-password.vue` (`VgFieldKeyResetPassword`)
--   **Purpose**: Modal for resetting an App User's password.
--   **Changes**:
-    -   New component.
-    -   Allows admins to set a new password.
-    -   Displays a QR code with the new credentials upon success.
-
-## Authentication Flow
-
-### User Creation
-1.  Admin opens `VgFieldKeyNew` modal.
-2.  Admin enters Display Name, Username, and Password.
-3.  Frontend calls `POST /app-users`.
-4.  On success, `VgFieldKeyQrPanel` is shown, generating a QR code containing the Username and Password.
-5.  ODK Collect scans the QR code and uses the credentials to log in.
-
-### Password Reset
-1.  Admin selects "Reset Password" from `VgFieldKeyRow`.
-2.  Admin enters a new password in `VgFieldKeyResetPassword`.
-3.  Frontend calls `POST /password/reset`.
-4.  On success, a QR code with the new password is shown.
-
-### Revocation
-1.  Admin selects "Revoke access" from `VgFieldKeyRow`.
-2.  Frontend calls `POST /revoke-admin`.
-3.  Backend invalidates all existing tokens for that user.
-
-## Integration Strategy
-
-To use these new components, the `FieldKeyList` loader in `client/src/util/load-async.js` was updated to point to `vg-list.vue`. This ensures that the application loads the new interface when navigating to the App Users page, while keeping the original files intact for reference or fallback.
-
-```javascript
-// client/src/util/load-async.js
-.set('FieldKeyList', loader(() => import(
-  /* webpackChunkName: "component-field-key-list" */
-  '../components/field-key/vg-list.vue'
-)))
+### `vg_field_key_auth`
+Stores authentication credentials and status for App Users.
+```sql
+CREATE TABLE vg_field_key_auth (
+  "actorId" integer PRIMARY KEY REFERENCES actors(id),
+  vg_username text NOT NULL UNIQUE,
+  vg_password_hash text NOT NULL,
+  vg_phone text,
+  vg_active boolean DEFAULT true
+);
 ```
+
+### `vg_settings`
+Stores system-wide configuration for App User sessions.
+```sql
+CREATE TABLE vg_settings (
+  vg_key_name text PRIMARY KEY,
+  vg_key_value text
+);
+```
+**Default Values**:
+- `vg_app_user_session_ttl_days`: "3"
+- `vg_app_user_session_cap`: "2"
+
+### `vg_app_user_login_attempts`
+Tracks login attempts for rate limiting and security auditing.
+```sql
+CREATE TABLE vg_app_user_login_attempts (
+  id serial PRIMARY KEY,
+  username text NOT NULL,
+  ip text NOT NULL,
+  succeeded boolean NOT NULL,
+  "createdAt" timestamptz DEFAULT now()
+);
+```
+
+## 3. Backend Implementation
+
+### Resources (`server/lib/resources/vg-app-user-auth.js`)
+The following endpoints handle App User authentication and management:
+
+| Method | Path | Description | Access |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/v1/projects/:id/app-users/login` | Authenticate and get session token. | Anonymous |
+| `POST` | `/v1/projects/:id/app-users/:id/password/change` | Change own password. | Self |
+| `POST` | `/v1/projects/:id/app-users/:id/password/reset` | Reset user password. | Admin |
+| `POST` | `/v1/projects/:id/app-users/:id/revoke` | Revoke own sessions. | Self |
+| `POST` | `/v1/projects/:id/app-users/:id/revoke-admin` | Revoke user access (deactivate). | Admin |
+| `POST` | `/v1/projects/:id/app-users/:id/active` | Restore or deactivate user. | Admin |
+| `GET` | `/v1/system/settings` | Get session configuration. | Admin |
+| `PUT` | `/v1/system/settings` | Update session configuration. | Admin |
+
+### Domain Logic (`server/lib/domain/vg-app-user-auth.js`)
+-   **Login**: Verifies password hash, checks `vg_active` status, and creates a session using standard `Sessions.create`.
+-   **Revocation**: Sets `vg_active = false` and deletes all active sessions for the user.
+-   **Restoration**: Sets `vg_active = true`.
+-   **Password Reset**: Updates `vg_password_hash` and terminates existing sessions.
+
+### Queries (`server/lib/model/query/vg-app-user-auth.js`)
+-   **`getSessionTtlDays`**: Fetches TTL from `vg_settings` (default 3).
+-   **`getSessionCap`**: Fetches session cap from `vg_settings` (default 2).
+-   **`upsertSetting`**: Inserts or updates configuration keys.
+
+## 4. Frontend Implementation
+
+### Routes (`client/src/routes.js`)
+-   `/system/settings`: Maps to `VgSettings` component. Requires `config.read` and `config.set` permissions.
+
+### Components
+
+#### `client/src/components/system/vg-settings.vue`
+-   **Purpose**: Admin interface for configuring session settings.
+-   **Features**:
+    -   Fetches current TTL and Cap settings.
+    -   Validates inputs (min 1).
+    -   Updates settings via `PUT /v1/system/settings`.
+    -   Displays success/error alerts.
+
+#### `client/src/components/user/vg-list.vue`
+-   **Purpose**: Enhanced list view for App Users.
+-   **Features**:
+    -   Columns: Display Name, Username, Phone, Created Date.
+    -   Actions: Revoke Access, Restore Access, Reset Password.
+
+#### `client/src/components/user/vg-new.vue`
+-   **Purpose**: Modal for creating new App Users.
+-   **Features**:
+    -   Auto-generates strong passwords.
+    -   Validates phone number format `(+xx) xxxxxxxxxx`.
+    -   Displays credentials for manual recording.
+
+#### `client/src/components/user/vg-qr-panel.vue`
+-   **Purpose**: Displays connection information.
+-   **Features**:
+    -   **QR Code**: Contains only Server URL and Project Name (no credentials).
+    -   **Credentials**: Displays Username and Password in plaintext for manual entry.
+
+### Resources (`client/src/request-data/resources.js`)
+-   **`systemSettings`**: App-wide resource for fetching/updating session config.
+
+## 5. Security Enhancements
+
+### Secure QR Code
+The configuration QR code **no longer contains credentials**.
+-   **Legacy**: Encoded full credentials (token or username/password).
+-   **New**: Encodes only Server URL and Project Name.
+-   **Flow**: User scans QR -> ODK Collect prompts for Username/Password -> User enters credentials manually.
+
+### Password Policy
+-   **Requirements**: At least 1 uppercase, 1 lowercase, 1 digit, 1 symbol.
+-   **Generator**: Auto-generates strong passwords (format: `Word-Word-123-Word`) during creation and reset.

@@ -25,6 +25,11 @@ except according to the terms contained in the LICENSE file.
             {{ $t('systemHome.tab.analytics') }}
           </router-link>
         </li>
+        <li :class="tabClass('settings')" role="presentation">
+          <router-link :to="tabPath('settings')">
+            {{ $t('systemHome.tab.settings') }}
+          </router-link>
+        </li>
       </template>
     </page-head>
     <page-body>

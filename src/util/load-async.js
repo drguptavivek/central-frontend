@@ -201,6 +201,10 @@ const loaders = new Map()
     /* webpackChunkName: "component-system-home" */
     '../components/system/home.vue'
   )))
+  .set('VgSettings', loader(() => import(
+    /* webpackChunkName: "component-vg-settings" */
+    '../components/system/vg-settings.vue'
+  )))
   .set('UserEdit', loader(() => import(
     /* webpackChunkName: "component-user-edit" */
     '../components/user/edit.vue'

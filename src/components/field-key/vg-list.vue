@@ -35,6 +35,7 @@ except according to the terms contained in the LICENSE file.
         <tr>
           <th>{{ $t('header.displayName') }}</th>
           <th>{{ $t('header.username') }}</th>
+          <th>{{ $t('header.phone') }}</th>
           <th>{{ $t('header.created') }}</th>
           <th>{{ $t('header.lastUsed') }}</th>
           <th>{{ $t('header.configureClient') }}</th>
@@ -184,6 +185,7 @@ export default {
     "header": {
       "displayName": "Display Name",
       "username": "Username",
+      "phone": "Phone",
       "created": "Created",
       "lastUsed": "Last Used",
       // Header for the table column that shows QR codes to configure data collection clients such as ODK Collect.

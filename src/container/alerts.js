@@ -62,8 +62,8 @@ export default () => {
         : (toast.options.autoHide ? 'success' : 'info');
     },
 
-    success: (message) => toast.show(message),
-    info: (message) => toast.show(message, { autoHide: false }),
+    success: (message) => toast.show(message, { type: 'success' }),
+    info: (message) => toast.show(message, { type: 'info', autoHide: false }),
     danger: (message) => redAlert.show(message)
 
     // There is intentionally no hide() method. It's not clear what the behavior
