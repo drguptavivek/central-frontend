@@ -14,6 +14,9 @@ except according to the terms contained in the LICENSE file.
     <td class="display-name">
       <span v-tooltip.text>{{ fieldKey.displayName }}</span>
     </td>
+    <td class="username">
+      <span v-tooltip.text>{{ fieldKey.username }}</span>
+    </td>
     <td>
       <time-and-user :iso="fieldKey.createdAt" :user="fieldKey.createdBy"/>
     </td>
@@ -42,6 +45,11 @@ except according to the terms contained in the LICENSE file.
               {{ $t('action.revokeAccess') }}&hellip;
             </a>
           </li>
+          <li v-if="!fieldKey.active">
+            <a href="#" @click.prevent="$emit('restore', fieldKey)">
+              {{ $t('action.restoreAccess') }}&hellip;
+            </a>
+          </li>
         </ul>
       </div>
     </td>
@@ -62,7 +70,7 @@ export default {
     },
     highlighted: Number
   },
-  emits: ['revoke', 'reset-password'],
+  emits: ['revoke', 'restore', 'reset-password'],
   computed: {
     actionsId() {
       return `field-key-row-actions${this.fieldKey.id}`;
@@ -75,7 +83,7 @@ export default {
 .field-key-row {
   .table tbody & td { vertical-align: middle; }
 
-  .display-name {
+  .display-name, .username {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -92,6 +100,7 @@ export default {
     "accessRevoked": "Access revoked",
     "action": {
       "revokeAccess": "Revoke access",
+      "restoreAccess": "Restore access",
       "resetPassword": "Reset Password"
     }
   }

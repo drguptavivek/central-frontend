@@ -21,9 +21,9 @@ except according to the terms contained in the LICENSE file.
             :placeholder="$t('field.displayName')" required autocomplete="off"/>
           <form-group v-model.trim="username"
             :placeholder="$t('field.username')" required autocomplete="off"/>
-          <form-group v-model.trim="password"
-            :placeholder="$t('field.password')" required autocomplete="off"
-            type="password"/>
+          <form-group v-model.trim="phone"
+            :placeholder="$t('field.phoneWithFormat')" autocomplete="off"
+            pattern="^\(\+\d{1,3}\) ?\d{3} ?\d{3} ?\d{4}$" maxlength="20"/>
           <div class="modal-actions">
             <button type="button" class="btn btn-link"
               :aria-disabled="awaitingResponse" @click="hideOrComplete">
@@ -46,7 +46,7 @@ except according to the terms contained in the LICENSE file.
               <span>{{ $t('success[0]', created) }}</span>
             </p>
           </div>
-          <vg-field-key-qr-panel :field-key="created" :managed="managed" :show-close="false"
+          <vg-field-key-qr-panel :field-key="created" :managed="true" :show-close="false"
             :username="createdUsername" :password="createdPassword"/>
           <p>{{ $t('success[1]', created) }}</p>
           <i18n-t tag="p" keypath="success[2].full">
@@ -84,6 +84,7 @@ import { afterNextNavigation } from '../../util/router';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
 import { useRequestData } from '../../request-data';
+import { generatePassword } from '../../util/password-generator';
 
 export default {
   name: 'VgFieldKeyNew',
@@ -114,10 +115,12 @@ export default {
       step: 0,
       displayName: '',
       username: '',
+      phone: '',
       password: '',
+      confirmPassword: '',
       created: null,
-      createdUsername: '',
-      createdPassword: ''
+      createdPassword: '',
+      createdUsername: ''
     };
   },
   watch: {
@@ -126,10 +129,12 @@ export default {
         this.step = 0;
         this.displayName = '';
         this.username = '';
+        this.phone = '';
         this.password = '';
+        this.confirmPassword = '';
         this.created = null;
-        this.createdUsername = '';
         this.createdPassword = '';
+        this.createdUsername = '';
       }
     }
   },
@@ -138,13 +143,21 @@ export default {
       this.$refs.displayName.focus();
     },
     submit() {
+      const password = generatePassword();
+      this.password = password;
+
       this.request({
         method: 'POST',
         url: apiPaths.fieldKeys(this.project.id),
         data: {
-          displayName: this.displayName,
+          fullName: this.displayName,
           username: this.username,
-          password: this.password
+          phone: this.phone,
+          password
+        },
+        problemToAlert: ({ code }) => {
+          if (code === 400.20) return this.$t('alert.passwordWeak');
+          return null;
         }
       })
         .then(({ data }) => {
@@ -152,12 +165,14 @@ export default {
           this.redAlert.hide();
           this.createdUsername = this.username;
           this.createdPassword = this.password;
+          this.created = data;
           this.displayName = '';
           this.username = '';
+          this.phone = '';
           this.password = '';
+          this.confirmPassword = '';
 
           this.step = 1;
-          this.created = data;
         })
         .catch(noop);
     },
@@ -224,7 +239,16 @@ export default {
     "field": {
       "displayName": "Display Name",
       "username": "Username",
-      "password": "Password"
+      "phone": "Phone Number",
+      "phoneWithFormat": "Phone Number (+xx) xxxxxxxxxx",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "passwordHelp": "Must be at least 10 characters, with upper/lowercase, number, and symbol"
+    },
+    "alert": {
+      "passwordTooShort": "Password must be at least 10 characters",
+      "passwordMismatch": "Passwords do not match",
+      "passwordWeak": "Password must contain uppercase, lowercase, number, and symbol"
     },
     "success": [
       "The App User “{displayName}” has been created.",
@@ -237,7 +261,8 @@ export default {
     ],
     "action": {
       // This is the text of a button that is used to create another App User.
-      "createAnother": "Create another"
+      "createAnother": "Create another",
+      "generate": "Generate"
     }
   }
 }

@@ -58,6 +58,12 @@ except according to the terms contained in the LICENSE file.
         <sentence-separator/>
         <doc-link to="collect-import-export/">{{ $t('moreInfo.learnMore') }}</doc-link>
       </p>
+      <p v-if="username">
+        <strong>{{ $t('usernameLabel') }}:</strong> {{ username }}
+      </p>
+      <p v-if="password">
+        <strong>{{ $t('passwordLabel') }}:</strong> {{ password }}
+      </p>
     </template>
   </qr-panel>
 </template>
@@ -97,8 +103,8 @@ export default {
       if (this.username && this.password) {
         url = `/v1/projects/${this.project.id}`;
         settings.general.server_url = `${window.location.origin}${url}`;
-        settings.general.username = this.username;
-        settings.general.password = this.password;
+        // settings.general.username = this.username;
+        // settings.general.password = this.password;
       } else if (this.fieldKey && this.fieldKey.token) {
         url = apiPaths.serverUrlForFieldKey(
           this.fieldKey.token,
@@ -164,8 +170,11 @@ export default {
           "managedCode": "Managed QR Code"
         }
       },
-      "Scan this QR code to configure a device with the account “{displayName}”."
-    ]
+      "Scan this QR code to configure a device with the account “{displayName}”.",
+      "Password"
+    ],
+    "usernameLabel": "Username",
+    "passwordLabel": "Password"
   }
 }
 </i18n>

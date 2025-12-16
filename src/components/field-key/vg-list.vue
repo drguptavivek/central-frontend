@@ -34,6 +34,7 @@ except according to the terms contained in the LICENSE file.
       <thead>
         <tr>
           <th>{{ $t('header.displayName') }}</th>
+          <th>{{ $t('header.username') }}</th>
           <th>{{ $t('header.created') }}</th>
           <th>{{ $t('header.lastUsed') }}</th>
           <th>{{ $t('header.configureClient') }}</th>
@@ -44,6 +45,7 @@ except according to the terms contained in the LICENSE file.
         <vg-field-key-row v-for="fieldKey of fieldKeys" :key="fieldKey.id"
           :field-key="fieldKey" :highlighted="highlighted"
           @revoke="revokeModal.show({ fieldKey: $event })"
+          @restore="restoreModal.show({ fieldKey: $event })"
           @reset-password="resetPasswordModal.show({ fieldKey: $event })"/>
       </tbody>
     </table>
@@ -59,6 +61,8 @@ except according to the terms contained in the LICENSE file.
       @hide="submissionOptions.hide()"/>
     <vg-field-key-revoke v-bind="revokeModal" @hide="revokeModal.hide()"
       @success="afterRevoke"/>
+    <vg-field-key-restore v-bind="restoreModal" @hide="restoreModal.hide()"
+      @success="afterRestore"/>
     <vg-field-key-reset-password v-bind="resetPasswordModal" @hide="resetPasswordModal.hide()"
       @success="afterResetPassword"/>
   </div>
@@ -70,6 +74,7 @@ import Loading from '../loading.vue';
 import VgFieldKeyRow from './vg-row.vue';
 import VgFieldKeyNew from './vg-new.vue';
 import VgFieldKeyRevoke from './vg-revoke.vue';
+import VgFieldKeyRestore from './vg-restore.vue';
 import VgFieldKeyResetPassword from './vg-reset-password.vue';
 import ProjectSubmissionOptions from '../project/submission-options.vue';
 
@@ -85,6 +90,7 @@ export default {
     VgFieldKeyRow,
     VgFieldKeyNew,
     VgFieldKeyRevoke,
+    VgFieldKeyRestore,
     VgFieldKeyResetPassword,
     ProjectSubmissionOptions
   },
@@ -111,6 +117,7 @@ export default {
       createModal: modalData(),
       submissionOptions: modalData(),
       revokeModal: modalData(),
+      restoreModal: modalData(),
       resetPasswordModal: modalData()
     };
   },
@@ -132,6 +139,11 @@ export default {
       this.fetchData(true);
       this.revokeModal.hide();
       this.alert.success(this.$t('alert.revoke', fieldKey));
+    },
+    afterRestore(fieldKey) {
+      this.fetchData(true);
+      this.restoreModal.hide();
+      this.alert.success(this.$t('alert.restore', fieldKey));
     },
     afterResetPassword(fieldKey) {
       this.fetchData(true);
@@ -170,6 +182,9 @@ export default {
       }
     ],
     "header": {
+      "displayName": "Display Name",
+      "username": "Username",
+      "created": "Created",
       "lastUsed": "Last Used",
       // Header for the table column that shows QR codes to configure data collection clients such as ODK Collect.
       "configureClient": "Configure Client"
@@ -178,6 +193,7 @@ export default {
     "alert": {
       "create": "The App User “{displayName}” was created successfully.",
       "revoke": "App User {displayName}’s access successfully revoked.",
+      "restore": "App User {displayName}’s access successfully restored.",
       "resetPassword": "Password for “{displayName}” has been reset."
     }
   }

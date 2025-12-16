@@ -11,15 +11,12 @@ except according to the terms contained in the LICENSE file.
 -->
 <template>
   <modal id="field-key-reset-password" :state="state" :hideable="!awaitingResponse"
-    backdrop @hide="hideOrComplete" @shown="focusInput">
+    backdrop @hide="hideOrComplete">
     <template #title>{{ $t('title') }}</template>
     <template #body>
       <template v-if="step === 0">
         <p class="modal-introduction">{{ $t('introduction') }}</p>
         <form @submit.prevent="submit">
-          <form-group ref="password" v-model.trim="password"
-            :placeholder="$t('field.password')" required autocomplete="off"
-            type="password"/>
           <div class="modal-actions">
             <button type="button" class="btn btn-link"
               :aria-disabled="awaitingResponse" @click="hideOrComplete">
@@ -43,7 +40,7 @@ except according to the terms contained in the LICENSE file.
             </p>
           </div>
           <vg-field-key-qr-panel :field-key="fieldKey" :managed="managed" :show-close="false"
-            :username="fieldKey.displayName" :password="password"/>
+            :username="fieldKey.username" :password="password"/>
           <p>{{ $t('success[1]', fieldKey) }}</p>
         </div>
         <div class="modal-actions">
@@ -66,6 +63,7 @@ import SentenceSeparator from '../sentence-separator.vue';
 import useRequest from '../../composables/request';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
+import { generatePassword } from '../../util/password-generator';
 
 export default {
   name: 'VgFieldKeyResetPassword',
@@ -101,16 +99,18 @@ export default {
     }
   },
   methods: {
-    focusInput() {
-      if (this.$refs.password) {
-        this.$refs.password.focus();
-      }
-    },
     submit() {
+      const password = generatePassword();
+      this.password = password;
+
       this.request({
         method: 'POST',
         url: apiPaths.fieldKeyResetPassword(this.fieldKey.projectId, this.fieldKey.id),
-        data: { newPassword: this.password }
+        data: { newPassword: password },
+        problemToAlert: ({ code }) => {
+          if (code === 400.20) return this.$t('alert.passwordWeak');
+          return null;
+        }
       })
         .then(() => {
           this.step = 1;
@@ -159,7 +159,7 @@ export default {
 {
   "en": {
     "title": "Reset Password",
-    "introduction": "Enter a new password for this App User.",
+    "introduction": "Are you sure you want to reset the password for this App User? A new password will be generated.",
     "field": {
       "password": "New Password"
     },
@@ -168,7 +168,11 @@ export default {
       "You can configure a mobile device for “{displayName}” right now."
     ],
     "action": {
-      "reset": "Reset Password"
+      "reset": "Reset Password",
+      "generate": "Generate"
+    },
+    "alert": {
+      "passwordWeak": "Password must contain uppercase, lowercase, number, and symbol"
     }
   }
 }
