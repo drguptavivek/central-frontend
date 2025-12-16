@@ -101,7 +101,7 @@ const loaders = new Map()
   )))
   .set('FieldKeyList', loader(() => import(
     /* webpackChunkName: "component-field-key-list" */
-    '../components/field-key/list.vue'
+    '../components/field-key/vg-list.vue'
   )))
   .set('FormEdit', loader(() => import(
     /* webpackChunkName: "component-form-edit" */
@@ -200,6 +200,10 @@ const loaders = new Map()
   .set('SystemHome', loader(() => import(
     /* webpackChunkName: "component-system-home" */
     '../components/system/home.vue'
+  )))
+  .set('VgSettings', loader(() => import(
+    /* webpackChunkName: "component-vg-settings" */
+    '../components/system/vg-settings.vue'
   )))
   .set('UserEdit', loader(() => import(
     /* webpackChunkName: "component-user-edit" */

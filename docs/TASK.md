@@ -1,0 +1,33 @@
+# Frontend Update for VG App-User Auth
+
+- [x] Explore existing frontend codebase and API docs <!-- id: 0 -->
+- [x] Create implementation plan <!-- id: 1 -->
+- [x] Implement API client changes <!-- id: 2 -->
+- [x] Update UI for User Management <!-- id: 3 -->
+    - [x] List Users <!-- id: 4 -->
+    - [x] Create User <!-- id: 5 -->
+    - [x] Edit/Revoke User <!-- id: 6 -->
+- [x] Update UI for Login/Auth flow (if applicable for app users in this client) <!-- id: 7 -->
+- [x] Verify changes <!-- id: 8 -->
+- [x] Create Technical Documentation <!-- id: 9 -->
+- [x] Configure HMR with Remote Backend <!-- id: 10 -->
+- [x] Dockerize Frontend Dev Environment <!-- id: 11 -->
+- [x] Create Dev Server Documentation <!-- id: 12 -->
+- [x] Show Password Policy <!-- id: 13 -->
+- [x] Enforce Strong Password Policy <!-- id: 14 -->
+- [x] Refine Password Policy <!-- id: 15 -->
+- [x] Align Password Regex with Server <!-- id: 16 -->
+- [x] Handle Server Error Codes <!-- id: 17 -->
+- [x] Homogenize Error Codes <!-- id: 18 -->
+- [x] Implement Password Generator
+- [x] Show Password Under QR Code
+- [x] Simplify User Creation Flow
+- [x] Add Phone Number Field
+- [x] Enforce Phone Number Pattern
+- [x] Show Username in QR Panel
+- [x] Show Username in List
+- [x] Show Phone in List
+- [x] Fix Access Revoked Issue
+- [x] Implement Restore Access <!-- id: 21 -->
+- [x] Implement Admin Settings UI for Session Config
+    - [x] Fix Success Alert Styling

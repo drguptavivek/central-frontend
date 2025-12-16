@@ -30,7 +30,8 @@
     "title": "System Management",
     "tab": {
       "audits": "Server Audit Logs",
-      "analytics": "Usage Reporting"
+      "analytics": "Usage Reporting",
+      "settings": "App User Settings"
     }
   },
   // This is the name of a user Role.
@@ -528,5 +529,13 @@
   },
   "router": {
     "unsavedChanges": "Are you sure you want to leave this page? Your changes might not be saved."
+  },
+  "vgSettings": {
+    "heading": "Configure App User Session Settings",
+    "ttl": "Session TTL (Days)",
+    "cap": "Max Sessions per User",
+    "alert": {
+      "invalidValues": "Values must be at least 1."
+    }
   }
 }
