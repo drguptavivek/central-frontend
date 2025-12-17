@@ -58,7 +58,7 @@ The following endpoints handle App User authentication and management:
 
 | Method | Path | Description | Access |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/v1/projects/:id/app-users/login` | Authenticate and get session token. | Anonymous |
+| `POST` | `/v1/projects/:id/app-users/login` | Authenticate and get session token (returns `id`, `token`, `projectId`, `expiresAt`). | Anonymous |
 | `POST` | `/v1/projects/:id/app-users/:id/password/change` | Change own password. | Self |
 | `POST` | `/v1/projects/:id/app-users/:id/password/reset` | Reset user password. | Admin |
 | `POST` | `/v1/projects/:id/app-users/:id/revoke` | Revoke own sessions. | Self |

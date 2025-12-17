@@ -25,8 +25,10 @@ export default () => {
   }));
   const formSummaryAssignments = createResource('formSummaryAssignments');
   const fieldKeys = createResource('fieldKeys', () => ({
+    // Show all active app users in Form Access. Tokens are short-lived and not
+    // returned in listings, so rely on active flag rather than token presence.
     withToken: computeIfExists(() =>
-      fieldKeys.filter(fieldKey => fieldKey.token != null))
+      fieldKeys.filter(fieldKey => fieldKey.active === true))
   }));
 
   watchSyncEffect(() => {

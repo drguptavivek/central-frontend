@@ -1,6 +1,6 @@
 # App User Management Improvements Walkthrough
 
-This document outlines the changes made to streamline App User management, including improved creation flow, phone number support, username visibility, and bug fixes for revocation.
+This document outlines the changes made to streamline App User management, including improved creation flow, phone number support, username visibility, login response updates, and bug fixes for revocation and form access.
 
 ## Changes
 
@@ -21,6 +21,10 @@ This document outlines the changes made to streamline App User management, inclu
 - **Correct Deactivation**: The "Revoke Access" action now correctly sets the user as inactive (`vg_active = false`) in the database.
 - **Restore Access**: Added a "Restore Access" action for revoked users, allowing them to be reactivated.
 - **Session Termination**: Existing sessions are terminated upon revocation.
+
+### 5. Login Response and Self-Revoke
+- **Login Payload**: `POST /projects/:projectId/app-users/login` now returns `id`, `token`, `projectId`, and `expiresAt`. Clients can use the returned `id` to call self-revoke and password-change endpoints without out-of-band IDs.
+- **Form Access UI**: App users are now visible in the Project → Form Access grid even with short-lived tokens (active users are listed regardless of stored tokens), so per-form assignment works as expected.
 
 ### Admin Settings UI
 - Navigate to **System > App User Settings**.
