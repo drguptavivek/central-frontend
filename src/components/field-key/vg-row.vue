@@ -44,6 +44,11 @@ except according to the terms contained in the LICENSE file.
             </a>
           </li>
           <li :class="{ disabled: !fieldKey.active }">
+            <a href="#" @click.prevent="$emit('edit', fieldKey)">
+              {{ $t('action.edit') }}&hellip;
+            </a>
+          </li>
+          <li :class="{ disabled: !fieldKey.active }">
             <a href="#" @click.prevent="$emit('revoke', fieldKey)">
               {{ $t('action.revokeAccess') }}&hellip;
             </a>
@@ -73,7 +78,7 @@ export default {
     },
     highlighted: Number
   },
-  emits: ['revoke', 'restore', 'reset-password'],
+  emits: ['revoke', 'restore', 'reset-password', 'edit'],
   computed: {
     actionsId() {
       return `field-key-row-actions${this.fieldKey.id}`;
@@ -103,6 +108,7 @@ export default {
     "accessRevoked": "Access revoked",
     "action": {
       "revokeAccess": "Revoke access",
+      "edit": "Edit details",
       "restoreAccess": "Restore access",
       "resetPassword": "Reset Password"
     }

@@ -45,6 +45,7 @@ except according to the terms contained in the LICENSE file.
       <tbody v-if="fieldKeys.dataExists">
         <vg-field-key-row v-for="fieldKey of fieldKeys" :key="fieldKey.id"
           :field-key="fieldKey" :highlighted="highlighted"
+          @edit="editModal.show({ fieldKey: $event })"
           @revoke="revokeModal.show({ fieldKey: $event })"
           @restore="restoreModal.show({ fieldKey: $event })"
           @reset-password="resetPasswordModal.show({ fieldKey: $event })"/>
@@ -58,6 +59,9 @@ except according to the terms contained in the LICENSE file.
 
     <vg-field-key-new v-bind="createModal" :managed="managed"
       @hide="createModal.hide()" @success="afterCreate"/>
+    <vg-field-key-edit v-if="editModal.state" v-bind="editModal"
+      :project-id="Number(projectId)" @hide="editModal.hide()"
+      @success="afterEdit"/>
     <project-submission-options v-bind="submissionOptions"
       @hide="submissionOptions.hide()"/>
     <vg-field-key-revoke v-bind="revokeModal" @hide="revokeModal.hide()"
@@ -74,6 +78,7 @@ import DocLink from '../doc-link.vue';
 import Loading from '../loading.vue';
 import VgFieldKeyRow from './vg-row.vue';
 import VgFieldKeyNew from './vg-new.vue';
+import VgFieldKeyEdit from './vg-edit.vue';
 import VgFieldKeyRevoke from './vg-revoke.vue';
 import VgFieldKeyRestore from './vg-restore.vue';
 import VgFieldKeyResetPassword from './vg-reset-password.vue';
@@ -90,6 +95,7 @@ export default {
     Loading,
     VgFieldKeyRow,
     VgFieldKeyNew,
+    VgFieldKeyEdit,
     VgFieldKeyRevoke,
     VgFieldKeyRestore,
     VgFieldKeyResetPassword,
@@ -116,6 +122,7 @@ export default {
       managed: true,
       // Modals
       createModal: modalData(),
+      editModal: modalData(),
       submissionOptions: modalData(),
       revokeModal: modalData(),
       restoreModal: modalData(),
@@ -150,6 +157,11 @@ export default {
       this.fetchData(true);
       this.resetPasswordModal.hide();
       this.alert.success(this.$t('alert.resetPassword', fieldKey));
+    },
+    afterEdit(fieldKey) {
+      this.fetchData(true);
+      this.editModal.hide();
+      this.highlighted = fieldKey.id;
     }
   }
 };
