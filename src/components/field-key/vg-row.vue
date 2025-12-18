@@ -25,9 +25,11 @@ except according to the terms contained in the LICENSE file.
     </td>
     <td><date-time :iso="fieldKey.lastUsed"/></td>
     <td>
-      <template v-if="!fieldKey.active">
-        {{ $t('accessRevoked') }}
-      </template>
+      <button v-if="fieldKey.active" ref="popoverLink" type="button"
+        class="btn btn-default btn-xs" @click="toggleQr">
+        {{ $t('showQr') }}
+      </button>
+      <template v-else>{{ $t('accessRevoked') }}</template>
     </td>
     <td>
       <div class="dropdown">
@@ -78,10 +80,15 @@ export default {
     },
     highlighted: Number
   },
-  emits: ['revoke', 'restore', 'reset-password', 'edit'],
+  emits: ['toggle-qr', 'revoke', 'restore', 'reset-password', 'edit'],
   computed: {
     actionsId() {
       return `field-key-row-actions${this.fieldKey.id}`;
+    }
+  },
+  methods: {
+    toggleQr() {
+      this.$emit('toggle-qr', this.fieldKey, this.$refs.popoverLink);
     }
   }
 };
@@ -103,7 +110,7 @@ export default {
 {
   "en": {
     // Clicking on this text displays an App User QR code for configuring ODK Collect.
-    "seeCode": "See code",
+    "showQr": "SHOW QR",
     // This text is shown for an App User whose access has been revoked.
     "accessRevoked": "Access revoked",
     "action": {
@@ -120,77 +127,77 @@ export default {
 <i18n>
 {
   "cs": {
-    "seeCode": "Viz kód",
+    "showQr": "Viz kód",
     "accessRevoked": "Přístup byl zrušen",
     "action": {
       "revokeAccess": "Odebrat přístup"
     }
   },
   "de": {
-    "seeCode": "QR-Code",
+    "showQr": "QR-Code",
     "accessRevoked": "Zugriffsberechtigung zurückgezogen",
     "action": {
       "revokeAccess": "Zugriffsberechtigung entziehen"
     }
   },
   "es": {
-    "seeCode": "Ver código",
+    "showQr": "Ver código",
     "accessRevoked": "Acceso revocado",
     "action": {
       "revokeAccess": "Revocar el acceso"
     }
   },
   "fr": {
-    "seeCode": "Voir le code",
+    "showQr": "Voir le code",
     "accessRevoked": "Accès retiré",
     "action": {
       "revokeAccess": "Retirer l'accès"
     }
   },
   "id": {
-    "seeCode": "Lihat kode",
+    "showQr": "Lihat kode",
     "accessRevoked": "Akses dicabut",
     "action": {
       "revokeAccess": "Cabut akses"
     }
   },
   "it": {
-    "seeCode": "Mostra il codice",
+    "showQr": "Mostra il codice",
     "accessRevoked": "Accesso revocato",
     "action": {
       "revokeAccess": "Revoca l'accesso utente"
     }
   },
   "ja": {
-    "seeCode": "QRコードを表示",
+    "showQr": "QRコードを表示",
     "accessRevoked": "アクセス権の取消済み",
     "action": {
       "revokeAccess": "アクセス権の取消"
     }
   },
   "pt": {
-    "seeCode": "Ver código",
+    "showQr": "Ver código",
     "accessRevoked": "Acesso removido",
     "action": {
       "revokeAccess": "Remover acesso"
     }
   },
   "sw": {
-    "seeCode": "Angalia msimbo",
+    "showQr": "Angalia msimbo",
     "accessRevoked": "Ufikiaji umebatilishwa",
     "action": {
       "revokeAccess": "Batilisha ufikiaji"
     }
   },
   "zh": {
-    "seeCode": "查看代码",
+    "showQr": "查看代码",
     "accessRevoked": "权限已撤销",
     "action": {
       "revokeAccess": "撤销权限"
     }
   },
   "zh-Hant": {
-    "seeCode": "查看 QR code",
+    "showQr": "查看 QR code",
     "accessRevoked": "存取權限被撤銷",
     "action": {
       "revokeAccess": "撤銷存取權限"

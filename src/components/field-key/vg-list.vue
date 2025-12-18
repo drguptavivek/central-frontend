@@ -45,12 +45,17 @@ except according to the terms contained in the LICENSE file.
       <tbody v-if="fieldKeys.dataExists">
         <vg-field-key-row v-for="fieldKey of fieldKeys" :key="fieldKey.id"
           :field-key="fieldKey" :highlighted="highlighted"
+          @toggle-qr="togglePopover"
           @edit="editModal.show({ fieldKey: $event })"
           @revoke="revokeModal.show({ fieldKey: $event })"
           @restore="restoreModal.show({ fieldKey: $event })"
           @reset-password="resetPasswordModal.show({ fieldKey: $event })"/>
       </tbody>
     </table>
+    <popover ref="popover" :target="popover.target" placement="left"
+      @hide="hidePopover">
+      <vg-field-key-qr-panel :field-key="popover.fieldKey" :managed="managed"/>
+    </popover>
     <loading :state="fieldKeys.initiallyLoading"/>
     <p v-if="fieldKeys.dataExists && fieldKeys.length === 0"
       class="empty-table-message">
@@ -74,6 +79,7 @@ except according to the terms contained in the LICENSE file.
 </template>
 
 <script>
+import Popover from '../popover.vue';
 import DocLink from '../doc-link.vue';
 import Loading from '../loading.vue';
 import VgFieldKeyRow from './vg-row.vue';
@@ -82,6 +88,7 @@ import VgFieldKeyEdit from './vg-edit.vue';
 import VgFieldKeyRevoke from './vg-revoke.vue';
 import VgFieldKeyRestore from './vg-restore.vue';
 import VgFieldKeyResetPassword from './vg-reset-password.vue';
+import VgFieldKeyQrPanel from './vg-qr-panel.vue';
 import ProjectSubmissionOptions from '../project/submission-options.vue';
 
 import useRoutes from '../../composables/routes';
@@ -91,6 +98,7 @@ import { useRequestData } from '../../request-data';
 export default {
   name: 'VgFieldKeyList',
   components: {
+    Popover,
     DocLink,
     Loading,
     VgFieldKeyRow,
@@ -99,6 +107,7 @@ export default {
     VgFieldKeyRevoke,
     VgFieldKeyRestore,
     VgFieldKeyResetPassword,
+    VgFieldKeyQrPanel,
     ProjectSubmissionOptions
   },
   inject: ['alert'],
@@ -120,6 +129,10 @@ export default {
       highlighted: null,
       // `true` to show a managed QR code; `false` to show a legacy QR code.
       managed: true,
+      popover: {
+        target: null,
+        fieldKey: null
+      },
       // Modals
       createModal: modalData(),
       editModal: modalData(),
@@ -132,10 +145,42 @@ export default {
   created() {
     this.fetchData(false);
   },
+  mounted() {
+    document.addEventListener('click', this.switchCode);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.switchCode);
+  },
   methods: {
     fetchData(resend) {
       this.$emit('fetch-field-keys', resend);
       this.highlighted = null;
+    },
+    hidePopover() {
+      this.popover.target = null;
+      this.popover.fieldKey = null;
+    },
+    togglePopover(fieldKey, link) {
+      if (this.popover.target == null) {
+        this.popover.target = link;
+        this.popover.fieldKey = fieldKey;
+      } else {
+        this.hidePopover();
+      }
+    },
+    switchCode(event) {
+      if (event.target.closest('.field-key-qr-panel .switch-code') == null)
+        return;
+
+      event.preventDefault();
+      this.managed = !this.managed;
+
+      if (this.popover.target != null) {
+        this.$nextTick(() => {
+          document.querySelector('.popover .field-key-qr-panel .switch-code')
+            .focus();
+        });
+      }
     },
     afterCreate(fieldKey) {
       this.fetchData(true);
