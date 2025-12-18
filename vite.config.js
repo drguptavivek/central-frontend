@@ -32,7 +32,7 @@ const proxyPaths = [
 const devServer = {
   host: true,
   port: 8989,
-  allowedHosts: ['central-dev'],
+  allowedHosts: ['central.local'],
   proxy: Object.fromEntries(proxyPaths.map(path => [path, 'http://localhost:8686'])),
   // Because we proxy to nginx, which itself proxies to Backend and other
   // things, the dev server doesn't need to allow CORS. CORS is already limited

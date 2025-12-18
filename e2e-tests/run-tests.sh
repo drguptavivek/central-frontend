@@ -5,7 +5,7 @@ log() {
 }
 
 # default values
-ODK_DOMAIN="central-dev.localhost"
+ODK_DOMAIN="central.local"
 ODK_PORT="8989"
 ODK_PROTOCOL="http://"
 ODK_USER="alice@example.com"

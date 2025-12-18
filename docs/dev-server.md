@@ -5,7 +5,7 @@ This document outlines how to run the ODK Central Frontend in development mode, 
 ## Prerequisites
 
 -   **Backend**: You must have a running ODK Central Backend. This can be:
-    -   A local Dockerized instance (e.g., running via `make dev` at `https://central-dev` or `http://localhost:8383`).
+    -   A local Dockerized instance (e.g., running via `make dev` at `https://central.local` or `http://localhost:8383`).
     -   A remote server.
 
 ## Option 1: Dockerized Dev Environment (Recommended)
@@ -14,7 +14,7 @@ This option runs the frontend (Vite + Nginx) inside a Docker container. It provi
 
 ### Setup
 1.  Ensure your backend is running.
-2.  If your backend is at `https://central-dev`, ensure `central-dev` is mapped in your `/etc/hosts` or accessible via Docker network.
+2.  If your backend is at `https://central.local`, ensure `central.local` is mapped in your `/etc/hosts` or accessible via Docker network.
 
 ### Running
 Run the `client-dev` service:
@@ -45,13 +45,13 @@ This option runs the frontend directly on your host machine.
 -   **Nginx**: Must be installed on your system (e.g., `brew install nginx`).
 
 ### Configuration
-The local Nginx proxy is configured in `client/main.nginx.conf`. By default, it is set up to proxy API requests to `https://central-dev`.
+The local Nginx proxy is configured in `client/main.nginx.conf`. By default, it is set up to proxy API requests to `https://central.local`.
 
 To change the backend target, edit `client/main.nginx.conf`:
 ```nginx
 location ~ ^/v\d {
   # Change this to your backend URL
-  proxy_pass https://central-dev;
+  proxy_pass https://central.local;
   # ...
 }
 ```

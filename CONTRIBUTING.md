@@ -339,6 +339,6 @@ To learn more about stores and views, see [`/test/data/data-store.js`](/test/dat
 #### E2E Tests
 
 E2E tests can be run using `npm run test:e2e`. These tests assume the full Central stack is running — including central-backend, enketo, pyxform, and postgresql.
-By default, tests run against `http://central-dev.localhost:8989`, but you can override it with `--protocol`, `--domain`, and `--port` CLI options.
+By default, tests run against `http://central.local:8989`, but you can override it with `--protocol`, `--domain`, and `--port` CLI options.
 You can also set a custom `--user` and `--password` from the CLI.
 Finally, add the `--ui` flag to run tests in UI mode, which is useful for debugging.
