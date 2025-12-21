@@ -23,6 +23,23 @@ This repository contains the code for the frontend of ODK Central. The [`central
 
 You can learn more about ODK Central by visiting the [docs](https://docs.getodk.org/central-intro/).
 
+## Fork notes (vg-work)
+
+This repository is a fork of `getodk/central-frontend` used for VG-specific app user authentication and settings features. Customizations are kept modular to make rebasing onto upstream `master` easier.
+
+Key customizations:
+
+- App user auth UI overhaul (username/password, short-lived sessions, secure QR codes).
+- New app user fields and flows (username, phone, reset password, edit app user, restore access).
+- System settings UI for app user session TTL and session cap.
+- Dev environment changes (Dockerized Vite dev container, default domain `central.local`, Vite `allowedHosts` updates).
+- VG-specific components/routes prefixed with `vg-`.
+
+See:
+
+- [`docs/vg_client_changes.md`](docs/vg_client_changes.md) for full customization details.
+- [`docs/vg_core_client_edits.md`](docs/vg_core_client_edits.md) for any edits to upstream core files.
+
 ## Contributing
 
 We need your help to make ODK Central Frontend as useful as possible! Please see the [Contribution Guide](/CONTRIBUTING.md) for detailed information on discussion forums, project policies, code guidelines, and an overview of the software architecture.
