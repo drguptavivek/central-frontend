@@ -1,4 +1,4 @@
-# VG Component: Short-Lived Token App Users
+# VG Fork: Short-Lived Token App Users
 
 This document describes the technical implementation of the "VG App User Auth" system, which introduces username/password authentication and short-lived session tokens for App Users (Field Keys), replacing the legacy long-lived token model.
 
