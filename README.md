@@ -31,7 +31,7 @@ Key customizations:
 
 - App user auth UI overhaul (username/password, short-lived sessions, secure QR codes).
 - New app user fields and flows (username, phone, reset password, edit app user, restore access).
-- System settings UI for app user session TTL and session cap.
+- System settings UI for app user session TTL and session cap (defaults: 3 days, cap 3).
 - Dev environment changes (Dockerized Vite dev container, default domain `central.local`, Vite `allowedHosts` updates).
 - VG-specific components/routes prefixed with `vg-`.
 
