@@ -322,6 +322,32 @@ export default (container) => {
           }
         }),
         asyncRoute({
+          path: 'telemetry',
+          component: 'VgProjectTelemetry',
+          props: true,
+          loading: 'tab',
+          meta: {
+            validateData: {
+              currentUser: () => currentUser.can('config.read')
+            },
+            title: () => [i18n.t('projectShow.tab.telemetry'), project.name],
+            fullWidth: true
+          }
+        }),
+        asyncRoute({
+          path: 'login-history',
+          component: 'VgProjectLoginHistory',
+          props: true,
+          loading: 'tab',
+          meta: {
+            validateData: {
+              project: () => project.permits('field_key.list')
+            },
+            title: () => [i18n.t('projectShow.tab.loginHistory'), project.name],
+            fullWidth: true
+          }
+        }),
+        asyncRoute({
           path: 'form-access',
           component: 'ProjectFormAccess',
           props: true,
@@ -846,6 +872,8 @@ export default (container) => {
     'ProjectOverview',
     'ProjectUserList',
     'FieldKeyList',
+    'VgProjectTelemetry',
+    'VgProjectLoginHistory',
     'ProjectFormAccess',
     'DatasetList',
     'ProjectSettings'

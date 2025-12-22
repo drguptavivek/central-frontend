@@ -16,6 +16,8 @@
   "projectShow": {
     "tab": {
       "formAccess": "Form Access",
+      "telemetry": "Telemetry",
+      "loginHistory": "Login History"
     }
   },
   "formHead": {
@@ -430,6 +432,8 @@
     "no": "No",
     // This is shown if a search returned no results.
     "noResults": "No results",
+    // This is shown for a missing or unavailable value.
+    "notAvailable": "Not available",
     "noUndo": "This action cannot be undone.",
     // @transifexKey field.reviewState
     "reviewState": "Review State",
@@ -448,6 +452,8 @@
     "table": "Table",
     "total": "Total",
     "totalSubmissions": "Total Submissions",
+    // This is shown when an expected value is unknown.
+    "unknown": "Unknown",
     // {inform} is the number of Entity Properties defined by the form.
     // {count} is the total number of Properties. The string will be pluralized based on {count}.
     "propertiesCount": "{inform} of {count} property | {inform} of {count} properties",

@@ -173,6 +173,14 @@ const loaders = new Map()
     /* webpackChunkName: "component-project-form-access" */
     '../components/project/form-access.vue'
   )))
+  .set('VgProjectLoginHistory', loader(() => import(
+    /* webpackChunkName: "component-project-login-history" */
+    '../components/project/vg-login-history.vue'
+  )))
+  .set('VgProjectTelemetry', loader(() => import(
+    /* webpackChunkName: "component-project-telemetry" */
+    '../components/project/vg-telemetry.vue'
+  )))
   .set('ProjectOverview', loader(() => import(
     /* webpackChunkName: "component-project-overview" */
     '../components/project/overview.vue'

@@ -47,6 +47,7 @@ except according to the terms contained in the LICENSE file.
           :field-key="fieldKey" :highlighted="highlighted"
           @toggle-qr="togglePopover"
           @edit="editModal.show({ fieldKey: $event })"
+          @sessions="goToLoginHistory"
           @revoke="revokeModal.show({ fieldKey: $event })"
           @restore="restoreModal.show({ fieldKey: $event })"
           @reset-password="resetPasswordModal.show({ fieldKey: $event })"/>
@@ -94,6 +95,7 @@ import ProjectSubmissionOptions from '../project/submission-options.vue';
 import useRoutes from '../../composables/routes';
 import { modalData } from '../../util/reactivity';
 import { useRequestData } from '../../request-data';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'VgFieldKeyList',
@@ -121,7 +123,8 @@ export default {
   setup() {
     const { fieldKeys } = useRequestData();
     const { projectPath } = useRoutes();
-    return { fieldKeys, projectPath };
+    const router = useRouter();
+    return { fieldKeys, projectPath, router };
   },
   data() {
     return {
@@ -207,6 +210,12 @@ export default {
       this.fetchData(true);
       this.editModal.hide();
       this.highlighted = fieldKey.id;
+    },
+    goToLoginHistory(fieldKey) {
+      this.router.push({
+        path: this.projectPath('login-history'),
+        query: { appUserId: fieldKey.id }
+      });
     }
   }
 };

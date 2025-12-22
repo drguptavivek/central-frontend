@@ -40,6 +40,11 @@ except according to the terms contained in the LICENSE file.
         </button>
         <ul class="dropdown-menu dropdown-menu-right"
           :aria-labelledby="actionsId">
+          <li>
+            <a href="#" @click.prevent="$emit('sessions', fieldKey)">
+              {{ $t('action.loginHistory') }}&hellip;
+            </a>
+          </li>
           <li :class="{ disabled: !fieldKey.active }">
             <a href="#" @click.prevent="$emit('reset-password', fieldKey)">
               {{ $t('action.resetPassword') }}&hellip;
@@ -80,7 +85,7 @@ export default {
     },
     highlighted: Number
   },
-  emits: ['toggle-qr', 'revoke', 'restore', 'reset-password', 'edit'],
+  emits: ['toggle-qr', 'revoke', 'restore', 'reset-password', 'edit', 'sessions'],
   computed: {
     actionsId() {
       return `field-key-row-actions${this.fieldKey.id}`;
@@ -115,6 +120,7 @@ export default {
     "accessRevoked": "Access revoked",
     "action": {
       "revokeAccess": "Revoke access",
+      "loginHistory": "Login History",
       "edit": "Edit details",
       "restoreAccess": "Restore access",
       "resetPassword": "Reset Password"

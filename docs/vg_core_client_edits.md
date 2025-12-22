@@ -217,6 +217,274 @@ in `getodk/central-frontend`. Use it to keep rebases manageable.
        &:hover, &:focus { color: $color-action-background; }
   ```
 
+- Date: 2025-12-22
+  File: src/util/load-async.js
+  Change summary: Register VgProjectTelemetry async component.
+  Reason: Add project telemetry UI under VG namespace.
+  Risk/notes: Low; loader map update only.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/util/load-async.js b/src/util/load-async.js
+  index 92da2ad3..05d8f1c7 100644
+  --- a/src/util/load-async.js
+  +++ b/src/util/load-async.js
+  @@ -155,6 +155,10 @@ const loaders = new Map()
+     .set('ProjectFormAccess', loader(() => import(
+       /* webpackChunkName: "component-project-form-access" */
+       '../components/project/form-access.vue'
+     )))
+  +  .set('VgProjectTelemetry', loader(() => import(
+  +    /* webpackChunkName: "component-project-telemetry" */
+  +    '../components/project/vg-telemetry.vue'
+  +  )))
+     .set('ProjectOverview', loader(() => import(
+       /* webpackChunkName: "component-project-overview" */
+       '../components/project/overview.vue'
+     )))
+  ```
+
+- Date: 2025-12-22
+  File: src/routes.js
+  Change summary: Add /projects/:id/telemetry route gated by config.read.
+  Reason: Surface project telemetry with filters/pagination.
+  Risk/notes: Medium; new route entry and permissions gating.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/routes.js b/src/routes.js
+  index 33f0f1ee..8ea819c8 100644
+  --- a/src/routes.js
+  +++ b/src/routes.js
+  @@ -320,6 +320,19 @@
+             },
+             title: () => [i18n.t('resource.appUsers'), project.name]
+           }
+         }),
+  +      asyncRoute({
+  +        path: 'telemetry',
+  +        component: 'VgProjectTelemetry',
+  +        props: true,
+  +        loading: 'tab',
+  +        meta: {
+  +          validateData: {
+  +            currentUser: () => currentUser.can('config.read')
+  +          },
+  +          title: () => [i18n.t('projectShow.tab.telemetry'), project.name],
+  +          fullWidth: true
+  +        }
+  +      }),
+         asyncRoute({
+           path: 'form-access',
+           component: 'ProjectFormAccess',
+  ```
+
+- Date: 2025-12-22
+  File: src/components/project/show.vue
+  Change summary: Add Telemetry tab in project navigation.
+  Reason: Provide navigation to project telemetry view.
+  Risk/notes: Low; tab visibility depends on route permissions.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/components/project/show.vue b/src/components/project/show.vue
+  index 6a21c0a8..1f2f48d0 100644
+  --- a/src/components/project/show.vue
+  +++ b/src/components/project/show.vue
+  @@ -55,6 +55,11 @@
+           <router-link :to="tabPath('app-users')">
+             {{ $t('resource.appUsers') }}
+           </router-link>
+         </li>
+  +      <li v-if="canRoute(tabPath('telemetry'))" :class="tabClass('telemetry')"
+  +        role="presentation">
+  +        <router-link :to="tabPath('telemetry')">
+  +          {{ $t('projectShow.tab.telemetry') }}
+  +        </router-link>
+  +      </li>
+         <li v-if="canRoute(tabPath('form-access'))"
+           :class="tabClass('form-access')" role="presentation">
+           <router-link :to="tabPath('form-access')">
+  ```
+
+- Date: 2025-12-22
+  File: src/locales/en.json5
+  Change summary: Add telemetry tab label and common “not available/unknown” strings.
+  Reason: Provide English i18n for new telemetry UI and missing value labels.
+  Risk/notes: Low.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/locales/en.json5 b/src/locales/en.json5
+  index 3f012c9a..e0f9db9d 100644
+  --- a/src/locales/en.json5
+  +++ b/src/locales/en.json5
+  @@ -15,7 +15,8 @@
+   "projectShow": {
+     "tab": {
+       "formAccess": "Form Access",
+  +    "telemetry": "Telemetry"
+     }
+   },
+  @@ -426,7 +427,9 @@
+     "no": "No",
+     // This is shown if a search returned no results.
+     "noResults": "No results",
+  +  // This is shown for a missing or unavailable value.
+  +  "notAvailable": "Not available",
+     "noUndo": "This action cannot be undone.",
+  @@ -446,6 +449,8 @@
+     "table": "Table",
+     "total": "Total",
+     "totalSubmissions": "Total Submissions",
+  +  // This is shown when an expected value is unknown.
+  +  "unknown": "Unknown",
+  ```
+
+- Date: 2025-12-22
+  File: src/util/load-async.js
+  Change summary: Register VgProjectLoginHistory async component.
+  Reason: Add project login history UI under VG namespace.
+  Risk/notes: Low; loader map update only.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/util/load-async.js b/src/util/load-async.js
+  index 05d8f1c7..10c9fa21 100644
+  --- a/src/util/load-async.js
+  +++ b/src/util/load-async.js
+  @@ -155,6 +155,10 @@ const loaders = new Map()
+     .set('ProjectFormAccess', loader(() => import(
+       /* webpackChunkName: "component-project-form-access" */
+       '../components/project/form-access.vue'
+     )))
+  +  .set('VgProjectLoginHistory', loader(() => import(
+  +    /* webpackChunkName: "component-project-login-history" */
+  +    '../components/project/vg-login-history.vue'
+  +  )))
+     .set('VgProjectTelemetry', loader(() => import(
+       /* webpackChunkName: "component-project-telemetry" */
+       '../components/project/vg-telemetry.vue'
+     )))
+  ```
+
+- Date: 2025-12-22
+  File: src/routes.js
+  Change summary: Add /projects/:id/login-history route and preserve data between tabs.
+  Reason: Provide project login history tab with filters/pagination.
+  Risk/notes: Medium; new route entry and project-tab preservation.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/routes.js b/src/routes.js
+  index 8ea819c8..21c1e2af 100644
+  --- a/src/routes.js
+  +++ b/src/routes.js
+  @@ -333,6 +333,19 @@
+             title: () => [i18n.t('projectShow.tab.telemetry'), project.name],
+             fullWidth: true
+           }
+         }),
+  +      asyncRoute({
+  +        path: 'login-history',
+  +        component: 'VgProjectLoginHistory',
+  +        props: true,
+  +        loading: 'tab',
+  +        meta: {
+  +          validateData: {
+  +            project: () => project.permits('field_key.list')
+  +          },
+  +          title: () => [i18n.t('projectShow.tab.loginHistory'), project.name],
+  +          fullWidth: true
+  +        }
+  +      }),
+         asyncRoute({
+           path: 'form-access',
+           component: 'ProjectFormAccess',
+  @@ -853,6 +853,7 @@
+    const projectRoutes = [
+      'ProjectOverview',
+      'ProjectUserList',
+      'FieldKeyList',
+      'VgProjectTelemetry',
+  +    'VgProjectLoginHistory',
+      'ProjectFormAccess',
+      'DatasetList',
+      'ProjectSettings'
+    ];
+  ```
+
+- Date: 2025-12-22
+  File: src/components/project/show.vue
+  Change summary: Add Login History tab in project navigation.
+  Reason: Provide navigation to project login history view.
+  Risk/notes: Low; tab visibility depends on route permissions.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/components/project/show.vue b/src/components/project/show.vue
+  index 1f2f48d0..55be9b90 100644
+  --- a/src/components/project/show.vue
+  +++ b/src/components/project/show.vue
+  @@ -60,6 +60,11 @@
+           <router-link :to="tabPath('telemetry')">
+             {{ $t('projectShow.tab.telemetry') }}
+           </router-link>
+         </li>
+  +      <li v-if="canRoute(tabPath('login-history'))" :class="tabClass('login-history')"
+  +        role="presentation">
+  +        <router-link :to="tabPath('login-history')">
+  +          {{ $t('projectShow.tab.loginHistory') }}
+  +        </router-link>
+  +      </li>
+         <li v-if="canRoute(tabPath('form-access'))"
+           :class="tabClass('form-access')" role="presentation">
+           <router-link :to="tabPath('form-access')">
+  ```
+
+- Date: 2025-12-22
+  File: src/locales/en.json5
+  Change summary: Add login history tab label.
+  Reason: Provide English i18n for project login history tab.
+  Risk/notes: Low.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/locales/en.json5 b/src/locales/en.json5
+  index e0f9db9d..3d3c0d1a 100644
+  --- a/src/locales/en.json5
+  +++ b/src/locales/en.json5
+  @@ -15,7 +15,8 @@
+   "projectShow": {
+     "tab": {
+       "formAccess": "Form Access",
+       "telemetry": "Telemetry",
+  +    "loginHistory": "Login History"
+     }
+   },
+  ```
+
+- Date: 2025-12-22
+  File: src/util/request.js
+  Change summary: Add app-user session revoke API path helper.
+  Reason: Support per-session deactivation in login history UI.
+  Risk/notes: Low; helper only.
+  Related commits/PRs: vg-work history
+  Diff:
+  ```diff
+  diff --git a/src/util/request.js b/src/util/request.js
+  index 96d1e5cc..76b2d4e0 100644
+  --- a/src/util/request.js
+  +++ b/src/util/request.js
+  @@ -195,6 +195,8 @@ export const apiPaths = {
+     projectAppUserSessions: (projectId, query = undefined) =>
+       `/v1/projects/${projectId}/app-users/sessions${queryString(query)}`,
+  +  projectAppUserSessionRevoke: (projectId, sessionId) =>
+  +    `/v1/projects/${projectId}/app-users/sessions/${sessionId}/revoke`,
+     systemAppUserTelemetry: (query = undefined) =>
+       `/v1/system/app-users/telemetry${queryString(query)}`,
+  ```
+
 - Date: 2025-12-21
   File: src/container/alerts.js
   Change summary: Pass explicit toast types for success/info.
@@ -1978,4 +2246,3 @@ in `getodk/central-frontend`. Use it to keep rebases manageable.
      // Because we proxy to nginx, which itself proxies to Backend and other
      // things, the dev server doesn't need to allow CORS. CORS is already limited
   ```
-

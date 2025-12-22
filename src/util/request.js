@@ -192,6 +192,14 @@ export const apiPaths = {
   fieldKeyResetPassword: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/password/reset`,
   fieldKeyRevoke: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/revoke-admin`,
   fieldKeyActive: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/active`,
+  fieldKeySessions: (projectId, id, query = undefined) =>
+    `/v1/projects/${projectId}/app-users/${id}/sessions${queryString(query)}`,
+  projectAppUserSessions: (projectId, query = undefined) =>
+    `/v1/projects/${projectId}/app-users/sessions${queryString(query)}`,
+  projectAppUserSessionRevoke: (projectId, sessionId) =>
+    `/v1/projects/${projectId}/app-users/sessions/${sessionId}/revoke`,
+  systemAppUserTelemetry: (query = undefined) =>
+    `/v1/system/app-users/telemetry${queryString(query)}`,
   serverUrlForFieldKey: (token, projectId) =>
     `/v1/key/${token}/projects/${projectId}`,
   audits: (query) => `/v1/audits${queryString(query)}`,
