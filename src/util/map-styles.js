@@ -49,36 +49,14 @@ const styleStroke = (width, color, fillColor = undefined) => {
 };
 
 export const getStyles = () => [
-  // Unselected Point with custom color (telemetry markers)
+  // Unselected Point
   {
-    filter: all(geometryType('Point'), not(isCluster), ne(getId, selectedId), ['has', 'markerColor']),
-    style: {
-      'circle-radius': 10,
-      'circle-fill-color': ['get', 'markerColor'],
-      'circle-stroke-color': '#fff',
-      'circle-stroke-width': 2,
-      'circle-displacement': [0, 0]
-    }
-  },
-  // Selected Point with custom color
-  {
-    filter: all(geometryType('Point'), eq(getId, selectedId), ['has', 'markerColor']),
-    style: {
-      'circle-radius': 15,
-      'circle-fill-color': ['get', 'markerColor'],
-      'circle-stroke-color': '#fff',
-      'circle-stroke-width': 3,
-      'circle-displacement': [0, 0]
-    }
-  },
-  // Unselected Point (default icon - for submissions, entities, etc.)
-  {
-    filter: all(geometryType('Point'), not(isCluster), ne(getId, selectedId), not(['has', 'markerColor'])),
+    filter: all(geometryType('Point'), not(isCluster), ne(getId, selectedId)),
     style: styleIcon(40)
   },
-  // Selected Point (default icon)
+  // Selected Point
   {
-    filter: all(geometryType('Point'), eq(getId, selectedId), not(['has', 'markerColor'])),
+    filter: all(geometryType('Point'), eq(getId, selectedId)),
     style: [styleCircle(30, 0.2), styleIcon(50)]
   },
 
