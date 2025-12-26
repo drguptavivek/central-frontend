@@ -176,6 +176,8 @@ export default {
         type: 'FeatureCollection',
         features: this.telemetry
           .filter(t => t.location && t.location.latitude != null && t.location.longitude != null)
+          // Filter out 0,0 coordinates (null island - invalid location data)
+          .filter(t => !(t.location.latitude === 0 && t.location.longitude === 0))
           .map(t => ({
             type: 'Feature',
             id: `telemetry-${t.id}`,
