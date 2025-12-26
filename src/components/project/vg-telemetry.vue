@@ -41,7 +41,9 @@ except according to the terms contained in the LICENSE file.
         </button>
       </div>
     </form>
-    <table v-if="telemetry.length !== 0" class="table">
+    <radio-field v-model="dataView" :options="viewOptions"
+      :button-appearance="true"/>
+    <table v-if="dataView === 'table' && telemetry.length !== 0" class="table">
       <thead>
         <tr>
           <th>{{ $t('header.receivedAt') }}</th>
@@ -68,10 +70,16 @@ except according to the terms contained in the LICENSE file.
         </tr>
       </tbody>
     </table>
-    <p v-else-if="!initiallyLoading" class="empty-table-message">
+    <vg-telemetry-map-view v-else-if="dataView === 'map' && geojsonData != null"
+      :geojson-data="geojsonData" :app-users="appUsers"/>
+    <p v-else-if="!initiallyLoading && telemetry.length === 0" class="empty-table-message">
       {{ $t('emptyTable') }}
     </p>
-    <pagination v-if="totalCount > 0" v-model:page="pagination.page"
+    <p v-else-if="!initiallyLoading && dataView === 'map' && (geojsonData == null || geojsonData.features.length === 0)"
+       class="empty-table-message">
+      {{ $t('emptyMap') }}
+    </p>
+    <pagination v-if="dataView === 'table' && totalCount > 0" v-model:page="pagination.page"
       v-model:size="pagination.size" :count="totalCount"
       :size-options="pageSizeOptions" :spinner="awaitingResponse"/>
   </div>
@@ -82,7 +90,10 @@ import DateTime from '../date-time.vue';
 import FormGroup from '../form-group.vue';
 import Loading from '../loading.vue';
 import Pagination from '../pagination.vue';
+import RadioField from '../radio-field.vue';
+import VgTelemetryMapView from './vg-telemetry-map-view.vue';
 
+import useDataView from '../../composables/data-view';
 import useRequest from '../../composables/request';
 import { useRequestData } from '../../request-data';
 import { apiPaths } from '../../util/request';
@@ -100,7 +111,9 @@ export default {
     DateTime,
     FormGroup,
     Loading,
-    Pagination
+    Pagination,
+    RadioField,
+    VgTelemetryMapView
   },
   props: {
     projectId: {
@@ -112,7 +125,8 @@ export default {
   setup() {
     const { fieldKeys } = useRequestData();
     const { request, awaitingResponse } = useRequest();
-    return { fieldKeys, request, awaitingResponse };
+    const { dataView, options: viewOptions } = useDataView();
+    return { fieldKeys, request, awaitingResponse, dataView, viewOptions };
   },
   data() {
     return {
@@ -149,6 +163,32 @@ export default {
       return (this.fieldKeys != null && this.fieldKeys.dataExists)
         ? this.fieldKeys
         : [];
+    },
+    geojsonData() {
+      if (!this.telemetry || this.telemetry.length === 0) return null;
+
+      return {
+        type: 'FeatureCollection',
+        features: this.telemetry
+          .filter(t => t.location && t.location.latitude != null && t.location.longitude != null)
+          .map(t => ({
+            type: 'Feature',
+            id: `telemetry-${t.id}`,
+            geometry: {
+              type: 'Point',
+              coordinates: [t.location.longitude, t.location.latitude]
+            },
+            properties: {
+              id: t.id,
+              deviceId: t.deviceId,
+              appUserId: t.appUserId,
+              collectVersion: t.collectVersion,
+              deviceDateTime: t.deviceDateTime,
+              dateTime: t.dateTime,
+              location: t.location
+            }
+          }))
+      };
     }
   },
   methods: {
@@ -245,7 +285,8 @@ export default {
       "collectVersion": "Collect Version",
       "location": "Location"
     },
-    "emptyTable": "No telemetry found for this project."
+    "emptyTable": "No telemetry found for this project.",
+    "emptyMap": "No telemetry with location data found for these filters."
   }
 }
 </i18n>
