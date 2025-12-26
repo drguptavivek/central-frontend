@@ -11,14 +11,6 @@ except according to the terms contained in the LICENSE file.
 -->
 <template>
   <div id="telemetry-map-view" ref="el" style="min-height: 600px;">
-    <p style="font-size: 12px; color: #666;">
-      Debug: Map component mounted, data={{geojsonData ? 'present' : 'null'}},
-      features={{geojsonData ? geojsonData.features.length : 0}}
-    </p>
-    <details style="font-size: 11px; margin: 10px 0;">
-      <summary>View GeoJSON data</summary>
-      <pre>{{ JSON.stringify(geojsonData, null, 2) }}</pre>
-    </details>
     <div style="height: 600px;">
       <geojson-map ref="map" :data="geojsonData" :sizer="() => 600"
         @selection-changed="selectionChanged"/>

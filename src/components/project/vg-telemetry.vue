@@ -43,11 +43,6 @@ except according to the terms contained in the LICENSE file.
     </form>
     <radio-field v-model="dataView" :options="viewOptions"
       :button-appearance="true"/>
-    <!-- Debug: show telemetry and geojson counts -->
-    <p v-if="dataView === 'map'" style="font-size: 12px; color: #666;">
-      Debug: {{ telemetry.length }} telemetry records,
-      {{ geojsonData ? geojsonData.features.length : 0 }} with location data
-    </p>
     <table v-if="dataView === 'table' && telemetry.length !== 0" class="table">
       <thead>
         <tr>
