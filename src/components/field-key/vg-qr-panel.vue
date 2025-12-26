@@ -105,36 +105,20 @@ export default {
       settings.general.server_url = `${window.location.origin}/v1/projects/${this.project.id}`;
 
       if (this.managed) {
-        // Form management settings
+        // Essential form management settings for managed mode
         settings.general.form_update_mode = 'match_exactly';
-        settings.general.autosend = 'wifi_and_cellular';
         settings.general.automatic_update = true;
-        settings.general.periodic_form_updates_check = 'every_one_hour';
         settings.general.delete_send = false;
         settings.general.default_completed = false;
-        settings.general.guidance_hint = 'yes';
-        settings.general.external_app_recording = true;
         settings.general.analytics = true;
 
-        // Set metadata username to app user ID
-        const userId = this.fieldKey ? this.fieldKey.id : (this.username || '');
-        settings.general.metadata_username = userId.toString();
+        // Set metadata username to app user's full name
+        const appUserName = this.fieldKey ? this.fieldKey.displayName : (this.username || '');
+        settings.general.metadata_username = appUserName;
 
-        // Admin controls - lock down critical features
+        // Lock down server URL changes
         settings.admin = {
-          get_blank: false,
-          change_server: false,
-          autosend: 'wifi_and_cellular',
-          automatic_update: false,
-          edit_saved: true,
-          send_finalized: true,
-          view_sent: true,
-          delete_saved: true,
-          save_mid: true,
-          change_app_theme: true,
-          change_app_language: true,
-          change_font_size: true,
-          access_settings: true
+          change_server: false
         };
       }
       return settings;
