@@ -14,6 +14,7 @@ except according to the terms contained in the LICENSE file.
     <vg-telemetry-simple-map
       :geojson-data="geojsonData"
       :height="600"
+      :app-users="appUsers"
       @feature-click="handleFeatureClick"/>
     <vg-telemetry-map-popup :telemetry-id="selectedTelemetryId"
       :feature="selectedFeature" :app-users="appUsers"

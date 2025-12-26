@@ -10,11 +10,18 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 <template>
-  <div ref="mapContainer" class="telemetry-simple-map" :style="{height: height + 'px'}"></div>
+  <div class="telemetry-map-wrapper">
+    <div ref="mapContainer" class="telemetry-simple-map" :style="{height: height + 'px'}"></div>
+    <div ref="tooltipElement" class="telemetry-tooltip" v-show="tooltip.visible">
+      <div><strong>{{ tooltip.user }}</strong></div>
+      <div>Device: {{ tooltip.device }}</div>
+      <div>{{ tooltip.dateTime }}</div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { onMounted, watch, useTemplateRef } from 'vue';
+import { onMounted, watch, useTemplateRef, reactive } from 'vue';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -22,6 +29,7 @@ import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import OSM from 'ol/source/OSM';
 import GeoJSON from 'ol/format/GeoJSON';
+import Overlay from 'ol/Overlay';
 import { Style, Icon, Circle, Fill, Stroke } from 'ol/style';
 import { fromLonLat } from 'ol/proj';
 
@@ -37,14 +45,36 @@ const props = defineProps({
   height: {
     type: Number,
     default: 600
+  },
+  appUsers: {
+    type: Array,
+    default: () => []
   }
 });
 
-const emit = defineEmits(['feature-click']);
-
 const mapContainer = useTemplateRef('mapContainer');
+const tooltipElement = useTemplateRef('tooltipElement');
 let map = null;
 let vectorSource = null;
+let tooltipOverlay = null;
+
+const tooltip = reactive({
+  visible: false,
+  user: '',
+  device: '',
+  dateTime: ''
+});
+
+const formatDateTime = (isoString) => {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  return date.toLocaleString();
+};
+
+const getAppUserName = (appUserId) => {
+  const user = props.appUsers.find(u => u.id === appUserId);
+  return user?.displayName || 'Unknown';
+};
 
 onMounted(() => {
   // Create vector source
@@ -78,6 +108,14 @@ onMounted(() => {
     }
   });
 
+  // Create tooltip overlay
+  tooltipOverlay = new Overlay({
+    element: tooltipElement.value,
+    positioning: 'bottom-center',
+    stopEvent: false,
+    offset: [0, -15]
+  });
+
   // Create map
   map = new Map({
     target: mapContainer.value,
@@ -88,14 +126,33 @@ onMounted(() => {
     view: new View({
       center: fromLonLat([0, 0]),
       zoom: 2
-    })
+    }),
+    overlays: [tooltipOverlay]
   });
 
-  // Add click handler
-  map.on('click', (evt) => {
+  // Add hover handler
+  map.on('pointermove', (evt) => {
     const feature = map.forEachFeatureAtPixel(evt.pixel, (f) => f);
+
     if (feature) {
-      emit('feature-click', feature);
+      // Show tooltip
+      const appUserId = feature.get('appUserId');
+      const deviceId = feature.get('deviceId');
+      const dateTime = feature.get('dateTime');
+
+      tooltip.user = getAppUserName(appUserId);
+      tooltip.device = deviceId || 'Unknown';
+      tooltip.dateTime = formatDateTime(dateTime);
+      tooltip.visible = true;
+
+      tooltipOverlay.setPosition(evt.coordinate);
+
+      // Change cursor to pointer
+      map.getTargetElement().style.cursor = 'pointer';
+    } else {
+      // Hide tooltip
+      tooltip.visible = false;
+      map.getTargetElement().style.cursor = '';
     }
   });
 
@@ -131,6 +188,10 @@ watch(() => props.geojsonData, () => {
 </script>
 
 <style lang="scss">
+.telemetry-map-wrapper {
+  position: relative;
+}
+
 .telemetry-simple-map {
   width: 100%;
   min-height: 400px;
@@ -139,6 +200,41 @@ watch(() => props.geojsonData, () => {
     top: 0.5em;
     left: auto;
     right: 0.5em;
+  }
+}
+
+.telemetry-tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+
+  strong {
+    font-weight: 600;
+  }
+
+  div {
+    margin: 2px 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid rgba(0, 0, 0, 0.85);
   }
 }
 </style>
