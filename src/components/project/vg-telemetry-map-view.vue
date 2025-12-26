@@ -70,6 +70,10 @@ const hidePopup = () => {
 
 <style lang="scss">
 #telemetry-map-view {
-  // Inherits styles from geojson-map component
+  min-height: 500px;
+
+  .geojson-map {
+    min-height: 500px;
+  }
 }
 </style>
