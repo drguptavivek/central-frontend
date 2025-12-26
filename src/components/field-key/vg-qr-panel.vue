@@ -86,8 +86,13 @@ export default {
     password: String
   },
   setup() {
-    const { project } = useRequestData();
-    return { project };
+    const { project, systemSettings } = useRequestData();
+    return { project, systemSettings };
+  },
+  created() {
+    if (!this.systemSettings.dataExists) {
+      this.systemSettings.request({ url: '/v1/system/settings' });
+    }
   },
   computed: {
     settings() {
@@ -122,9 +127,13 @@ export default {
         const appUserName = this.fieldKey ? this.fieldKey.displayName : (this.username || '');
         settings.general.metadata_username = appUserName;
 
-        // Lock down server URL changes
+        // Lock down server URL changes and include admin password
+        const adminPw = this.systemSettings.dataExists
+          ? this.systemSettings.data.admin_pw || 'vg_custom'
+          : 'vg_custom';
         settings.admin = {
-          change_server: false
+          change_server: false,
+          admin_pw: adminPw
         };
       }
       return settings;

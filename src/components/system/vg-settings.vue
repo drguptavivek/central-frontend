@@ -9,6 +9,8 @@
         :placeholder="$t('vgSettings.ttl')" autocomplete="off"/>
       <form-group v-model.number="cap" type="number" min="1" required
         :placeholder="$t('vgSettings.cap')" autocomplete="off"/>
+      <form-group v-model="adminPw" required
+        :placeholder="$t('vgSettings.adminPw')" autocomplete="off"/>
       <button type="submit" class="btn btn-primary" :aria-disabled="awaitingResponse">
         {{ $t('action.saveSettings') }} <spinner :state="awaitingResponse"/>
       </button>
@@ -35,7 +37,8 @@ export default {
   data() {
     return {
       ttl: 3,
-      cap: 3
+      cap: 3,
+      adminPw: 'vg_custom'
     };
   },
   created() {
@@ -49,6 +52,7 @@ export default {
             // console.log('Settings data:', data);
             this.ttl = data.vg_app_user_session_ttl_days ?? 3;
             this.cap = data.vg_app_user_session_cap ?? 2;
+            this.adminPw = data.admin_pw ?? 'vg_custom';
           });
         }
       },
@@ -69,7 +73,8 @@ export default {
         url: '/v1/system/settings',
         data: {
           vg_app_user_session_ttl_days: this.ttl,
-          vg_app_user_session_cap: this.cap
+          vg_app_user_session_cap: this.cap,
+          admin_pw: this.adminPw
         }
       })
       .then(() => {
@@ -96,7 +101,8 @@ export default {
     "vgSettings": {
       "heading": "Configure App User Session Settings",
       "ttl": "Session TTL (Days)",
-      "cap": "Max Sessions per User"
+      "cap": "Max Sessions per User",
+      "adminPw": "Admin Password (for ODK Collect settings)"
     }
   }
 }
