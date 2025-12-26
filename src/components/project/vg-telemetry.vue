@@ -161,7 +161,7 @@ export default {
   computed: {
     appUsers() {
       return (this.fieldKeys != null && this.fieldKeys.dataExists)
-        ? this.fieldKeys
+        ? Array.from(this.fieldKeys)
         : [];
     },
     geojsonData() {
