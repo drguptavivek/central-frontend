@@ -74,12 +74,14 @@ except according to the terms contained in the LICENSE file.
       @success="afterRevoke"/>
     <vg-field-key-restore v-bind="restoreModal" @hide="restoreModal.hide()"
       @success="afterRestore"/>
-    <vg-field-key-reset-password v-bind="resetPasswordModal" @hide="resetPasswordModal.hide()"
-      @success="afterResetPassword"/>
+    <vg-field-key-reset-password v-bind="resetPasswordModal" :managed="managed"
+      @hide="resetPasswordModal.hide()" @success="afterResetPassword"/>
   </div>
 </template>
 
 <script>
+import { useRouter } from 'vue-router';
+
 import Popover from '../popover.vue';
 import DocLink from '../doc-link.vue';
 import Loading from '../loading.vue';
@@ -95,7 +97,6 @@ import ProjectSubmissionOptions from '../project/submission-options.vue';
 import useRoutes from '../../composables/routes';
 import { modalData } from '../../util/reactivity';
 import { useRequestData } from '../../request-data';
-import { useRouter } from 'vue-router';
 
 export default {
   name: 'VgFieldKeyList',

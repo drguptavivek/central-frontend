@@ -74,7 +74,6 @@ import DocLink from '../doc-link.vue';
 import QrPanel from '../qr-panel.vue';
 import SentenceSeparator from '../sentence-separator.vue';
 
-import { apiPaths } from '../../util/request';
 import { useRequestData } from '../../request-data';
 
 export default {
@@ -92,30 +91,51 @@ export default {
   },
   computed: {
     settings() {
-      let url;
       const settings = {
         general: {},
-        project: { name: this.project.name },
+        project: {
+          name: this.project.name,
+          project_id: this.project.id.toString()
+        },
         // Collect requires the settings to have an `admin` property.
         admin: {}
       };
 
-      if (this.username && this.password) {
-        url = `/v1/projects/${this.project.id}`;
-        settings.general.server_url = `${window.location.origin}${url}`;
-        // settings.general.username = this.username;
-        // settings.general.password = this.password;
-      } else if (this.fieldKey && this.fieldKey.token) {
-        url = apiPaths.serverUrlForFieldKey(
-          this.fieldKey.token,
-          this.project.id
-        );
-        settings.general.server_url = `${window.location.origin}${url}`;
-      }
+      // Set server URL with project path
+      settings.general.server_url = `${window.location.origin}/v1/projects/${this.project.id}`;
 
       if (this.managed) {
+        // Form management settings
         settings.general.form_update_mode = 'match_exactly';
         settings.general.autosend = 'wifi_and_cellular';
+        settings.general.automatic_update = true;
+        settings.general.periodic_form_updates_check = 'every_one_hour';
+        settings.general.delete_send = false;
+        settings.general.default_completed = false;
+        settings.general.guidance_hint = 'yes';
+        settings.general.external_app_recording = true;
+        settings.general.analytics = true;
+
+        // Set metadata username to app user ID
+        const userId = this.fieldKey ? this.fieldKey.id : (this.username || '');
+        settings.general.metadata_username = userId.toString();
+
+        // Admin controls - lock down critical features
+        settings.admin = {
+          get_blank: false,
+          change_server: false,
+          autosend: 'wifi_and_cellular',
+          automatic_update: false,
+          edit_saved: true,
+          send_finalized: true,
+          view_sent: true,
+          delete_saved: true,
+          save_mid: true,
+          change_app_theme: true,
+          change_app_language: true,
+          change_font_size: true,
+          access_settings: true
+        };
       }
       return settings;
     }
