@@ -10,7 +10,7 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 <template>
-  <div id="telemetry-map-view" ref="el">
+  <div id="telemetry-map-view" ref="el" style="min-height: 600px;">
     <p style="font-size: 12px; color: #666;">
       Debug: Map component mounted, data={{geojsonData ? 'present' : 'null'}},
       features={{geojsonData ? geojsonData.features.length : 0}}
@@ -19,8 +19,10 @@ except according to the terms contained in the LICENSE file.
       <summary>View GeoJSON data</summary>
       <pre>{{ JSON.stringify(geojsonData, null, 2) }}</pre>
     </details>
-    <geojson-map ref="map" :data="geojsonData" :sizer="sizeMap"
-      @selection-changed="selectionChanged"/>
+    <div style="height: 600px;">
+      <geojson-map ref="map" :data="geojsonData" :sizer="() => 600"
+        @selection-changed="selectionChanged"/>
+    </div>
     <vg-telemetry-map-popup :telemetry-id="selectedTelemetryId"
       :feature="selectedFeature" :app-users="appUsers"
       @hide="hidePopup"/>
