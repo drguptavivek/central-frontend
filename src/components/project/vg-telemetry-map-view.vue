@@ -10,11 +10,11 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 <template>
-  <div id="telemetry-map-view" ref="el" style="min-height: 600px;">
-    <div style="height: 600px;">
-      <geojson-map ref="map" :data="geojsonData" :sizer="() => 600"
-        @selection-changed="selectionChanged"/>
-    </div>
+  <div id="telemetry-map-view" ref="el">
+    <vg-telemetry-simple-map
+      :geojson-data="geojsonData"
+      :height="600"
+      @feature-click="handleFeatureClick"/>
     <vg-telemetry-map-popup :telemetry-id="selectedTelemetryId"
       :feature="selectedFeature" :app-users="appUsers"
       @hide="hidePopup"/>
@@ -22,12 +22,10 @@ except according to the terms contained in the LICENSE file.
 </template>
 
 <script setup>
-import { shallowRef, useTemplateRef } from 'vue';
+import { shallowRef } from 'vue';
 
-import GeojsonMap from '../geojson-map.vue';
+import VgTelemetrySimpleMap from './vg-telemetry-simple-map.vue';
 import VgTelemetryMapPopup from './vg-telemetry-map-popup.vue';
-
-import { styleBox } from '../../util/dom';
 
 defineOptions({
   name: 'VgTelemetryMapView'
@@ -44,27 +42,23 @@ const props = defineProps({
   }
 });
 
-const el = useTemplateRef('el');
-// Stretches the map to the bottom of the screen.
-const sizeMap = () => {
-  const rect = el.value.getBoundingClientRect();
-  if (rect.height === 0) return '';
-  const section = el.value.closest('.page-section');
-  const { marginBottom } = styleBox(getComputedStyle(section));
-  return document.documentElement.clientHeight - rect.top - marginBottom;
-};
-
 const selectedFeature = shallowRef(null);
 const selectedTelemetryId = shallowRef(null);
 
-const selectionChanged = (feature) => {
-  selectedFeature.value = feature;
-  selectedTelemetryId.value = feature != null ? feature.id : null;
+const handleFeatureClick = (feature) => {
+  if (!feature) return;
+
+  // Convert OpenLayers feature to a simple object with properties
+  selectedFeature.value = {
+    id: feature.getId(),
+    properties: feature.getProperties()
+  };
+  selectedTelemetryId.value = feature.getId();
 };
 
-const map = useTemplateRef('map');
 const hidePopup = () => {
-  map.value.selectFeature(null);
+  selectedFeature.value = null;
+  selectedTelemetryId.value = null;
 };
 </script>
 

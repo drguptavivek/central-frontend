@@ -176,25 +176,29 @@ export default {
           .filter(t => t.location && t.location.latitude != null && t.location.longitude != null)
           // Filter out 0,0 coordinates (null island - invalid location data)
           .filter(t => !(t.location.latitude === 0 && t.location.longitude === 0))
-          .map(t => ({
-            type: 'Feature',
-            id: `telemetry-${t.id}`,
-            geometry: {
-              type: 'Point',
-              coordinates: [t.location.longitude, t.location.latitude]
-            },
-            properties: {
-              id: t.id,
-              deviceId: t.deviceId,
-              appUserId: t.appUserId,
-              collectVersion: t.collectVersion,
-              deviceDateTime: t.deviceDateTime,
-              dateTime: t.dateTime,
-              location: t.location,
-              // Add color based on app user
-              markerColor: userColors[t.appUserId] || '#3388ff'
-            }
-          }))
+          .map(t => {
+            const color = userColors[t.appUserId] || '#3388ff';
+            return {
+              type: 'Feature',
+              id: `telemetry-${t.id}`,
+              geometry: {
+                type: 'Point',
+                coordinates: [t.location.longitude, t.location.latitude]
+              },
+              properties: {
+                id: t.id,
+                deviceId: t.deviceId,
+                appUserId: t.appUserId,
+                collectVersion: t.collectVersion,
+                deviceDateTime: t.deviceDateTime,
+                dateTime: t.dateTime,
+                location: t.location,
+                // Add color and icon for user-specific styling
+                markerColor: color,
+                markerIcon: this.createColoredMarkerIcon(color)
+              }
+            };
+          })
       };
     }
   },
@@ -230,6 +234,14 @@ export default {
       });
 
       return userColors;
+    },
+    createColoredMarkerIcon(color) {
+      // Create an SVG circle marker with the specified color
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8" fill="${color}" stroke="white" stroke-width="2"/>
+      </svg>`;
+      // Convert to data URI
+      return `data:image/svg+xml;base64,${btoa(svg)}`;
     },
     applyFilters() {
       this.fetchTelemetry(true);
