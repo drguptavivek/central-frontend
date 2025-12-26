@@ -113,6 +113,8 @@ const appUserName = computed(() => {
 @import '../../assets/scss/variables';
 
 #telemetry-map-popup {
+  z-index: 1000;
+
   dl:first-of-type {
     padding-bottom: $padding-block-dl;
     border-bottom: $border-bottom-dl;
