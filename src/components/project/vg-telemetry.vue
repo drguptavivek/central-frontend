@@ -167,6 +167,9 @@ export default {
     geojsonData() {
       if (!this.telemetry || this.telemetry.length === 0) return null;
 
+      // Generate colors for each unique app user
+      const userColors = this.getUserColors();
+
       return {
         type: 'FeatureCollection',
         features: this.telemetry
@@ -187,13 +190,47 @@ export default {
               collectVersion: t.collectVersion,
               deviceDateTime: t.deviceDateTime,
               dateTime: t.dateTime,
-              location: t.location
+              location: t.location,
+              // Add color based on app user
+              markerColor: userColors[t.appUserId] || '#3388ff'
             }
           }))
       };
     }
   },
   methods: {
+    getUserColors() {
+      // Color palette for different users (distinct, accessible colors)
+      const colorPalette = [
+        '#e41a1c', // red
+        '#377eb8', // blue
+        '#4daf4a', // green
+        '#984ea3', // purple
+        '#ff7f00', // orange
+        '#ffff33', // yellow
+        '#a65628', // brown
+        '#f781bf', // pink
+        '#999999', // gray
+        '#1b9e77', // teal
+        '#d95f02', // dark orange
+        '#7570b3', // light purple
+        '#e7298a', // magenta
+        '#66a61e', // olive
+        '#e6ab02', // gold
+        '#a6761d'  // tan
+      ];
+
+      // Get unique app user IDs from telemetry
+      const uniqueUserIds = [...new Set(this.telemetry.map(t => t.appUserId))];
+
+      // Assign a color to each user
+      const userColors = {};
+      uniqueUserIds.forEach((userId, index) => {
+        userColors[userId] = colorPalette[index % colorPalette.length];
+      });
+
+      return userColors;
+    },
     applyFilters() {
       this.fetchTelemetry(true);
     },
