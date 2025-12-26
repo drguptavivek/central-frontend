@@ -28,11 +28,11 @@ except according to the terms contained in the LICENSE file.
 </template>
 
 <script setup>
-import { defineAsyncComponent, shallowRef, useTemplateRef } from 'vue';
+import { shallowRef, useTemplateRef } from 'vue';
 
+import GeojsonMap from '../geojson-map.vue';
 import VgTelemetryMapPopup from './vg-telemetry-map-popup.vue';
 
-import { loadAsync } from '../../util/load-async';
 import { styleBox } from '../../util/dom';
 
 defineOptions({
@@ -49,8 +49,6 @@ const props = defineProps({
     default: () => []
   }
 });
-
-const GeojsonMap = defineAsyncComponent(loadAsync('GeojsonMap'));
 
 const el = useTemplateRef('el');
 // Stretches the map to the bottom of the screen.
