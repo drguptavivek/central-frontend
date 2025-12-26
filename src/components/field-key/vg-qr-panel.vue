@@ -104,6 +104,12 @@ export default {
       // Set server URL with project path
       settings.general.server_url = `${window.location.origin}/v1/projects/${this.project.id}`;
 
+      // Add username (from fieldKey or passed as prop)
+      const username = this.username || (this.fieldKey && this.fieldKey.username) || '';
+      if (username) {
+        settings.general.username = username;
+      }
+
       if (this.managed) {
         // Essential form management settings for managed mode
         settings.general.form_update_mode = 'match_exactly';
