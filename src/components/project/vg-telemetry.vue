@@ -51,6 +51,7 @@ except according to the terms contained in the LICENSE file.
           <th>{{ $t('header.appUser') }}</th>
           <th>{{ $t('header.deviceId') }}</th>
           <th>{{ $t('header.collectVersion') }}</th>
+          <th>{{ $t('header.event') }}</th>
           <th>{{ $t('header.location') }}</th>
         </tr>
       </thead>
@@ -61,6 +62,23 @@ except according to the terms contained in the LICENSE file.
           <td>{{ appUserName(row.appUserId) }}</td>
           <td>{{ row.deviceId }}</td>
           <td>{{ row.collectVersion }}</td>
+          <td class="event">
+            <template v-if="row.event">
+              <div class="event-type" v-tooltip.text>{{ row.event.type }}</div>
+              <div class="event-meta">
+                <span class="event-id" v-tooltip.text>{{ eventId(row) }}</span>
+                <span v-if="row.event.occurredAt">
+                  &middot; <date-time :iso="row.event.occurredAt"/>
+                </span>
+              </div>
+            </template>
+            <template v-else-if="row.clientEventId">
+              <div class="event-meta">
+                <span class="event-id" v-tooltip.text>{{ row.clientEventId }}</span>
+              </div>
+            </template>
+            <template v-else>{{ $t('common.notAvailable') }}</template>
+          </td>
           <td class="location">
             <template v-if="row.location">
               {{ row.location.latitude }}, {{ row.location.longitude }}
@@ -192,6 +210,8 @@ export default {
                 collectVersion: t.collectVersion,
                 deviceDateTime: t.deviceDateTime,
                 dateTime: t.dateTime,
+                clientEventId: t.clientEventId,
+                event: t.event,
                 location: t.location,
                 // Add color and icon for user-specific styling
                 markerColor: color,
@@ -234,6 +254,9 @@ export default {
       });
 
       return userColors;
+    },
+    eventId(row) {
+      return row?.event?.id ?? row?.clientEventId ?? null;
     },
     createColoredMarkerIcon(color) {
       // Create an SVG circle marker with the specified color
@@ -310,6 +333,15 @@ export default {
   .location {
     white-space: nowrap;
   }
+
+  .event {
+    min-width: 180px;
+  }
+
+  .event-meta {
+    color: #666;
+    font-size: 12px;
+  }
 }
 </style>
 
@@ -334,6 +366,7 @@ export default {
       "appUser": "App User",
       "deviceId": "Device ID",
       "collectVersion": "Collect Version",
+      "event": "Event",
       "location": "Location"
     },
     "emptyTable": "No telemetry found for this project.",

@@ -16,6 +16,7 @@ except according to the terms contained in the LICENSE file.
       <div><strong>{{ tooltip.user }}</strong></div>
       <div>Device: {{ tooltip.device }}</div>
       <div>{{ tooltip.dateTime }}</div>
+      <div v-if="tooltip.eventType">Event: {{ tooltip.eventType }}</div>
     </div>
   </div>
 </template>
@@ -62,7 +63,8 @@ const tooltip = reactive({
   visible: false,
   user: '',
   device: '',
-  dateTime: ''
+  dateTime: '',
+  eventType: ''
 });
 
 const formatDateTime = (isoString) => {
@@ -139,10 +141,14 @@ onMounted(() => {
       const appUserId = feature.get('appUserId');
       const deviceId = feature.get('deviceId');
       const dateTime = feature.get('dateTime');
+      const event = feature.get('event');
 
       tooltip.user = getAppUserName(appUserId);
       tooltip.device = deviceId || 'Unknown';
       tooltip.dateTime = formatDateTime(dateTime);
+      tooltip.eventType = (event && typeof event === 'object')
+        ? (event.type || '')
+        : '';
       tooltip.visible = true;
 
       tooltipOverlay.setPosition(evt.coordinate);

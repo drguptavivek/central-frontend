@@ -37,6 +37,22 @@ except according to the terms contained in the LICENSE file.
           <dt>{{ $t('field.deviceTime') }}</dt>
           <dd><date-time :iso="properties.deviceDateTime"/></dd>
         </div>
+        <div v-if="properties?.event">
+          <dt>{{ $t('field.eventType') }}</dt>
+          <dd v-tooltip.text>{{ properties.event.type }}</dd>
+        </div>
+        <div v-if="eventId">
+          <dt>{{ $t('field.eventId') }}</dt>
+          <dd v-tooltip.text>{{ eventId }}</dd>
+        </div>
+        <div v-if="properties?.event?.occurredAt">
+          <dt>{{ $t('field.eventTime') }}</dt>
+          <dd><date-time :iso="properties.event.occurredAt"/></dd>
+        </div>
+        <div v-if="eventDetails">
+          <dt>{{ $t('field.eventDetails') }}</dt>
+          <dd v-tooltip.text>{{ formatEventDetails(eventDetails) }}</dd>
+        </div>
       </dl>
       <dl v-if="properties?.location">
         <div>
@@ -100,12 +116,30 @@ const props = defineProps({
 defineEmits(['hide']);
 
 const properties = computed(() => props.feature?.properties ?? null);
+const eventId = computed(() => properties.value?.event?.id ?? properties.value?.clientEventId ?? null);
+const eventDetails = computed(() => {
+  const event = properties.value?.event;
+  if (event == null || typeof event !== 'object') return null;
+  if (event.details != null) return event.details;
+  const { id: _id, type: _type, occurredAt: _occurredAt, details: _details, ...rest } = event;
+  return Object.keys(rest).length > 0 ? rest : null;
+});
 
 const appUserName = computed(() => {
   if (!properties.value?.appUserId) return 'Unknown';
   const match = props.appUsers.find(u => u.id === properties.value.appUserId);
   return match?.displayName ?? 'Unknown';
 });
+
+const formatEventDetails = (details) => {
+  if (details == null) return '';
+  if (typeof details === 'string') return details;
+  try {
+    return JSON.stringify(details);
+  } catch {
+    return String(details);
+  }
+};
 </script>
 
 <style lang="scss">
@@ -134,7 +168,11 @@ const appUserName = computed(() => {
       "appUser": "App User",
       "collectVersion": "Collect Version",
       "receivedAt": "Received At",
-      "deviceTime": "Device Time"
+      "deviceTime": "Device Time",
+      "eventType": "Event Type",
+      "eventId": "Event ID",
+      "eventTime": "Event Time",
+      "eventDetails": "Event Details"
     },
     "location": {
       "latitude": "Latitude",
