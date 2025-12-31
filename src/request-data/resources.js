@@ -52,6 +52,7 @@ export default (container, createResource) => {
   }));
   createResource('analyticsConfig', noargs(setupOption));
   createResource('systemSettings', noargs(setupOption));
+  createResource('projectAppUserSettings', noargs(setupOption));
   createResource('roles', (roles) => ({
     bySystem: computeIfExists(() => {
       // Using Object.create(null) in case there is a role whose `system`

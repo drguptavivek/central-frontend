@@ -86,12 +86,12 @@ export default {
     password: String
   },
   setup() {
-    const { project, systemSettings } = useRequestData();
-    return { project, systemSettings };
+    const { project, projectAppUserSettings } = useRequestData();
+    return { project, projectAppUserSettings };
   },
   created() {
-    if (!this.systemSettings.dataExists) {
-      this.systemSettings.request({ url: '/v1/system/settings' });
+    if (!this.projectAppUserSettings.dataExists) {
+      this.projectAppUserSettings.request({ url: `/v1/projects/${this.project.id}/app-users/settings` });
     }
   },
   computed: {
@@ -128,8 +128,8 @@ export default {
         settings.general.metadata_username = appUserName;
 
         // Lock down server URL changes and include admin password
-        const adminPw = this.systemSettings.dataExists
-          ? this.systemSettings.data.admin_pw || 'vg_custom'
+        const adminPw = this.projectAppUserSettings.dataExists
+          ? this.projectAppUserSettings.data.admin_pw || 'vg_custom'
           : 'vg_custom';
         settings.admin = {
           change_server: false,
