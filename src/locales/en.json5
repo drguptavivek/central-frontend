@@ -15,6 +15,7 @@
   },
   "projectShow": {
     "tab": {
+      "appUserSettings": "App User Settings",
       "formAccess": "Form Access",
       "telemetry": "Telemetry",
       "loginHistory": "Login History"

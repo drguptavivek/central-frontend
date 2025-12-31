@@ -52,6 +52,12 @@ except according to the terms contained in the LICENSE file.
             {{ $t('resource.appUsers') }}
           </router-link>
         </li>
+        <li v-if="canRoute(tabPath('app-user-settings'))"
+          :class="tabClass('app-user-settings')" role="presentation">
+          <router-link :to="tabPath('app-user-settings')">
+            {{ $t('projectShow.tab.appUserSettings') }}
+          </router-link>
+        </li>
         <li v-if="canRoute(tabPath('telemetry'))" :class="tabClass('telemetry')"
           role="presentation">
           <router-link :to="tabPath('telemetry')">

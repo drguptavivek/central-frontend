@@ -173,6 +173,10 @@ const loaders = new Map()
     /* webpackChunkName: "component-project-form-access" */
     '../components/project/form-access.vue'
   )))
+  .set('VgProjectAppUserSettings', loader(() => import(
+    /* webpackChunkName: "component-project-app-user-settings" */
+    '../components/project/vg-app-user-settings.vue'
+  )))
   .set('VgProjectLoginHistory', loader(() => import(
     /* webpackChunkName: "component-project-login-history" */
     '../components/project/vg-login-history.vue'

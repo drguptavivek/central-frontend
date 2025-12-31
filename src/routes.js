@@ -322,6 +322,18 @@ export default (container) => {
           }
         }),
         asyncRoute({
+          path: 'app-user-settings',
+          component: 'VgProjectAppUserSettings',
+          props: true,
+          loading: 'tab',
+          meta: {
+            validateData: {
+              project: () => project.permits(['project.update'])
+            },
+            title: () => [i18n.t('projectShow.tab.appUserSettings'), project.name]
+          }
+        }),
+        asyncRoute({
           path: 'telemetry',
           component: 'VgProjectTelemetry',
           props: true,
@@ -872,6 +884,7 @@ export default (container) => {
     'ProjectOverview',
     'ProjectUserList',
     'FieldKeyList',
+    'VgProjectAppUserSettings',
     'VgProjectTelemetry',
     'VgProjectLoginHistory',
     'ProjectFormAccess',
