@@ -63,7 +63,7 @@ import Spinner from '../spinner.vue';
 import { enketoBasePath, noop } from '../../util/util';
 import { localStore } from '../../util/storage';
 import { logIn } from '../../util/session';
-import { queryString } from '../../util/request';
+import { queryString, requestAlertMessage } from '../../util/request';
 import { useRequestData } from '../../request-data';
 
 export default {
@@ -182,8 +182,7 @@ export default {
         method: 'POST',
         url: '/v1/sessions',
         data: { email: this.email, password: this.password },
-        problemToAlert: ({ code }) =>
-          (code === 401.2 ? this.$t('problem.401_2') : null)
+        alert: false
       })
         .then(() => logIn(this.container, true))
         .then(() => {
@@ -210,8 +209,23 @@ export default {
             }
           );
         })
-        .catch(() => {
+        .catch((error) => {
           this.disabled = false;
+          const message = requestAlertMessage(this.$i18n, error, (problem) => {
+            if (problem.code !== 401.2) return null;
+            const headers = error.response?.headers ?? {};
+            const attemptsRemaining = Number(headers['x-login-attempts-remaining']);
+            const retryAfterSeconds = Number(headers['retry-after']);
+            const parts = [this.$t('problem.401_2')];
+            if (Number.isFinite(attemptsRemaining))
+              parts.push(this.$t('problem.attemptsRemaining', { count: attemptsRemaining }));
+            if (Number.isFinite(retryAfterSeconds)) {
+              const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
+              parts.push(this.$t('problem.lockedOut', { minutes }));
+            }
+            return parts.join(' ');
+          });
+          this.alert.danger(message);
         });
     }
   }
@@ -235,7 +249,9 @@ export default {
       }
     },
     "problem": {
-      "401_2": "Incorrect email address and/or password."
+      "401_2": "Incorrect email address and/or password.",
+      "attemptsRemaining": "Attempts left: {count}.",
+      "lockedOut": "Locked out. Please retry after {minutes} minutes."
     }
   }
 }
