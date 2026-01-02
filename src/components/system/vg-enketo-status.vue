@@ -57,7 +57,7 @@
     </div>
 
     <!-- Data Table -->
-    <div v-if="dataExists && enketoStatus.dataExists" class="table-container">
+    <div v-if="dataExists && enketoStatus.dataExists && enketoStatus.data.data" class="table-container">
       <table class="table">
         <thead>
           <tr>
@@ -71,7 +71,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in enketoStatus" :key="index" :class="`status-row status-${item.status}`">
+          <tr v-for="(item, index) in enketoStatus.data.data" :key="index" :class="`status-row status-${item.status}`">
             <td>{{ item.projectName }}</td>
             <td>{{ item.formName }}</td>
             <td>
@@ -120,9 +120,9 @@ export default {
   components: { Loading },
   inject: ['alert'],
   setup() {
-    const { enketoStatus } = useRequestData();
-    const { awaitingResponse, initiallyLoading, dataExists, canRegenerate } = enketoStatus.toRefs();
-    return { enketoStatus, awaitingResponse, initiallyLoading, dataExists, canRegenerate };
+    const { enketoStatus, currentUser } = useRequestData();
+    const { awaitingResponse, initiallyLoading, dataExists } = enketoStatus.toRefs();
+    return { enketoStatus, awaitingResponse, initiallyLoading, dataExists, currentUser };
   },
   data() {
     return {
@@ -133,8 +133,11 @@ export default {
     };
   },
   computed: {
+    canRegenerate() {
+      return this.currentUser?.can('config.set') ?? false;
+    },
     summary() {
-      return this.enketoStatus.meta ?? {};
+      return this.enketoStatus.data?.meta ?? {};
     },
     hasNeverPushedForms() {
       return (this.summary.never_pushed ?? 0) > 0;
@@ -197,7 +200,7 @@ export default {
 
       this.bulkRegenerating = true;
 
-      const neverPushedForms = this.enketoStatus.filter(item => item.status === 'never_pushed');
+      const neverPushedForms = this.enketoStatus.data.data.filter(item => item.status === 'never_pushed');
 
       this.enketoStatus.request({
         method: 'POST',

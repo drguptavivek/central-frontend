@@ -217,6 +217,10 @@ const loaders = new Map()
     /* webpackChunkName: "component-vg-settings" */
     '../components/system/vg-settings.vue'
   )))
+  .set('VgEnketoStatus', loader(() => import(
+    /* webpackChunkName: "component-vg-enketo-status" */
+    '../components/system/vg-enketo-status.vue'
+  )))
   .set('UserEdit', loader(() => import(
     /* webpackChunkName: "component-user-edit" */
     '../components/user/edit.vue'
