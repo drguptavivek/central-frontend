@@ -30,6 +30,11 @@ except according to the terms contained in the LICENSE file.
             {{ $t('systemHome.tab.settings') }}
           </router-link>
         </li>
+        <li :class="tabClass('enketo-status')" role="presentation">
+          <router-link :to="tabPath('enketo-status')">
+            {{ $t('systemHome.tab.enketoStatus') }}
+          </router-link>
+        </li>
       </template>
     </page-head>
     <page-body>

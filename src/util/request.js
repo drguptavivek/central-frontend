@@ -200,6 +200,10 @@ export const apiPaths = {
     `/v1/projects/${projectId}/app-users/sessions/${sessionId}/revoke`,
   systemAppUserTelemetry: (query = undefined) =>
     `/v1/system/app-users/telemetry${queryString(query)}`,
+  enketoStatus: (query = undefined) =>
+    `/v1/system/enketo-status${queryString(query)}`,
+  enketoStatusRegenerate: () =>
+    `/v1/system/enketo-status/regenerate`,
   serverUrlForFieldKey: (token, projectId) =>
     `/v1/key/${token}/projects/${projectId}`,
   audits: (query) => `/v1/audits${queryString(query)}`,

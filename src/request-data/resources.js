@@ -52,6 +52,13 @@ export default (container, createResource) => {
   }));
   createResource('analyticsConfig', noargs(setupOption));
   createResource('systemSettings', noargs(setupOption));
+  createResource('enketoStatus', (enketoStatus) => ({
+    summary: computed(() => enketoStatus.meta?.summary ?? {}),
+    canRegenerate: computed(() => {
+      const { currentUser } = container;
+      return currentUser?.can('config.set') ?? false;
+    })
+  }));
   createResource('projectAppUserSettings', noargs(setupOption));
   createResource('roles', (roles) => ({
     bySystem: computeIfExists(() => {

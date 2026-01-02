@@ -34,7 +34,8 @@
     "tab": {
       "audits": "Server Audit Logs",
       "analytics": "Usage Reporting",
-      "settings": "App User Settings"
+      "settings": "App User Settings",
+      "enketoStatus": "Enketo Status"
     }
   },
   // This is the name of a user Role.

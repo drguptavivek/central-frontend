@@ -706,6 +706,21 @@ export default (container) => {
             ],
             fullWidth: true
           }
+        }),
+        asyncRoute({
+          path: 'enketo-status',
+          component: 'VgEnketoStatus',
+          loading: 'tab',
+          meta: {
+            validateData: {
+              currentUser: () => currentUser.can('config.read')
+            },
+            title: () => [
+              i18n.t('systemHome.tab.enketoStatus'),
+              i18n.t('systemHome.title')
+            ],
+            fullWidth: true
+          }
         })
       ]
     }),
