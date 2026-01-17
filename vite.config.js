@@ -32,8 +32,11 @@ const proxyPaths = [
 const devServer = {
   host: true,
   port: 8989,
-  allowedHosts: ['central.local'],
-  proxy: Object.fromEntries(proxyPaths.map(path => [path, 'http://localhost:8686'])),
+  allowedHosts: true,
+  // We are behind Nginx reverse proxy which handles SSL termination
+  hmr: {
+    clientPort: 443
+  },
   // Because we proxy to nginx, which itself proxies to Backend and other
   // things, the dev server doesn't need to allow CORS. CORS is already limited
   // by default, but we just don't need it at all.
