@@ -21,7 +21,7 @@ except according to the terms contained in the LICENSE file.
             <spinner inline/>
           </template>
         </template>
-        <template #subheader>{{ $tc('plural.project', projects.length ?? 0) }}</template>
+        <template #subheader>{{ $t('plural.project', projects.length ?? 0) }}</template>
         <template #body>{{ $t('projects.body') }}</template>
       </home-summary-item>
       <home-summary-item v-if="currentUser.can('user.list')" to="/users" icon="user-circle">
@@ -33,7 +33,7 @@ except according to the terms contained in the LICENSE file.
             <spinner inline/>
           </template>
         </template>
-        <template #subheader>{{ $tc('plural.user', users.length ?? 0) }}</template>
+        <template #subheader>{{ $t('plural.user', users.length ?? 0) }}</template>
         <template #body>{{ $t('users.body') }}</template>
       </home-summary-item>
       <home-summary-item to="https://docs.getodk.org/central-intro/"

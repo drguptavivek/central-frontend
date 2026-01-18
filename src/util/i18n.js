@@ -87,9 +87,9 @@ export const loadLocale = ({ i18n, logger }, locale) => {
 ////////////////////////////////////////////////////////////////////////////////
 // tn(), $tcn()
 
-// Combination of $tc() and $n()
+// Combination of $t() and $n()
 export function $tcn(path, count, values = undefined) {
-  return this.$tc(path, count, { count: this.$n(count, 'default'), ...values });
+  return this.$t(path, { count: this.$n(count, 'default'), ...values }, count);
 }
 
 // Combination of t() and n()

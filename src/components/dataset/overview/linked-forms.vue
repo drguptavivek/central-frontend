@@ -12,7 +12,7 @@ except according to the terms contained in the LICENSE file.
 
 <template>
   <div id="linked-forms">
-    <p id="linked-forms-heading">{{ $tc('formsConsumeData', linkedForms.length) }}</p>
+    <p id="linked-forms-heading">{{ $t('formsConsumeData', linkedForms.length) }}</p>
     <table v-if="linkedForms.length > 0" class="table">
       <tbody>
         <tr v-for="(form) in linkedForms" :key="form.xmlFormId">
