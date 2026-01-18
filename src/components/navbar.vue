@@ -97,9 +97,9 @@ export default {
 $border-height: 3px;
 
 .navbar-default {
-  background-color: $color-accent-primary;
+  background-color: #dd2c2c;
   border: none;
-  border-top: $border-height solid $color-accent-secondary;
+  border-top: $border-height solid #dedede;
   box-shadow: 0 $border-height 0 #dedede;
   height: 30px + $border-height; // the way bootstrap is set up, the border eats the body.
   margin-bottom: 0;
