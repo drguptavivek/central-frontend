@@ -13,7 +13,7 @@ except according to the terms contained in the LICENSE file.
   <div :class="features">
     <!-- If the user's session is restored during the initial navigation, that
     will affect how the navbar is rendered. -->
-    <navbar v-if="!standalone" v-show="routerReady"/>
+    <vg-navbar v-if="!standalone" v-show="routerReady"/>
     <outdated-version/>
     <alerts/>
     <feedback-button v-if="showsFeedbackButton"/>
@@ -36,7 +36,7 @@ import { computed, defineAsyncComponent, inject, useTemplateRef } from 'vue';
 import { START_LOCATION, useRouter, useRoute } from 'vue-router';
 
 import Alerts from './alerts.vue';
-import Navbar from './navbar.vue';
+import VgNavbar from './vg-navbar.vue';
 
 import useCallWait from '../composables/call-wait';
 import useDisabled from '../composables/disabled';
@@ -51,7 +51,7 @@ export default {
   components: {
     Alerts,
     HoverCards: defineAsyncComponent(loadAsync('HoverCards')),
-    Navbar,
+    VgNavbar,
     FeedbackButton: defineAsyncComponent(loadAsync('FeedbackButton')),
     OutdatedVersion: defineAsyncComponent(loadAsync('OutdatedVersion'))
   },
