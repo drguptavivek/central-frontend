@@ -64,6 +64,15 @@ import { computed, inject, onBeforeUnmount, provide } from 'vue';
 import { afterNextNavigation, forceReplace } from './router';
 import { apiPaths, isProblem, requestAlertMessage } from './request';
 import { joinSentences } from './i18n';
+import {
+  attachActivityStorageListener,
+  attachInactivityListeners,
+  clearLastActivityAt,
+  createInactivityActivityHandler,
+  getLastActivityAt,
+  inactivityLogoutMillis,
+  setLastActivityAt
+} from './vg-session-inactivity';
 import { localStore } from './storage';
 import { noop } from './util';
 
@@ -81,6 +90,7 @@ const removeSessionFromStorage = () => {
   */
   localStore.setItem('sessionExpires', '0');
   localStore.removeItem('sessionExpires');
+  clearLastActivityAt();
 };
 
 const requestLogout = ({ i18n, alert, http, location }) => http.delete(apiPaths.currentSession())
@@ -188,14 +198,62 @@ const logOutAfterStorageChange = (container) => (event) => {
   }
 };
 
+const logOutAfterInactivity = (container) => {
+  const { i18n, requestData, alert, router } = container;
+  let lastActivityWhenWarned = null;
+
+  return () => {
+    if (router.currentRoute.value.meta.skipAutoLogout) return;
+    if (!requestData.session.dataExists) return;
+
+    const now = Date.now();
+    const lastActivityAt = getLastActivityAt();
+    if (lastActivityAt == null) return;
+
+    const millisSinceActivity = now - lastActivityAt;
+    const millisUntilLogout = inactivityLogoutMillis - millisSinceActivity;
+
+    // Reset warning if there was activity since last warning
+    if (lastActivityWhenWarned != null && lastActivityAt > lastActivityWhenWarned) {
+      lastActivityWhenWarned = null;
+    }
+
+    // Log out if timeout reached
+    if (millisUntilLogout <= 0) {
+      logOut(container, true)
+        .then(() => { alert.info(i18n.t('util.session.alert.expired')); })
+        .catch(noop);
+    }
+    // Warn 3 minutes before timeout
+    else if (millisUntilLogout <= 180000 && lastActivityWhenWarned == null) {
+      alert.info(i18n.t('util.session.alert.expiresSoon'));
+      lastActivityWhenWarned = lastActivityAt;
+    }
+  };
+};
+
 export const useSessions = () => {
   const container = inject('container');
-  const intervalId = setInterval(logOutBeforeSessionExpires(container), 15000);
+  const checkSessionExpiration = logOutBeforeSessionExpires(container);
+  const checkInactivity = logOutAfterInactivity(container);
+  const onInterval = () => {
+    checkSessionExpiration();
+    checkInactivity();
+  };
+  const intervalId = setInterval(onInterval, 15000);
   const storageHandler = logOutAfterStorageChange(container);
+  const activityHandler = createInactivityActivityHandler();
+  const removeInactivityListeners = attachInactivityListeners(activityHandler);
+  // Listen for activity from other tabs and re-check inactivity status
+  const removeActivityStorageListener = attachActivityStorageListener(() => {
+    checkInactivity();
+  });
   window.addEventListener('storage', storageHandler);
   onBeforeUnmount(() => {
     clearInterval(intervalId);
     window.removeEventListener('storage', storageHandler);
+    removeInactivityListeners();
+    removeActivityStorageListener();
   });
 
   /* visiblyLoggedIn.value is `true` if the user not only has all the data from
@@ -259,6 +317,7 @@ export const logIn = (container, newSession) => {
     localStore.removeItem('sessionExpires');
     localStore.setItem('sessionExpires', Date.parse(session.expiresAt).toString());
   }
+  setLastActivityAt();
 
   return currentUser.request({ url: '/v1/users/current', extended: true })
     .catch(error => {
