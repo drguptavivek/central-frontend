@@ -101,9 +101,16 @@ except according to the terms contained in the LICENSE file.
           <div class="vg-backup-codes">
             <p><strong>{{ $t('regenerate.saveCodes') }}</strong></p>
             <div class="backup-codes-container">
-              <code v-for="(code, idx) in newBackupCodes" :key="idx" class="backup-code">
-                {{ code }}
-              </code>
+              <div class="backup-codes-column">
+                <code v-for="(code, idx) in newBackupCodes.slice(0, 5)" :key="idx" class="backup-code">
+                  {{ code }}
+                </code>
+              </div>
+              <div class="backup-codes-column">
+                <code v-for="(code, idx) in newBackupCodes.slice(5, 10)" :key="idx + 5" class="backup-code">
+                  {{ code }}
+                </code>
+              </div>
             </div>
             <p class="text-muted text-small">
               {{ $t('regenerate.codesWarning') }}
@@ -269,30 +276,37 @@ export default {
 
     .backup-codes-container {
       display: flex !important;
-      flex-wrap: wrap !important;
+      flex-direction: row !important;
       gap: 12px !important;
       margin: 15px 0 !important;
       width: 100% !important;
       box-sizing: border-box !important;
 
-      .backup-code {
-        display: block !important;
-        flex: 0 1 calc(50% - 6px) !important;
-        padding: 12px !important;
-        background-color: #fff !important;
-        border: 1px solid #ddd !important;
-        border-radius: 3px !important;
-        font-family: 'Monaco', 'Courier New', monospace !important;
-        font-size: 13px !important;
-        line-height: 1.5 !important;
-        word-break: break-all !important;
-        text-align: center !important;
-        letter-spacing: 2px !important;
-        white-space: normal !important;
-        overflow-wrap: break-word !important;
-        margin: 0 !important;
+      .backup-codes-column {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 1 50% !important;
+        gap: 12px !important;
         box-sizing: border-box !important;
-        flex-shrink: 0 !important;
+
+        .backup-code {
+          display: block !important;
+          padding: 12px !important;
+          background-color: #fff !important;
+          border: 1px solid #ddd !important;
+          border-radius: 3px !important;
+          font-family: 'Monaco', 'Courier New', monospace !important;
+          font-size: 13px !important;
+          line-height: 1.5 !important;
+          word-break: break-all !important;
+          text-align: center !important;
+          letter-spacing: 2px !important;
+          white-space: normal !important;
+          overflow-wrap: break-word !important;
+          margin: 0 !important;
+          box-sizing: border-box !important;
+          flex: 0 0 auto !important;
+        }
       }
     }
   }
