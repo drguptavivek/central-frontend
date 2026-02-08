@@ -297,6 +297,7 @@ export default {
           text-align: center !important;
           letter-spacing: 2px !important;
           width: 50% !important;
+          min-width: 200px !important;
           box-sizing: border-box !important;
           user-select: all !important;
         }
