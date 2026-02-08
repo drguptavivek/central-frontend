@@ -325,10 +325,14 @@ export default {
 
     .backup-codes-container {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr 1fr;
       grid-auto-flow: row;
       gap: 12px;
       margin: 15px 0;
+
+      code {
+        display: block;
+      }
 
       .backup-code {
         padding: 12px;
@@ -340,7 +344,9 @@ export default {
         line-height: 1.5;
         word-break: break-all;
         text-align: center;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
+        white-space: normal;
+        overflow-wrap: break-word;
       }
     }
 
