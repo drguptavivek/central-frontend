@@ -268,29 +268,30 @@ export default {
     border-radius: 3px;
 
     .backup-codes-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-auto-flow: row;
-      gap: 12px;
-      margin: 15px 0;
-
-      code {
-        display: block;
-      }
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-auto-flow: row !important;
+      gap: 12px !important;
+      margin: 15px 0 !important;
+      width: 100%;
+      box-sizing: border-box;
 
       .backup-code {
-        padding: 12px;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        font-family: 'Monaco', 'Courier New', monospace;
-        font-size: 13px;
-        line-height: 1.5;
-        word-break: break-all;
-        text-align: center;
-        letter-spacing: 2px;
-        white-space: normal;
-        overflow-wrap: break-word;
+        display: block !important;
+        padding: 12px !important;
+        background-color: #fff !important;
+        border: 1px solid #ddd !important;
+        border-radius: 3px !important;
+        font-family: 'Monaco', 'Courier New', monospace !important;
+        font-size: 13px !important;
+        line-height: 1.5 !important;
+        word-break: break-all !important;
+        text-align: center !important;
+        letter-spacing: 2px !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        margin: 0 !important;
+        width: 100% !important;
       }
     }
   }
