@@ -327,7 +327,7 @@ export default {
     border-radius: 3px;
 
     .backup-codes-table {
-      width: 100% !important;
+      width: 70% !important;
       border-collapse: collapse !important;
       margin: 15px 0 !important;
 
