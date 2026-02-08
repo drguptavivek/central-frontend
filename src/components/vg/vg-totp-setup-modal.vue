@@ -330,23 +330,22 @@ export default {
       width: 70% !important;
       border-collapse: collapse !important;
       margin: 15px 0 !important;
+      border: 2px solid #333 !important;
 
       tr {
-        &:not(:last-child) td {
-          padding-bottom: 6px;
+        &:not(:last-child) {
+          border-bottom: 1px solid #ddd !important;
         }
       }
 
       td {
-        &:first-child {
-          padding-right: 6px;
+        &:not(:last-child) {
+          border-right: 1px solid #ddd !important;
         }
 
         &.backup-code {
           padding: 12px 20px !important;
           background-color: #fff !important;
-          border: 1px solid #ddd !important;
-          border-radius: 3px !important;
           font-family: 'Monaco', 'Courier New', monospace !important;
           font-size: 13px !important;
           line-height: 1.5 !important;
