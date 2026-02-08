@@ -304,6 +304,8 @@ class Resource extends BaseResource {
           patch(response, this);
           this[_store].patchedAt = new Date();
         }
+
+        return response;
       });
   }
 }
