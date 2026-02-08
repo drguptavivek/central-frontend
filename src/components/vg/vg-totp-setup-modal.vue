@@ -343,7 +343,7 @@ export default {
         }
 
         &.backup-code {
-          padding: 12px !important;
+          padding: 12px 20px !important;
           background-color: #fff !important;
           border: 1px solid #ddd !important;
           border-radius: 3px !important;
