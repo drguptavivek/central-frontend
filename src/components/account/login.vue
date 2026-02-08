@@ -277,7 +277,7 @@ export default {
         // Phase 2: Submit TOTP or backup code
         const data = this.useBackupCode
           ? { backupCode: this.backupCode }
-          : { code: this.totpCode };
+          : { token: this.totpCode };
 
         this.session.request({
           method: 'POST',
