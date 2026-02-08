@@ -22,6 +22,7 @@ except according to the terms contained in the LICENSE file.
         </div>
         <div class="col-xs-5">
           <user-edit-password/>
+          <user-edit-vg-totp-settings v-if="user.dataExists"/>
         </div>
       </div>
     </page-body>
@@ -36,6 +37,7 @@ import PageBody from '../page/body.vue';
 import PageHead from '../page/head.vue';
 import UserEditBasicDetails from './edit/basic-details.vue';
 import UserEditPassword from './edit/password.vue';
+import UserEditVgTotpSettings from './edit/vg-totp-settings.vue';
 
 import useUser from '../../request-data/user';
 import { apiPaths } from '../../util/request';
