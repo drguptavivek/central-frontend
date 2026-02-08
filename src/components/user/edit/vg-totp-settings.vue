@@ -270,16 +270,21 @@ export default {
     .backup-codes-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin: 10px 0;
+      grid-auto-flow: row;
+      gap: 12px;
+      margin: 15px 0;
 
       .backup-code {
-        padding: 8px;
+        padding: 12px;
         background-color: #fff;
         border: 1px solid #ddd;
         border-radius: 3px;
-        font-family: monospace;
+        font-family: 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.5;
         word-break: break-all;
+        text-align: center;
+        letter-spacing: 1px;
       }
     }
   }
