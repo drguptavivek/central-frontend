@@ -182,8 +182,8 @@ export default {
         url: apiPaths.totpStatus(this.user.id)
       })
         .then(({ data }) => {
-          this.totpEnabled = data.totpEnabled || false;
-          this.lastEnabled = data.lastEnabled || null;
+          this.totpEnabled = data.enabled || false;
+          this.lastEnabled = data.enabledAt || null;
           this.dataExists = true;
         })
         .catch(noop);
