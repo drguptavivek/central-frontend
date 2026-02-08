@@ -45,18 +45,14 @@ except according to the terms contained in the LICENSE file.
           <p class="text-danger"><strong>{{ $t('step3.warning') }}</strong></p>
           <div class="vg-backup-codes">
             <p>{{ $t('step3.saveCodes') }}</p>
-            <div class="backup-codes-container">
-              <div class="backup-codes-column">
-                <code v-for="(code, idx) in backupCodes.slice(0, 5)" :key="idx" class="backup-code">
-                  {{ code }}
-                </code>
-              </div>
-              <div class="backup-codes-column">
-                <code v-for="(code, idx) in backupCodes.slice(5, 10)" :key="idx + 5" class="backup-code">
-                  {{ code }}
-                </code>
-              </div>
-            </div>
+            <table class="backup-codes-table">
+              <tbody>
+                <tr v-for="idx in 5" :key="idx">
+                  <td class="backup-code">{{ backupCodes[idx - 1] }}</td>
+                  <td class="backup-code">{{ backupCodes[idx + 4] }}</td>
+                </tr>
+              </tbody>
+            </table>
             <div class="backup-actions">
               <button type="button" class="btn btn-default btn-sm"
                 @click="downloadBackupCodes">
@@ -330,25 +326,23 @@ export default {
     background-color: #f5f5f5;
     border-radius: 3px;
 
-    .backup-codes-container {
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: nowrap !important;
-      gap: 12px !important;
-      margin: 15px 0 !important;
+    .backup-codes-table {
       width: 100% !important;
-      box-sizing: border-box !important;
+      border-collapse: collapse !important;
+      margin: 15px 0 !important;
 
-      .backup-codes-column {
-        display: flex !important;
-        flex-direction: column !important;
-        width: calc(50% - 6px) !important;
-        flex: 0 0 auto !important;
-        gap: 12px !important;
-        box-sizing: border-box !important;
+      tr {
+        &:not(:last-child) td {
+          padding-bottom: 6px;
+        }
+      }
 
-        .backup-code {
-          display: block !important;
+      td {
+        &:first-child {
+          padding-right: 6px;
+        }
+
+        &.backup-code {
           padding: 12px !important;
           background-color: #fff !important;
           border: 1px solid #ddd !important;
@@ -359,11 +353,9 @@ export default {
           word-break: break-all !important;
           text-align: center !important;
           letter-spacing: 2px !important;
-          white-space: normal !important;
-          overflow-wrap: break-word !important;
-          margin: 0 !important;
+          width: 50% !important;
           box-sizing: border-box !important;
-          flex: 0 0 auto !important;
+          user-select: all !important;
         }
       }
     }
