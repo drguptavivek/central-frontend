@@ -223,7 +223,7 @@ export default {
       this.request({
         method: 'POST',
         url: apiPaths.totpEnable(this.userId),
-        data: { code: this.verificationCode }
+        data: { token: this.verificationCode }
       })
         .then(() => {
           this.step = 3;
