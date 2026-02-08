@@ -278,6 +278,16 @@ export const restoreSession = (session) =>
   // before logOutBeforeSessionExpires() logs out the user. However, that case
   // is unlikely, and the worst case should be that the user sees 401 messages.
   session.request({ url: '/v1/sessions/restore', alert: false })
+    .then((response) => {
+      // VG: Check if TOTP verification is required but not yet completed
+      // If totp_verified is false, the user must complete TOTP before proceeding
+      if (response && response.data && response.data.totp_verified === false) {
+        // Session exists but TOTP is not verified - user must not proceed
+        // Logout and remove session from storage
+        removeSessionFromStorage();
+        throw new Error('TOTP verification required');
+      }
+    })
     .catch(error => {
       // The user's session may be deleted without the user logging out, for
       // example, if a backup is restored. In that case, the request will result
@@ -287,6 +297,12 @@ export const restoreSession = (session) =>
       if (response != null && isProblem(response.data) &&
         (response.data.code === 401.2 || response.data.code === 401)) {
         // Expected error: no session or invalid session
+        removeSessionFromStorage();
+        return;
+      }
+
+      // Also handle the TOTP verification required case
+      if (error.message === 'TOTP verification required') {
         removeSessionFromStorage();
         return;
       }
