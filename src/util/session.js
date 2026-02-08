@@ -283,7 +283,8 @@ export const restoreSession = (session) =>
       // If totp_verified is false, the user must complete TOTP before proceeding
       if (response && response.data && response.data.totp_verified === false) {
         // Session exists but TOTP is not verified - user must not proceed
-        // Logout and remove session from storage
+        // Clear the session data and remove from storage
+        session.data = null;
         removeSessionFromStorage();
         throw new Error('TOTP verification required');
       }
