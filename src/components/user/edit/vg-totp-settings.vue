@@ -115,6 +115,10 @@ except according to the terms contained in the LICENSE file.
         </div>
       </template>
     </modal>
+
+    <!-- Setup modal -->
+    <vg-totp-setup-modal :state="showSetupModal" :user-id="user.id"
+      @hide="showSetupModal = false" @success="onSetupSuccess"/>
   </div>
 </template>
 
@@ -123,6 +127,7 @@ import FormGroup from '../../form-group.vue';
 import Loading from '../../loading.vue';
 import Modal from '../../modal.vue';
 import Spinner from '../../spinner.vue';
+import VgTotpSetupModal from '../../vg/vg-totp-setup-modal.vue';
 
 import useRequest from '../../../composables/request';
 import { apiPaths } from '../../../util/request';
@@ -131,7 +136,7 @@ import { useRequestData } from '../../../request-data';
 
 export default {
   name: 'UserEditVgTotpSettings',
-  components: { FormGroup, Loading, Modal, Spinner },
+  components: { FormGroup, Loading, Modal, Spinner, VgTotpSetupModal },
   inject: ['alert'],
   setup() {
     const { user } = useRequestData();
@@ -220,6 +225,9 @@ export default {
       this.regeneratePassword = '';
       this.newBackupCodes = [];
       this.alert.success(this.$t('alert.regenerateSuccess'));
+      this.fetchStatus();
+    },
+    onSetupSuccess() {
       this.fetchStatus();
     }
   }
