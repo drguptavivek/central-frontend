@@ -23,6 +23,7 @@ except according to the terms contained in the LICENSE file.
         <div class="col-xs-5">
           <user-edit-password/>
           <user-edit-vg-totp-settings v-if="user.dataExists"/>
+          <user-edit-vg-ip-whitelist v-if="user.dataExists"/>
         </div>
       </div>
     </page-body>
@@ -38,6 +39,7 @@ import PageHead from '../page/head.vue';
 import UserEditBasicDetails from './edit/basic-details.vue';
 import UserEditPassword from './edit/password.vue';
 import UserEditVgTotpSettings from './edit/vg-totp-settings.vue';
+import UserEditVgIpWhitelist from './edit/vg-ip-whitelist.vue';
 
 import useUser from '../../request-data/user';
 import { apiPaths } from '../../util/request';
