@@ -277,6 +277,7 @@ export default {
     .backup-codes-container {
       display: flex !important;
       flex-direction: row !important;
+      flex-wrap: nowrap !important;
       gap: 12px !important;
       margin: 15px 0 !important;
       width: 100% !important;
@@ -285,7 +286,8 @@ export default {
       .backup-codes-column {
         display: flex !important;
         flex-direction: column !important;
-        flex: 1 1 50% !important;
+        width: calc(50% - 6px) !important;
+        flex: 0 0 auto !important;
         gap: 12px !important;
         box-sizing: border-box !important;
 
