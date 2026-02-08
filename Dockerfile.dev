@@ -9,17 +9,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /usr/src/app
 
-# Copy package files
-COPY package.json package-lock.json ./
+# Copy entrypoint script (do this early so it's cached)
+COPY start-dev.sh /usr/src/app/
+RUN chmod +x /usr/src/app/start-dev.sh
 
-# Install dependencies
-RUN npm install
+# Copy package files (for reference, but install happens at runtime)
+COPY package.json package-lock.json ./
 
 # Copy the rest of the application code
 COPY . .
 
+# Note: npm install runs at container startup via start-dev.sh
+# Dependencies are persisted in the client-node-modules named volume
+
 # Expose Vite port
 EXPOSE 8989
 
-# Start the dev server (runs both Vite and Nginx via foreman)
-CMD ["npm", "run", "dev"]
+# Start the dev server with dependency installation
+CMD ["/usr/src/app/start-dev.sh"]
