@@ -329,33 +329,32 @@ export default {
     .backup-codes-table {
       width: 70% !important;
       border-collapse: collapse !important;
+      border-spacing: 0 !important;
       margin: 15px 0 !important;
       border: 2px solid #333 !important;
+      background-color: #fff !important;
 
-      tr {
-        &:not(:last-child) {
+      tbody {
+        tr {
           border-bottom: 1px solid #ddd !important;
-        }
-      }
 
-      td {
-        &:not(:last-child) {
-          border-right: 1px solid #ddd !important;
-        }
-
-        &.backup-code {
-          padding: 12px 20px !important;
-          background-color: #fff !important;
-          font-family: 'Monaco', 'Courier New', monospace !important;
-          font-size: 13px !important;
-          line-height: 1.5 !important;
-          word-break: break-all !important;
-          text-align: center !important;
-          letter-spacing: 2px !important;
-          width: 50% !important;
-          min-width: 200px !important;
-          box-sizing: border-box !important;
-          user-select: all !important;
+          td {
+            border: 1px solid #ddd !important;
+            padding: 12px 20px !important;
+            background-color: #fff !important;
+            font-family: 'Monaco', 'Courier New', monospace !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            word-break: break-all !important;
+            text-align: center !important;
+            letter-spacing: 2px !important;
+            width: 50% !important;
+            min-width: 200px !important;
+            box-sizing: border-box !important;
+            user-select: all !important;
+            margin: 0 !important;
+            vertical-align: middle !important;
+          }
         }
       }
     }
