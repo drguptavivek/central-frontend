@@ -285,10 +285,13 @@ export const restoreSession = (session) =>
       // AccountLogin doesn't prevent the user from logging in.
       const { response } = error;
       if (response != null && isProblem(response.data) &&
-        response.data.code === 401.2) {
+        (response.data.code === 401.2 || response.data.code === 401)) {
+        // Expected error: no session or invalid session
         removeSessionFromStorage();
+        return;
       }
 
+      // Unexpected error: rethrow
       throw error;
     });
 
