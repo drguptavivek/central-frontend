@@ -279,15 +279,17 @@ export const restoreSession = (session) =>
   // is unlikely, and the worst case should be that the user sees 401 messages.
   session.request({ url: '/v1/sessions/restore', alert: false })
     .then((response) => {
-      // VG: Check if TOTP verification is required but not yet completed
-      // If totp_verified is false, the user must complete TOTP before proceeding
+      // VG: CRITICAL - Check TOTP verification IMMEDIATELY after response
+      // Before any other code can access session.data, we must verify TOTP status
       if (response && response.data && response.data.totp_verified === false) {
         // Session exists but TOTP is not verified - user must not proceed
-        // Clear the session data and remove from storage
+        // IMMEDIATELY clear session data (it was just set by request())
         session.data = null;
         removeSessionFromStorage();
+        // Throw error to prevent further navigation
         throw new Error('TOTP verification required');
       }
+      // Session is fully verified, allow navigation to proceed
     })
     .catch(error => {
       // The user's session may be deleted without the user logging out, for
@@ -295,14 +297,19 @@ export const restoreSession = (session) =>
       // in a 401. We remove sessionExpires from local storage so that
       // AccountLogin doesn't prevent the user from logging in.
       const { response } = error;
-      if (response != null && isProblem(response.data) &&
-        (response.data.code === 401.2 || response.data.code === 401)) {
-        // Expected error: no session or invalid session
-        removeSessionFromStorage();
-        return;
+      if (response != null && isProblem(response.data)) {
+        // VG: Handle all auth-related errors including TOTP verification failure
+        // 401.2: Session deleted/invalid
+        // 401: Generic auth failure
+        // 403: Insufficient rights (TOTP not verified)
+        if (response.data.code === 401.2 || response.data.code === 401 || response.data.code === 403) {
+          // Expected error: no session, invalid session, or TOTP not verified
+          removeSessionFromStorage();
+          return;
+        }
       }
 
-      // Also handle the TOTP verification required case
+      // Also handle the TOTP verification required case (client-side check)
       if (error.message === 'TOTP verification required') {
         removeSessionFromStorage();
         return;

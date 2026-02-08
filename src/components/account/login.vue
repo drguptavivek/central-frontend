@@ -120,7 +120,9 @@ export default {
       requiresTotp: false,
       totpCode: '',
       backupCode: '',
-      useBackupCode: false
+      useBackupCode: false,
+      // VG: Temporary session token (not in cookie) for TOTP verification
+      tempSessionToken: null
     };
   },
   computed: {
@@ -219,20 +221,30 @@ export default {
 
       if (!this.requiresTotp) {
         // Phase 1: Submit email and password
-        this.session.request({
+        // VG: Use http.request (not session.request) to avoid setting session.data
+        // We don't want session.data set yet because it triggers expiration checks
+        this.container.http.request({
           method: 'POST',
           url: '/v1/sessions',
-          data: { email: this.email, password: this.password },
-          alert: false
+          data: { email: this.email, password: this.password }
         })
           .then((response) => {
+            const sessionData = response.data;
+
             // Check if TOTP is required
-            if (response.data && response.data.requireTotp) {
+            if (sessionData && sessionData.requireTotp === true) {
+              // VG: Store temporary session token for TOTP verification
+              // Server does NOT set cookies yet - only after TOTP is verified
+              this.tempSessionToken = sessionData.token;
               this.requiresTotp = true;
               this.disabled = false;
-            } else {
-              // No TOTP required, proceed with login
-              return logIn(this.container, true)
+              return; // Don't proceed to login
+            }
+
+            // No TOTP required, proceed with login
+            // Server has set cookies, manually set session data then call logIn
+            this.session.data = sessionData;
+            return logIn(this.container, true)
                 .then(() => {
                   if (this.showMailingListOptIn) {
                     this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
@@ -253,7 +265,6 @@ export default {
                     }
                   );
                 });
-            }
           })
           .catch((error) => {
             this.disabled = false;
@@ -275,17 +286,32 @@ export default {
           });
       } else {
         // Phase 2: Submit TOTP or backup code
+        // VG: Send temporary session token as Bearer header (not cookie)
         const data = this.useBackupCode
           ? { backupCode: this.backupCode }
           : { token: this.totpCode };
 
-        this.session.request({
+        if (!this.tempSessionToken) {
+          this.alert.danger(this.$t('alert.sessionExpired'));
+          this.requiresTotp = false;
+          this.disabled = false;
+          return;
+        }
+
+        this.container.http.request({
           method: 'POST',
           url: '/v1/sessions/totp-verify',
-          data,
-          alert: false
+          headers: {
+            Authorization: `Bearer ${this.tempSessionToken}`
+          },
+          data
         })
-          .then(() => logIn(this.container, true))
+          .then((response) => {
+            // VG: Server has now set cookies and returned session data
+            this.tempSessionToken = null;  // Clear temporary token
+            this.session.data = response.data;  // Set session data
+            return logIn(this.container, true);
+          })
           .then(() => {
             if (this.showMailingListOptIn) {
               this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
