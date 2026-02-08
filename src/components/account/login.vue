@@ -27,27 +27,60 @@ except according to the terms contained in the LICENSE file.
         </div>
         <div v-else class="panel-body">
           <form @submit.prevent="submit">
-            <form-group ref="email" v-model.trim="email" type="email"
-              :placeholder="$t('field.email')" required autocomplete="off"/>
-            <form-group v-model="password" type="password"
-              :placeholder="$t('field.password')" required
-              autocomplete="current-password"/>
-            <div v-if="showMailingListOptIn" id="mailing-list-opt-in" class="checkbox">
-              <label>
-                <input v-model="mailingListOptIn" type="checkbox">{{ $t('analytics.mailingListOptIn') }}
-              </label>
-            </div>
-            <div class="panel-footer">
-              <button type="submit" class="btn btn-primary"
-                :aria-disabled="disabled">
-                {{ $t('action.logIn') }} <spinner :state="disabled"/>
-              </button>
-              <router-link v-slot="{ navigate }" to="/reset-password" custom>
-                <button type="button" class="btn btn-link" :aria-disabled="disabled"
-                  @click="navigate">
-                  {{ $t('action.resetPassword') }}
+            <!-- Phase 1: Email/Password -->
+            <div v-if="!requiresTotp">
+              <form-group ref="email" v-model.trim="email" type="email"
+                :placeholder="$t('field.email')" required autocomplete="off"/>
+              <form-group v-model="password" type="password"
+                :placeholder="$t('field.password')" required
+                autocomplete="current-password"/>
+              <div v-if="showMailingListOptIn" id="mailing-list-opt-in" class="checkbox">
+                <label>
+                  <input v-model="mailingListOptIn" type="checkbox">{{ $t('analytics.mailingListOptIn') }}
+                </label>
+              </div>
+              <div class="panel-footer">
+                <button type="submit" class="btn btn-primary"
+                  :aria-disabled="disabled">
+                  {{ $t('action.logIn') }} <spinner :state="disabled"/>
                 </button>
-              </router-link>
+                <router-link v-slot="{ navigate }" to="/reset-password" custom>
+                  <button type="button" class="btn btn-link" :aria-disabled="disabled"
+                    @click="navigate">
+                    {{ $t('action.resetPassword') }}
+                  </button>
+                </router-link>
+              </div>
+            </div>
+
+            <!-- Phase 2: TOTP Verification -->
+            <div v-else>
+              <p>{{ $t('totp.enterCode') }}</p>
+              <div v-if="!useBackupCode">
+                <form-group v-model="totpCode" type="text" inputmode="numeric"
+                  :placeholder="$t('field.totp')" maxlength="6"
+                  pattern="[0-9]{6}" required />
+              </div>
+              <div v-else>
+                <form-group v-model="backupCode" type="text" inputmode="numeric"
+                  :placeholder="$t('field.backupCode')" maxlength="12"
+                  pattern="[0-9]{12}" required />
+              </div>
+              <div id="totp-toggle" class="checkbox">
+                <label>
+                  <input v-model="useBackupCode" type="checkbox">{{ $t('totp.useBackupCode') }}
+                </label>
+              </div>
+              <div class="panel-footer">
+                <button type="submit" class="btn btn-primary"
+                  :aria-disabled="disabled">
+                  {{ $t('action.verify') }} <spinner :state="disabled"/>
+                </button>
+                <button type="button" class="btn btn-link" :aria-disabled="disabled"
+                  @click="backToPassword">
+                  {{ $t('action.back') }}
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -83,6 +116,11 @@ export default {
       email: '',
       password: '',
       mailingListOptIn: true,
+      // TOTP 2FA phase
+      requiresTotp: false,
+      totpCode: '',
+      backupCode: '',
+      useBackupCode: false
     };
   },
   computed: {
@@ -178,55 +216,115 @@ export default {
     submit() {
       if (!this.verifyNewSession()) return;
       this.disabled = true;
-      this.session.request({
-        method: 'POST',
-        url: '/v1/sessions',
-        data: { email: this.email, password: this.password },
-        alert: false
-      })
-        .then(() => logIn(this.container, true))
-        .then(() => {
-          if (this.showMailingListOptIn) {
-            this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
-          }
-          this.navigateToNext(
-            this.$route.query.next,
-            (location) => {
-              // We only set this.disabled to `false` before redirecting within
-              // Frontend. If we also set this.disabled before redirecting
-              // outside Frontend, the buttons might be re-enabled before the
-              // external page is loaded.
-              this.disabled = false;
-              const message = this.$t('alert.changePassword');
-              this.$router.replace(location)
-                .catch(noop)
-                .then(() => {
-                  if (this.password.length < 10) this.alert.info(message);
-                });
-            },
-            (url) => {
-              window.location.replace(url);
-            }
-          );
+
+      if (!this.requiresTotp) {
+        // Phase 1: Submit email and password
+        this.session.request({
+          method: 'POST',
+          url: '/v1/sessions',
+          data: { email: this.email, password: this.password },
+          alert: false
         })
-        .catch((error) => {
-          this.disabled = false;
-          const message = requestAlertMessage(this.$i18n, error, (problem) => {
-            if (problem.code !== 401.2) return null;
-            const headers = error.response?.headers ?? {};
-            const attemptsRemaining = Number(headers['x-login-attempts-remaining']);
-            const retryAfterSeconds = Number(headers['retry-after']);
-            const parts = [this.$t('problem.401_2')];
-            if (Number.isFinite(attemptsRemaining))
-              parts.push(this.$t('problem.attemptsRemaining', { count: attemptsRemaining }));
-            if (Number.isFinite(retryAfterSeconds)) {
-              const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
-              parts.push(this.$t('problem.lockedOut', { minutes }));
+          .then((response) => {
+            // Check if TOTP is required
+            if (response.data && response.data.requireTotp) {
+              this.requiresTotp = true;
+              this.disabled = false;
+            } else {
+              // No TOTP required, proceed with login
+              return logIn(this.container, true)
+                .then(() => {
+                  if (this.showMailingListOptIn) {
+                    this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
+                  }
+                  this.navigateToNext(
+                    this.$route.query.next,
+                    (location) => {
+                      this.disabled = false;
+                      const message = this.$t('alert.changePassword');
+                      this.$router.replace(location)
+                        .catch(noop)
+                        .then(() => {
+                          if (this.password.length < 10) this.alert.info(message);
+                        });
+                    },
+                    (url) => {
+                      window.location.replace(url);
+                    }
+                  );
+                });
             }
-            return parts.join(' ');
+          })
+          .catch((error) => {
+            this.disabled = false;
+            const message = requestAlertMessage(this.$i18n, error, (problem) => {
+              if (problem.code !== 401.2) return null;
+              const headers = error.response?.headers ?? {};
+              const attemptsRemaining = Number(headers['x-login-attempts-remaining']);
+              const retryAfterSeconds = Number(headers['retry-after']);
+              const parts = [this.$t('problem.401_2')];
+              if (Number.isFinite(attemptsRemaining))
+                parts.push(this.$t('problem.attemptsRemaining', { count: attemptsRemaining }));
+              if (Number.isFinite(retryAfterSeconds)) {
+                const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
+                parts.push(this.$t('problem.lockedOut', { minutes }));
+              }
+              return parts.join(' ');
+            });
+            this.alert.danger(message);
           });
-          this.alert.danger(message);
-        });
+      } else {
+        // Phase 2: Submit TOTP or backup code
+        const data = this.useBackupCode
+          ? { backupCode: this.backupCode }
+          : { code: this.totpCode };
+
+        this.session.request({
+          method: 'POST',
+          url: '/v1/sessions/totp-verify',
+          data,
+          alert: false
+        })
+          .then(() => logIn(this.container, true))
+          .then(() => {
+            if (this.showMailingListOptIn) {
+              this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
+            }
+            this.navigateToNext(
+              this.$route.query.next,
+              (location) => {
+                this.disabled = false;
+                const message = this.$t('alert.changePassword');
+                this.$router.replace(location)
+                  .catch(noop)
+                  .then(() => {
+                    if (this.password.length < 10) this.alert.info(message);
+                  });
+              },
+              (url) => {
+                window.location.replace(url);
+              }
+            );
+          })
+          .catch((error) => {
+            this.disabled = false;
+            const message = requestAlertMessage(this.$i18n, error, (problem) => {
+              if (problem.code === 400.13) return this.$t('problem.400_13');
+              if (problem.code === 429.1) return this.$t('problem.429_1');
+              return null;
+            });
+            if (message) this.alert.danger(message);
+          });
+      }
+    },
+    backToPassword() {
+      this.requiresTotp = false;
+      this.totpCode = '';
+      this.backupCode = '';
+      this.useBackupCode = false;
+      this.$nextTick(() => {
+        this.$refs.email?.focus();
+      });
     }
   }
 };
@@ -239,6 +337,10 @@ export default {
       "alreadyLoggedIn": "A user is already logged in. Please refresh the page to continue.",
       "changePassword": "To protect your account, make sure your password is 10 characters or longer."
     },
+    "field": {
+      "totp": "6-digit code",
+      "backupCode": "12-digit backup code"
+    },
     "oidc": {
       "body": "Click Continue to proceed to the login page.",
       "error": {
@@ -248,8 +350,18 @@ export default {
         "internal-server-error": "Something went wrong during login. Please contact your server administrator."
       }
     },
+    "totp": {
+      "enterCode": "Two-factor authentication required. Enter the 6-digit code from your authenticator app or a backup code.",
+      "useBackupCode": "Use backup code instead"
+    },
+    "action": {
+      "verify": "Verify",
+      "back": "Back"
+    },
     "problem": {
       "401_2": "Incorrect email address and/or password.",
+      "400_13": "Invalid code. Please try again.",
+      "429_1": "Too many failed attempts. Please try again later.",
       "attemptsRemaining": "Attempts left: {count}.",
       "lockedOut": "Locked out. Please retry after {minutes} minutes."
     }
