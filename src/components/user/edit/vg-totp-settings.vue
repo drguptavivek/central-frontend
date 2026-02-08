@@ -268,16 +268,16 @@ export default {
     border-radius: 3px;
 
     .backup-codes-container {
-      display: grid !important;
-      grid-template-columns: 1fr 1fr !important;
-      grid-auto-flow: row !important;
+      display: flex !important;
+      flex-wrap: wrap !important;
       gap: 12px !important;
       margin: 15px 0 !important;
-      width: 100%;
-      box-sizing: border-box;
+      width: 100% !important;
+      box-sizing: border-box !important;
 
       .backup-code {
         display: block !important;
+        flex: 0 1 calc(50% - 6px) !important;
         padding: 12px !important;
         background-color: #fff !important;
         border: 1px solid #ddd !important;
@@ -291,7 +291,8 @@ export default {
         white-space: normal !important;
         overflow-wrap: break-word !important;
         margin: 0 !important;
-        width: 100% !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
       }
     }
   }
