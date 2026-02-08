@@ -168,7 +168,7 @@ export default {
   methods: {
     fetchSetup() {
       this.request({
-        method: 'GET',
+        method: 'POST',
         url: apiPaths.totpSetup(this.userId)
       })
         .then(({ data }) => {
