@@ -217,6 +217,10 @@ const loaders = new Map()
     /* webpackChunkName: "component-vg-settings" */
     '../components/system/vg-settings.vue'
   )))
+  .set('VgTotpSettings', loader(() => import(
+    /* webpackChunkName: "component-vg-totp-settings" */
+    '../components/system/vg-totp-settings.vue'
+  )))
   .set('VgEnketoStatus', loader(() => import(
     /* webpackChunkName: "component-vg-enketo-status" */
     '../components/system/vg-enketo-status.vue'

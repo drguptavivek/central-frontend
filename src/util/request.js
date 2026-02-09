@@ -211,7 +211,9 @@ export const apiPaths = {
   enketoStatus: (query = undefined) =>
     `/v1/system/enketo-status${queryString(query)}`,
   enketoStatusRegenerate: () =>
-    `/v1/system/enketo-status/regenerate`,
+    '/v1/system/enketo-status/regenerate',
+  roles: () => '/v1/roles',
+  totpMandatoryRoles: () => '/v1/system/settings/totp-mandatory-roles',
   serverUrlForFieldKey: (token, projectId) =>
     `/v1/key/${token}/projects/${projectId}`,
   audits: (query) => `/v1/audits${queryString(query)}`,

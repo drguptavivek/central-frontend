@@ -35,6 +35,7 @@
       "audits": "Server Audit Logs",
       "analytics": "Usage Reporting",
       "settings": "App User Settings",
+      "totpSettings": "Two-Factor Authentication",
       "enketoStatus": "Enketo Status"
     }
   },
