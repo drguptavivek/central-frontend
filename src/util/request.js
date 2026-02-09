@@ -83,6 +83,7 @@ export const apiPaths = {
   totpBackupCodes: (id) => `/v1/users/${id}/totp/backup-codes/regenerate`,
   totpSetup: (id) => `/v1/users/${id}/totp/setup`,
   totpEnable: (id) => `/v1/users/${id}/totp/enable`,
+  totpDismissEnrollment: (id) => `/v1/users/${id}/totp/dismiss-enrollment-prompt`,
   userIpWhitelist: (id) => `/v1/users/${id}/ip-whitelist`,
   userIpWhitelistEntry: (id, entryId) => `/v1/users/${id}/ip-whitelist/${entryId}`,
   assignment: (role, actorId) => `/v1/assignments/${role}/${actorId}`,

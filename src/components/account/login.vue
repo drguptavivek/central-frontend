@@ -59,12 +59,12 @@ except according to the terms contained in the LICENSE file.
               <div v-if="!useBackupCode">
                 <form-group v-model="totpCode" type="text" inputmode="numeric"
                   :placeholder="$t('field.totp')" maxlength="6"
-                  pattern="[0-9]{6}" required />
+                  pattern="[0-9]{6}" required/>
               </div>
               <div v-else>
                 <form-group v-model="backupCode" type="text" inputmode="numeric"
                   :placeholder="$t('field.backupCode')" maxlength="12"
-                  pattern="[0-9]{12}" required />
+                  pattern="[0-9]{12}" required/>
               </div>
               <div id="totp-toggle" class="checkbox">
                 <label>
@@ -122,7 +122,10 @@ export default {
       backupCode: '',
       useBackupCode: false,
       // VG: Temporary session token (not in cookie) for TOTP verification
-      tempSessionToken: null
+      tempSessionToken: null,
+      // VG: TOTP enrollment flags
+      requiresTotpSetup: false,
+      isMandatory: false
     };
   },
   computed: {
@@ -238,33 +241,50 @@ export default {
               this.tempSessionToken = sessionData.token;
               this.requiresTotp = true;
               this.disabled = false;
-              return; // Don't proceed to login
+              return Promise.resolve(); // Don't proceed to login
+            }
+
+            // VG: Check if mandatory TOTP setup is required
+            if (sessionData && sessionData.requireTotpSetup === true) {
+              // User MUST set up TOTP before proceeding (cannot dismiss)
+              this.tempSessionToken = sessionData.token;
+              this.requiresTotpSetup = true;
+              this.isMandatory = sessionData.mandatory || false;
+              this.disabled = false;
+              return Promise.resolve(); // Don't proceed to login - show setup modal
             }
 
             // No TOTP required, proceed with login
             // Server has set cookies, manually set session data then call logIn
             this.session.data = sessionData;
+
+            // VG: Check if optional TOTP enrollment prompt should be shown
+            if (sessionData && sessionData.shouldPromptTotpEnrollment === true) {
+              // Store flag in sessionStorage for display after navigation
+              sessionStorage.setItem('pendingTotpEnrollmentPrompt', 'true');
+            }
+
             return logIn(this.container, true)
-                .then(() => {
-                  if (this.showMailingListOptIn) {
-                    this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
+              .then(() => {
+                if (this.showMailingListOptIn) {
+                  this.currentUser.preferences.site.mailingListOptIn = this.mailingListOptIn;
+                }
+                this.navigateToNext(
+                  this.$route.query.next,
+                  (location) => {
+                    this.disabled = false;
+                    const message = this.$t('alert.changePassword');
+                    this.$router.replace(location)
+                      .catch(noop)
+                      .then(() => {
+                        if (this.password.length < 10) this.alert.info(message);
+                      });
+                  },
+                  (url) => {
+                    window.location.replace(url);
                   }
-                  this.navigateToNext(
-                    this.$route.query.next,
-                    (location) => {
-                      this.disabled = false;
-                      const message = this.$t('alert.changePassword');
-                      this.$router.replace(location)
-                        .catch(noop)
-                        .then(() => {
-                          if (this.password.length < 10) this.alert.info(message);
-                        });
-                    },
-                    (url) => {
-                      window.location.replace(url);
-                    }
-                  );
-                });
+                );
+              });
           })
           .catch((error) => {
             this.disabled = false;
@@ -308,8 +328,8 @@ export default {
         })
           .then((response) => {
             // VG: Server has now set cookies and returned session data
-            this.tempSessionToken = null;  // Clear temporary token
-            this.session.data = response.data;  // Set session data
+            this.tempSessionToken = null; // Clear temporary token
+            this.session.data = response.data; // Set session data
             return logIn(this.container, true);
           })
           .then(() => {
@@ -348,6 +368,9 @@ export default {
       this.totpCode = '';
       this.backupCode = '';
       this.useBackupCode = false;
+      // VG: Also reset enrollment flags
+      this.requiresTotpSetup = false;
+      this.isMandatory = false;
       this.$nextTick(() => {
         this.$refs.email?.focus();
       });
