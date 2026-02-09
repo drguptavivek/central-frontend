@@ -86,12 +86,22 @@ except according to the terms contained in the LICENSE file.
         </div>
       </div>
     </div>
+
+    <!-- VG: TOTP Mandatory Enrollment Modal -->
+    <vg-totp-mandatory-setup-modal
+      :state="requiresTotpSetup" :user-id="tempUserId"
+      @setup="startMandatoryTotpSetup"/>
+    <vg-totp-setup-modal
+      :state="showTotpSetupModal" :user-id="tempUserId"
+      @hide="hideTotpSetupModal" @success="handleTotpSetupSuccess"/>
   </div>
 </template>
 
 <script>
 import FormGroup from '../form-group.vue';
 import Spinner from '../spinner.vue';
+import VgTotpMandatorySetupModal from '../vg/vg-totp-mandatory-setup-modal.vue';
+import VgTotpSetupModal from '../vg/vg-totp-setup-modal.vue';
 
 import { enketoBasePath, noop } from '../../util/util';
 import { localStore } from '../../util/storage';
@@ -101,7 +111,7 @@ import { useRequestData } from '../../request-data';
 
 export default {
   name: 'AccountLogin',
-  components: { FormGroup, Spinner },
+  components: { FormGroup, Spinner, VgTotpMandatorySetupModal, VgTotpSetupModal },
   inject: ['container', 'alert', 'config', 'location'],
   beforeRouteLeave() {
     return !this.disabled;
@@ -125,7 +135,9 @@ export default {
       tempSessionToken: null,
       // VG: TOTP enrollment flags
       requiresTotpSetup: false,
-      isMandatory: false
+      isMandatory: false,
+      showTotpSetupModal: false,
+      tempUserId: null
     };
   },
   computed: {
@@ -248,6 +260,7 @@ export default {
             if (sessionData && sessionData.requireTotpSetup === true) {
               // User MUST set up TOTP before proceeding (cannot dismiss)
               this.tempSessionToken = sessionData.token;
+              this.tempUserId = sessionData.user?.id || sessionData.userId;
               this.requiresTotpSetup = true;
               this.isMandatory = sessionData.mandatory || false;
               this.disabled = false;
@@ -374,6 +387,26 @@ export default {
       this.$nextTick(() => {
         this.$refs.email?.focus();
       });
+    },
+    // VG: TOTP Enrollment Modal Handlers
+    startMandatoryTotpSetup() {
+      // User clicked "Set Up 2FA Now" in mandatory modal
+      // Hide mandatory modal and show TOTP setup modal
+      this.requiresTotpSetup = false;
+      this.showTotpSetupModal = true;
+    },
+    hideTotpSetupModal() {
+      this.showTotpSetupModal = false;
+    },
+    handleTotpSetupSuccess() {
+      // TOTP setup completed successfully
+      // User must re-login, so reset form
+      this.showTotpSetupModal = false;
+      this.email = '';
+      this.password = '';
+      this.tempSessionToken = null;
+      this.tempUserId = null;
+      this.alert.success(this.$t('alert.totpSetupComplete'));
     }
   }
 };
@@ -384,7 +417,8 @@ export default {
   "en": {
     "alert": {
       "alreadyLoggedIn": "A user is already logged in. Please refresh the page to continue.",
-      "changePassword": "To protect your account, make sure your password is 10 characters or longer."
+      "changePassword": "To protect your account, make sure your password is 10 characters or longer.",
+      "totpSetupComplete": "Two-factor authentication has been enabled! Please log in again."
     },
     "field": {
       "totp": "6-digit code",

@@ -21,19 +21,30 @@ except according to the terms contained in the LICENSE file.
       <project-list/>
     </page-body>
     <whats-new/>
+
+    <!-- VG: TOTP Optional Enrollment Prompt -->
+    <vg-totp-enrollment-prompt-modal v-if="currentUser.dataExists"
+      :state="showOptionalEnrollmentModal" :user-id="currentUser.id"
+      @hide="hideOptionalEnrollmentModal" @setup="startTotpSetup"/>
+    <vg-totp-setup-modal v-if="currentUser.dataExists"
+      :state="showTotpSetupModal" :user-id="currentUser.id"
+      @hide="hideTotpSetupModal" @success="handleTotpSetupSuccess"/>
   </div>
 </template>
 
 <script setup>
-import { defineAsyncComponent, inject } from 'vue';
+import { defineAsyncComponent, inject, ref, onMounted } from 'vue';
 
 import HomeNews from './home/news.vue';
 import HomeSummary from './home/summary.vue';
 import PageBody from './page/body.vue';
 import ProjectList from './project/list.vue';
 import WhatsNew from './whats-new.vue';
+import VgTotpEnrollmentPromptModal from './vg/vg-totp-enrollment-prompt-modal.vue';
+import VgTotpSetupModal from './vg/vg-totp-setup-modal.vue';
 
 import useProjects from '../request-data/projects';
+import { useRequestData } from '../request-data';
 import { loadAsync } from '../util/load-async';
 import { noop } from '../util/util';
 
@@ -47,6 +58,49 @@ const projects = useProjects();
 projects.request({ url: '/v1/projects?forms=true&datasets=true' }).catch(noop);
 
 const config = inject('config');
+const { currentUser } = useRequestData();
+
+// VG: TOTP enrollment modal state
+const showOptionalEnrollmentModal = ref(false);
+const showTotpSetupModal = ref(false);
+
+// VG: Check for pending enrollment prompt on mount
+// Note: Mandatory enrollment is handled on the login page, not here
+onMounted(() => {
+  const pendingPrompt = sessionStorage.getItem('pendingTotpEnrollmentPrompt');
+
+  if (pendingPrompt === 'true') {
+    // Clear the flag
+    sessionStorage.removeItem('pendingTotpEnrollmentPrompt');
+    // Show optional enrollment prompt modal
+    showOptionalEnrollmentModal.value = true;
+  }
+});
+
+// VG: Modal event handlers
+const hideOptionalEnrollmentModal = () => {
+  showOptionalEnrollmentModal.value = false;
+};
+
+const startTotpSetup = () => {
+  // Hide enrollment prompt modal
+  showOptionalEnrollmentModal.value = false;
+  // Show TOTP setup modal
+  showTotpSetupModal.value = true;
+};
+
+const hideTotpSetupModal = () => {
+  showTotpSetupModal.value = false;
+};
+
+const handleTotpSetupSuccess = () => {
+  // Setup completed successfully
+  showTotpSetupModal.value = false;
+  // Optionally refresh user data to reflect new TOTP status
+  if (currentUser.dataExists) {
+    currentUser.request({ url: '/v1/users/current' }).catch(noop);
+  }
+};
 </script>
 
 <style lang="scss">
