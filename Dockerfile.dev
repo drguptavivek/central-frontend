@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 8989
 
 # Start the dev server with dependency installation
-CMD ["/usr/src/app/start-dev.sh"]
+CMD ["/bin/bash", "/usr/src/app/start-dev.sh"]
