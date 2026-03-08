@@ -64,6 +64,11 @@ import { computed, inject, onBeforeUnmount, provide } from 'vue';
 import { afterNextNavigation, forceReplace } from './router';
 import { apiPaths, isProblem, requestAlertMessage } from './request';
 import { joinSentences } from './i18n';
+import {
+  clearLastActivityAt,
+  setupVgSessionInactivity,
+  setLastActivityAt
+} from './vg-session-inactivity';
 import { localStore } from './storage';
 import { noop } from './util';
 
@@ -81,6 +86,7 @@ const removeSessionFromStorage = () => {
   */
   localStore.setItem('sessionExpires', '0');
   localStore.removeItem('sessionExpires');
+  clearLastActivityAt();
 };
 
 const requestLogout = ({ i18n, alert, http, location }) => http.delete(apiPaths.currentSession())
@@ -190,12 +196,26 @@ const logOutAfterStorageChange = (container) => (event) => {
 
 export const useSessions = () => {
   const container = inject('container');
-  const intervalId = setInterval(logOutBeforeSessionExpires(container), 15000);
+  const checkSessionExpiration = logOutBeforeSessionExpires(container);
+  const vgSessionInactivity = setupVgSessionInactivity({
+    alert: container.alert,
+    i18n: container.i18n,
+    logOut: (setNext) => logOut(container, setNext),
+    noop,
+    requestData: container.requestData,
+    router: container.router
+  });
+  const onInterval = () => {
+    checkSessionExpiration();
+    vgSessionInactivity.check();
+  };
+  const intervalId = setInterval(onInterval, 15000);
   const storageHandler = logOutAfterStorageChange(container);
   window.addEventListener('storage', storageHandler);
   onBeforeUnmount(() => {
     clearInterval(intervalId);
     window.removeEventListener('storage', storageHandler);
+    vgSessionInactivity.cleanup();
   });
 
   /* visiblyLoggedIn.value is `true` if the user not only has all the data from
@@ -259,6 +279,7 @@ export const logIn = (container, newSession) => {
     localStore.removeItem('sessionExpires');
     localStore.setItem('sessionExpires', Date.parse(session.expiresAt).toString());
   }
+  setLastActivityAt();
 
   return currentUser.request({ url: '/v1/users/current', extended: true })
     .catch(error => {
