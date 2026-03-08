@@ -1,9 +1,21 @@
 #!/bin/bash -eu
 set -o pipefail
 
-# Normally, index.html is housed at the root of the repository for Vite, but
-# here we move it to public/, where Vue CLI expects it.
-cp index.html public/
+# Karma runs through Vue CLI webpack, which expects a simple HTML template in
+# public/. Reusing the Vite entry HTML causes html-webpack-plugin parsing issues.
+cat > public/index.html <<'EOF'
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>ODK Central Tests</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
+EOF
 output=$(mktemp)
 trap 'rm -- public/index.html "$output"' EXIT
 
