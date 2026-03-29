@@ -61,6 +61,7 @@ function isTooBig({ path, size }) {
     case 'web-form.js': return size > 5_000_000;
     case 'MapBlock.js': return size > 600_000; // A Web Forms' feature bundle
     case 'geojson-map.js':       return size >   500_000;
+    case 'password-generator.js': return size >  550_000; // VG: includes @faker-js/faker for memorable password generation
   }
 
   const type = extname(path).substr(1);

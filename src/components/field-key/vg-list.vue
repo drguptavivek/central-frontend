@@ -80,23 +80,26 @@ except according to the terms contained in the LICENSE file.
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Popover from '../popover.vue';
 import DocLink from '../doc-link.vue';
 import Loading from '../loading.vue';
 import VgFieldKeyRow from './vg-row.vue';
-import VgFieldKeyNew from './vg-new.vue';
 import VgFieldKeyEdit from './vg-edit.vue';
 import VgFieldKeyRevoke from './vg-revoke.vue';
 import VgFieldKeyRestore from './vg-restore.vue';
-import VgFieldKeyResetPassword from './vg-reset-password.vue';
-import VgFieldKeyQrPanel from './vg-qr-panel.vue';
 import ProjectSubmissionOptions from '../project/submission-options.vue';
 
 import useRoutes from '../../composables/routes';
 import { modalData } from '../../util/reactivity';
 import { useRequestData } from '../../request-data';
+import { loadAsync } from '../../util/load-async';
+
+const VgFieldKeyNew = defineAsyncComponent(loadAsync('VgFieldKeyNew'));
+const VgFieldKeyResetPassword = defineAsyncComponent(loadAsync('VgFieldKeyResetPassword'));
+const VgFieldKeyQrPanel = defineAsyncComponent(loadAsync('VgFieldKeyQrPanel'));
 
 export default {
   name: 'VgFieldKeyList',
