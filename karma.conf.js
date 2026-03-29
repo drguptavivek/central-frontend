@@ -14,6 +14,8 @@ const { resolve } = require('node:path');
 const webpackConfig = require('./node_modules/@vue/cli-service/webpack.config.js');
 
 const { entry, ...webpackConfigForKarma } = webpackConfig;
+webpackConfigForKarma.plugins = webpackConfigForKarma.plugins.filter((plugin) =>
+  plugin?.constructor?.name !== 'HtmlWebpackPlugin');
 webpackConfigForKarma.plugins.push(VueI18nPlugin({
   include: resolve(__dirname, './src/locales/**'),
   compositionOnly: false,
@@ -59,13 +61,17 @@ module.exports = (config) => {
       'test/index.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfigForKarma,
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessCI'],
     reporters: ['spec'],
     singleRun: true,
     client: {
       mocha: { grep: process.env.TEST_PATTERN || '.' }
     },
     customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-dev-shm-usage']
+      },
       ChromeDebugging: {
         base: 'Chrome',
         flags: ['--remote-debugging-port=8333']

@@ -22,7 +22,7 @@ except according to the terms contained in the LICENSE file.
             <span class="navbar-icon-bar"></span>
             <span class="navbar-icon-bar"></span>
           </button>
-          <router-link to="/" class="navbar-brand">ODK Central</router-link>
+          <router-link to="/" class="navbar-brand">{{ brandName }}</router-link>
         </div>
         <div class="collapse navbar-collapse">
           <navbar-links v-if="visiblyLoggedIn"/>
@@ -73,7 +73,8 @@ export default {
     // component is created.
     const { currentUser, analyticsConfig } = useRequestData();
     const { canRoute } = useRoutes();
-    return { currentUser, analyticsConfig, canRoute };
+    const brandName = (import.meta.env?.VITE_APP_NAME ?? '').trim() || 'ODK Central';
+    return { currentUser, analyticsConfig, canRoute, brandName };
   },
   data() {
     return {
@@ -97,9 +98,9 @@ export default {
 $border-height: 3px;
 
 .navbar-default {
-  background-color: #dd2c2c;
+  background-color: $color-accent-primary;
   border: none;
-  border-top: $border-height solid #dedede;
+  border-top: $border-height solid $color-accent-secondary;
   box-shadow: 0 $border-height 0 #dedede;
   height: 30px + $border-height; // the way bootstrap is set up, the border eats the body.
   margin-bottom: 0;
@@ -179,7 +180,7 @@ $border-height: 3px;
         box-shadow: 0 0 6px transparentize($color-accent-secondary, 0.7) inset;
 
         &, &:hover, &:focus {
-          background-color: #b40066;
+          background-color: $color-accent-secondary;
           border-top-color: #fff;
           color: #fff;
         }
