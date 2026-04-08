@@ -59,7 +59,7 @@ const props = defineProps({
   },
 
   // Table actions
-  filter: Object,
+  filter: String,
 
   awaitingResponses: {
     type: Set,
@@ -75,7 +75,7 @@ const geojsonUrl = computed(() => apiPaths.submissions(
   props.xmlFormId,
   false,
   '.geojson',
-  props.filter
+  { $filter: props.filter }
 ));
 const overlapUrl = (query) =>
   apiPaths.odataSubmissions(props.projectId, props.xmlFormId, false, query);
@@ -120,6 +120,9 @@ defineExpose({
   "it": {
     "loading": "Preparazione della mappa: caricamento degli invii noti e ricerca di quelli nuovi. L'operazione potrebbe richiedere alcuni minuti.",
     "overlapTitle": "{count} Invio in quest'area | {count} Invii in quest'area | {count} Invii in quest'area"
+  },
+  "pt": {
+    "overlapTitle": "{count} Resposta nessa área | {count} Respostas nessa área | {count} Respostas nessa área"
   },
   "zh": {
     "loading": "正在准备地图——正在加载已有提交数据并扫描新增内容，此过程可能需要一些时间。",

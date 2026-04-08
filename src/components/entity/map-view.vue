@@ -46,7 +46,7 @@ defineOptions({
   name: 'EntityMapView'
 });
 const props = defineProps({
-  filter: Object,
+  filter: String,
   searchTerm: String,
   awaitingResponses: {
     type: Set,
@@ -61,7 +61,7 @@ const datasetName = inject('datasetName');
 const { odataEntities } = useRequestData();
 
 const geojsonUrl = computed(() => {
-  const query = { ...props.filter, $search: props.searchTerm };
+  const query = { $filter: props.filter, $search: props.searchTerm };
   return apiPaths.entities(projectId, datasetName, '.geojson', query);
 });
 const overlapUrl = (query) =>
@@ -103,6 +103,10 @@ defineExpose({
   "it": {
     "loading": "Preparazione della mappa. L'operazione potrebbe richiedere alcuni minuti.",
     "overlapTitle": "{count} Entità in quest'area | {count} Entità in quest'area | {count} Entità in quest'area"
+  },
+  "pt": {
+    "loading": "Preparando o mapa. Isso pode demorar um pouco.",
+    "overlapTitle": "{count} entidade nessa área. | {count} entidades nessa área. | {count} entidades nessa área."
   },
   "zh": {
     "loading": "正在准备地图。这可能需要一段时间。",
