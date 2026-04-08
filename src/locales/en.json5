@@ -33,6 +33,7 @@
     "title": "System Management",
     "tab": {
       "audits": "Server Audit Logs",
+      "customization": "Customization",
       "analytics": "Usage Reporting",
       "settings": "App User Settings",
       "enketoStatus": "Enketo Status"
@@ -116,7 +117,8 @@
       "dataset": {
         "create": "@:audit.action.default.create",
         "update": "Update",
-        "update_publish": "Publish"
+        "update_publish": "Publish",
+        "delete": "@:audit.action.default.delete"
       },
       "entity": {
         "bulk_delete": "Bulk Delete",
@@ -363,6 +365,13 @@
     },
     // This is a link to more information.
     "learnMore": "Learn more."
+  },
+  "login": {
+    "odkLogo": "ODK logo",
+    "defaultTitle": "Welcome to ODK Central",
+    "defaultDescription": "Log into your account to get started",
+    "heroImage": "Login image",
+    "customLogoAlt": "Organization logo"
   },
   "analytics": {
     "alwaysImprove": "We are always trying to improve ODK Central.",

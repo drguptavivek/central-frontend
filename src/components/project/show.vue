@@ -119,11 +119,11 @@ export default {
   },
   setup() {
     const { project, forms, fieldKeys } = useProject();
-    const datasets = useDatasets();
+    const { datasets, deletedDatasets } = useDatasets();
     const { projectPath, canRoute } = useRoutes();
     const { tabPath, tabClass } = useTabs(projectPath());
     return {
-      project, forms, datasets, fieldKeys,
+      project, forms, datasets, deletedDatasets, fieldKeys,
       tabPath, tabClass, projectPath, canRoute
     };
   },
@@ -157,7 +157,10 @@ export default {
 
       // If we send a request for this.forms, then we also clear this.datasets
       // in case a change to this.forms has also changed this.datasets.
-      if (!this.forms.dataExists) this.datasets.data = null;
+      if (!this.forms.dataExists) {
+        this.datasets.data = null;
+        this.deletedDatasets.data = null;
+      }
     },
     fetchFieldKeys(resend) {
       this.fieldKeys.request({

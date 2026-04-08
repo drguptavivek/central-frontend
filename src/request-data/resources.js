@@ -42,6 +42,9 @@ export default (container, createResource) => {
       : configDefaults),
     loaded: computed(() => config.dataExists && config.loadError == null)
   }));
+  createResource('serverConfig', () => ({
+    transformResponse: ({ data }) => shallowReactive(data)
+  }));
   createResource('centralVersion', () => ({
     transformResponse: ({ data, headers }) =>
       shallowReactive({
