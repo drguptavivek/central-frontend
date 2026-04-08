@@ -38,7 +38,7 @@ const testTarget = async (row, text, ...linkOptions) => {
     span.text().should.equal(text);
     await span.should.have.textTooltip();
   } else if (typeof linkOptions[0] === 'string') {
-    testTarget(row, text, RouterLinkStub, (link) => {
+    await testTarget(row, text, RouterLinkStub, (link) => {
       link.props().to.should.equal(linkOptions[0]);
     });
   } else {
@@ -289,6 +289,7 @@ describe('AuditTable', () => {
       ['dataset.update', ['Entity List', 'Update']],
       ['entity.bulk.delete', ['Entity List', 'Bulk Delete']],
       ['entity.bulk.restore', ['Entity List', 'Bulk Restore']],
+      ['dataset.delete', ['Entity List', 'Delete']],
     ];
 
     for (const [action, type] of cases) {

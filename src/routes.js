@@ -11,6 +11,7 @@ except according to the terms contained in the LICENSE file.
 */
 import { always, equals } from 'ramda';
 
+import AccountPage from './components/account/page.vue';
 import AccountLogin from './components/account/login.vue';
 import AsyncRoute from './components/async-route.vue';
 import { routeProps } from './util/router';
@@ -218,7 +219,7 @@ export default (container) => {
   const routes = [
     asyncRoute({
       path: '/load-error',
-      component: 'ConfigError',
+      component: 'ClientConfigError',
       loading: 'page',
       meta: {
         requireLogin: false,
@@ -229,38 +230,49 @@ export default (container) => {
     }),
 
     {
-      path: '/login',
-      name: 'AccountLogin',
-      component: AccountLogin,
-      meta: {
-        requireLogin: false,
-        requireAnonymity: true,
-        title: () => [i18n.t('action.logIn')]
-      }
+      path: '/account',
+      component: AccountPage,
+      children: [
+        {
+          path: 'login',
+          alias: '/login',
+          name: 'AccountLogin',
+          component: AccountLogin,
+          meta: {
+            requireLogin: false,
+            requireAnonymity: true,
+            title: () => [i18n.t('action.logIn')],
+            fullWidth: true
+          }
+        },
+        asyncRoute({
+          path: 'reset-password',
+          alias: '/reset-password',
+          component: 'AccountResetPassword',
+          loading: 'tab',
+          meta: {
+            requireLogin: false,
+            requireAnonymity: true,
+            title: () => [i18n.t('title.resetPassword')],
+            fullWidth: true
+          },
+          beforeEnter: () => (config.oidcEnabled ? '/404' : true)
+        }),
+        asyncRoute({
+          path: 'claim',
+          component: 'AccountClaim',
+          loading: 'tab',
+          meta: {
+            restoreSession: false,
+            requireLogin: false,
+            requireAnonymity: true,
+            title: () => [i18n.t('title.setPassword')],
+            fullWidth: true
+          },
+          beforeEnter: () => (config.oidcEnabled ? '/404' : true)
+        })
+      ]
     },
-    asyncRoute({
-      path: '/reset-password',
-      component: 'AccountResetPassword',
-      loading: 'page',
-      meta: {
-        requireLogin: false,
-        requireAnonymity: true,
-        title: () => [i18n.t('title.resetPassword')]
-      },
-      beforeEnter: () => (config.oidcEnabled ? '/404' : true)
-    }),
-    asyncRoute({
-      path: '/account/claim',
-      component: 'AccountClaim',
-      loading: 'page',
-      meta: {
-        restoreSession: false,
-        requireLogin: false,
-        requireAnonymity: true,
-        title: () => [i18n.t('title.setPassword')]
-      },
-      beforeEnter: () => (config.oidcEnabled ? '/404' : true)
-    }),
 
     asyncRoute({
       path: '/',
@@ -666,6 +678,21 @@ export default (container) => {
               currentUser: () => currentUser.can('audit.read')
             },
             title: () => [i18n.t('systemHome.tab.audits'), i18n.t('systemHome.title')],
+            fullWidth: true
+          }
+        }),
+        asyncRoute({
+          path: 'config',
+          component: 'ConfigLogin',
+          loading: 'tab',
+          meta: {
+            validateData: {
+              currentUser: () => currentUser.can(['config.read', 'config.set'])
+            },
+            title: () => [
+              i18n.t('systemHome.tab.customization'),
+              i18n.t('systemHome.title')
+            ],
             fullWidth: true
           }
         }),
