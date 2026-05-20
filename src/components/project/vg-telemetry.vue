@@ -290,7 +290,6 @@ export default {
 
       if (this.telemetry.length === 0) this.initiallyLoading = true;
       const query = {
-        projectId: Number(this.projectId),
         appUserId: this.filters.appUserId != null ? this.filters.appUserId : undefined,
         deviceId: this.filters.deviceId.trim() !== '' ? this.filters.deviceId.trim() : undefined,
         dateFrom: toIso(this.filters.dateFrom),
@@ -298,7 +297,7 @@ export default {
         limit: this.pagination.size,
         offset: this.pagination.page * this.pagination.size
       };
-      this.request({ url: apiPaths.systemAppUserTelemetry(query) })
+      this.request({ url: apiPaths.projectAppUserTelemetry(this.projectId, query) })
         .then((response) => {
           const headerTotal = Number(response.headers['x-total-count']);
           this.totalCount = Number.isFinite(headerTotal)

@@ -82,6 +82,7 @@ export const apiPaths = {
   userSitePreferences: (k) => `/v1/user-preferences/site/${k}`,
   userProjectPreferences: (projectId, k) => `/v1/user-preferences/project/${projectId}/${k}`,
   project: projectPath(''),
+  projectFormAccess: projectPath('/form-access'),
   projectAssignments: projectPath('/assignments'),
   projectAssignment: (projectId, role, actorId) =>
     `/v1/projects/${projectId}/assignments/${role}/${actorId}`,
@@ -205,6 +206,8 @@ export const apiPaths = {
     `/v1/projects/${projectId}/app-users/sessions/${sessionId}/revoke`,
   systemAppUserTelemetry: (query = undefined) =>
     `/v1/system/app-users/telemetry${queryString(query)}`,
+  projectAppUserTelemetry: (projectId, query = undefined) =>
+    `/v1/projects/${projectId}/app-users/telemetry${queryString(query)}`,
   enketoStatus: (query = undefined) =>
     `/v1/system/enketo-status${queryString(query)}`,
   enketoStatusRegenerate: () =>

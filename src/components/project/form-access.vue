@@ -122,16 +122,8 @@ export default {
 
       return byForm;
     },
-    // This may need to change whenever we add a property to the Project or Form
-    // class in Backend.
-    projectToSave() {
+    formAccessToSave() {
       return {
-        name: this.project.name,
-        description: this.project.description,
-        archived: this.project.archived,
-        // If there is a form on Backend that is not in this.forms, then at
-        // least right now, Backend will return a Problem response. In the
-        // future, Backend may delete the form.
         forms: this.forms.map(form => {
           const changes = this.changesByForm[form.xmlFormId];
 
@@ -224,8 +216,8 @@ export default {
     save() {
       this.request({
         method: 'PUT',
-        url: apiPaths.project(this.projectId),
-        data: this.projectToSave
+        url: apiPaths.projectFormAccess(this.projectId),
+        data: this.formAccessToSave
       })
         .then(() => {
           this.fetchData(true);

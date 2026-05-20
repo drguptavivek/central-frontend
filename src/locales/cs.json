@@ -31,6 +31,7 @@
     "admin": "Administrátor",
     "manager": "Projektový manažer",
     "viewer": "Prohlížeč projektu",
+    "data_mgr": "Data Manager",
     "formfill": "Sběratel dat"
   },
   "formState": {

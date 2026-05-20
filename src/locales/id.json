@@ -30,6 +30,7 @@
     "admin": "Administrator",
     "manager": "Manajer Proyek",
     "viewer": "Pemerhati Proyek",
+    "data_mgr": "Data Manager",
     "formfill": "Pengumpul Data"
   },
   "formState": {

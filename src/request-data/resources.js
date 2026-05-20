@@ -74,7 +74,8 @@ export default (container, createResource) => {
     projectRoles: computeIfExists(() => {
       const { bySystem } = roles;
       // If you add a new role, make sure to also add a new i18n message.
-      return [bySystem.manager, bySystem.viewer, bySystem.formfill];
+      return [bySystem.manager, bySystem.data_mgr, bySystem.viewer, bySystem.formfill]
+        .filter(role => role != null);
     })
   }));
 

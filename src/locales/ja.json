@@ -30,6 +30,7 @@
     "admin": "管理者",
     "manager": "プロジェクト・マネジャー",
     "viewer": "プロジェクト・閲覧者",
+    "data_mgr": "Data Manager",
     "formfill": "データ収集者"
   },
   "formState": {

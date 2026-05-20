@@ -352,7 +352,7 @@ export default (container) => {
           loading: 'tab',
           meta: {
             validateData: {
-              currentUser: () => currentUser.can('config.read')
+              project: () => project.permits('vg_telemetry.read')
             },
             title: () => [i18n.t('projectShow.tab.telemetry'), project.name],
             fullWidth: true
@@ -382,10 +382,7 @@ export default (container) => {
                 'form.list',
                 'field_key.list',
                 'assignment.list',
-                'project.update',
-                'form.update',
-                'assignment.create',
-                'assignment.delete'
+                'vg_form_access.update'
               ])
             },
             title: () => [i18n.t('projectShow.tab.formAccess'), project.name],

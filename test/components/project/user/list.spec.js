@@ -114,6 +114,7 @@ describe('ProjectUserList', () => {
         const options = app.findAll('#project-user-list tbody tr option');
         options.map(option => option.text()).should.eql([
           'Project Manager',
+          'Data Manager',
           'Project Viewer',
           'Data Collector',
           'None'

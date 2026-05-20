@@ -245,11 +245,8 @@ describe('ProjectFormAccess', () => {
         return saveWithSuccess().testRequests([
           {
             method: 'PUT',
-            url: '/v1/projects/1',
+            url: '/v1/projects/1/form-access',
             data: {
-              name: 'My Project',
-              description: '',
-              archived: false,
               forms: [
                 {
                   xmlFormId: 'f',

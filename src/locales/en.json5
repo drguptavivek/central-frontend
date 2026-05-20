@@ -46,6 +46,7 @@
     "admin": "Administrator",
     "manager": "Project Manager",
     "viewer": "Project Viewer",
+    "data_mgr": "Data Manager",
     "formfill": "Data Collector"
   },
   "formState": {

@@ -1,4 +1,5 @@
 import { standardRoles } from './roles';
+import { dataManagerRole } from './vg-roles';
 
 export default () => {
   // Only creating roles that we currently use in Frontend.
@@ -101,6 +102,7 @@ export default () => {
         'submission.restore'
       ]
     })
+    .createPast(1, dataManagerRole)
     .createPast(1, {
       name: 'Project Viewer',
       system: 'viewer',

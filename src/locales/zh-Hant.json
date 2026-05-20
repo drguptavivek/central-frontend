@@ -31,6 +31,7 @@
     "admin": "管理者",
     "manager": "專案管理員",
     "viewer": "專案檢視人員",
+    "data_mgr": "Data Manager",
     "formfill": "資料收集人員"
   },
   "formState": {
