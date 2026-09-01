@@ -52,6 +52,12 @@ except according to the terms contained in the LICENSE file.
             {{ $t('resource.appUsers') }}
           </router-link>
         </li>
+        <li v-if="canRoute(tabPath('custom-properties'))"
+          :class="tabClass('custom-properties')" role="presentation">
+          <router-link :to="tabPath('custom-properties')">
+            {{ $t('projectShow.tab.customProperties') }}
+          </router-link>
+        </li>
         <li v-if="canRoute(tabPath('app-user-settings'))"
           :class="tabClass('app-user-settings')" role="presentation">
           <router-link :to="tabPath('app-user-settings')">
@@ -89,7 +95,8 @@ except according to the terms contained in the LICENSE file.
       <!-- <router-view> may send its own requests before the server has
       responded to ProjectShow's request for the project. -->
       <router-view v-show="project.dataExists" @fetch-project="fetchProject"
-        @fetch-forms="fetchForms" @fetch-field-keys="fetchFieldKeys"/>
+        @fetch-forms="fetchForms" @fetch-field-keys="fetchFieldKeys"
+        @fetch-actor-properties="fetchActorProperties"/>
     </page-body>
   </div>
 </template>
@@ -107,6 +114,7 @@ import useRoutes from '../../composables/routes';
 import useTabs from '../../composables/tabs';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
+import { useRequestData } from '../../request-data';
 
 export default {
   name: 'ProjectShow',
@@ -118,12 +126,14 @@ export default {
     }
   },
   setup() {
+    const { createResource } = useRequestData();
     const { project, forms, fieldKeys } = useProject();
     const { datasets, deletedDatasets } = useDatasets();
     const { projectPath, canRoute } = useRoutes();
     const { tabPath, tabClass } = useTabs(projectPath());
+    const actorProperties = createResource('actorProperties');
     return {
-      project, forms, datasets, deletedDatasets, fieldKeys,
+      project, forms, datasets, deletedDatasets, fieldKeys, actorProperties,
       tabPath, tabClass, projectPath, canRoute
     };
   },
@@ -167,6 +177,12 @@ export default {
         url: apiPaths.fieldKeys(this.projectId),
         extended: true,
         resend
+      }).catch(noop);
+    },
+    fetchActorProperties() {
+      this.actorProperties.request({
+        url: apiPaths.actorProperties(this.projectId),
+        resend: false
       }).catch(noop);
     }
   }

@@ -20,6 +20,11 @@ except according to the terms contained in the LICENSE file.
         <form-group v-model.trim="phone"
           :placeholder="$t('field.phoneWithFormat')" autocomplete="off"
           pattern="^.{0,25}$" maxlength="25"/>
+        <div v-if="state && actorProperties.dataExists"
+          class="field-key-edit-properties">
+          <actor-properties-upsert v-model:propertyValues="propertyValues"
+            :create="false" :property-defs="actorProperties.data"/>
+        </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-link"
             :aria-disabled="awaitingResponse" @click="$emit('hide')">
@@ -39,14 +44,16 @@ except according to the terms contained in the LICENSE file.
 import FormGroup from '../form-group.vue';
 import Spinner from '../spinner.vue';
 import Modal from '../modal.vue';
+import ActorPropertiesUpsert from '../actor-properties/upsert.vue';
 
 import useRequest from '../../composables/request';
+import { useRequestData } from '../../request-data';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
 
 export default {
   name: 'VgFieldKeyEdit',
-  components: { FormGroup, Spinner, Modal },
+  components: { FormGroup, Spinner, Modal, ActorPropertiesUpsert },
   inject: ['redAlert', 'alert'],
   props: {
     state: {
@@ -65,12 +72,14 @@ export default {
   emits: ['hide', 'success'],
   setup() {
     const { request, awaitingResponse } = useRequest();
-    return { request, awaitingResponse };
+    const { actorProperties } = useRequestData();
+    return { request, awaitingResponse, actorProperties };
   },
   data() {
     return {
       displayName: '',
-      phone: ''
+      phone: '',
+      propertyValues: Object.create(null)
     };
   },
   watch: {
@@ -80,6 +89,7 @@ export default {
         if (fk != null) {
           this.displayName = fk.displayName ?? '';
           this.phone = fk.phone ?? '';
+          this.propertyValues = Object.assign(Object.create(null), fk.properties);
         }
       }
     },
@@ -98,7 +108,8 @@ export default {
         url: apiPaths.fieldKeyUpdate(this.projectId, this.fieldKey.id),
         data: {
           fullName: this.displayName,
-          phone: this.phone
+          phone: this.phone,
+          properties: this.propertyValues
         }
       })
         .then(({ data }) => {

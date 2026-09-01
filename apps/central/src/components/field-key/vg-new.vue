@@ -24,6 +24,11 @@ except according to the terms contained in the LICENSE file.
           <form-group v-model.trim="phone"
             :placeholder="$t('field.phoneWithFormat')" autocomplete="off"
             pattern="^\(\+\d{1,3}\) ?\d{3} ?\d{3} ?\d{4}$" maxlength="20"/>
+          <div v-if="state && actorProperties.dataExists && actorProperties.length > 0"
+            class="field-key-set-properties">
+            <actor-properties-upsert v-model:propertyValues="propertyValues" :create="true"
+              :property-defs="actorProperties.data"/>
+          </div>
           <div class="modal-actions">
             <button type="button" class="btn btn-link"
               :aria-disabled="awaitingResponse" @click="hideOrComplete">
@@ -75,6 +80,7 @@ except according to the terms contained in the LICENSE file.
 import FormGroup from '../form-group.vue';
 import Spinner from '../spinner.vue';
 import Modal from '../modal.vue';
+import ActorPropertiesUpsert from '../actor-properties/upsert.vue';
 import VgFieldKeyQrPanel from './vg-qr-panel.vue';
 import SentenceSeparator from '../sentence-separator.vue';
 
@@ -88,7 +94,9 @@ import { generatePassword } from '../../util/password-generator';
 
 export default {
   name: 'VgFieldKeyNew',
-  components: { FormGroup, Spinner, Modal, VgFieldKeyQrPanel, SentenceSeparator },
+  components: {
+    FormGroup, Spinner, Modal, ActorPropertiesUpsert, VgFieldKeyQrPanel, SentenceSeparator
+  },
   inject: ['redAlert'],
   props: {
     state: {
@@ -103,10 +111,12 @@ export default {
   emits: ['hide', 'success'],
   setup() {
     // The modal assumes that this data will exist when the modal is shown.
-    const { project, fieldKeys } = useRequestData();
+    const { project, fieldKeys, actorProperties } = useRequestData();
     const { request, awaitingResponse } = useRequest();
     const { projectPath } = useRoutes();
-    return { project, fieldKeys, request, awaitingResponse, projectPath };
+    return {
+      project, fieldKeys, actorProperties, request, awaitingResponse, projectPath
+    };
   },
   data() {
     return {
@@ -116,6 +126,7 @@ export default {
       displayName: '',
       username: '',
       phone: '',
+      propertyValues: Object.create(null),
       password: '',
       confirmPassword: '',
       created: null,
@@ -130,6 +141,7 @@ export default {
         this.displayName = '';
         this.username = '';
         this.phone = '';
+        this.propertyValues = Object.create(null);
         this.password = '';
         this.confirmPassword = '';
         this.created = null;
@@ -153,6 +165,7 @@ export default {
           fullName: this.displayName,
           username: this.username,
           phone: this.phone,
+          properties: this.propertyValues,
           password
         },
         problemToAlert: ({ code }) => {

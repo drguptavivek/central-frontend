@@ -89,11 +89,6 @@ export default {
     const { project, projectAppUserSettings } = useRequestData();
     return { project, projectAppUserSettings };
   },
-  created() {
-    if (!this.projectAppUserSettings.dataExists) {
-      this.projectAppUserSettings.request({ url: `/v1/projects/${this.project.id}/app-users/settings` });
-    }
-  },
   computed: {
     settings() {
       const settings = {
@@ -137,6 +132,11 @@ export default {
         };
       }
       return settings;
+    }
+  },
+  created() {
+    if (!this.projectAppUserSettings.dataExists) {
+      this.projectAppUserSettings.request({ url: `/v1/projects/${this.project.id}/app-users/settings` });
     }
   }
 };

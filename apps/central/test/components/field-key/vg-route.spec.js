@@ -1,5 +1,6 @@
 import VgFieldKeyList from '../../../src/components/field-key/vg-list.vue';
 import useProject from '../../../src/request-data/project';
+import { useRequestData } from '../../../src/request-data';
 
 import testData from '../../data';
 import { mockHttp } from '../../util/http';
@@ -15,16 +16,20 @@ const VgFieldKeyRouteHarness = {
       required: true
     }
   },
-  emits: ['fetch-field-keys'],
+  emits: ['fetch-field-keys', 'fetch-actor-properties'],
   setup() {
     const { fieldKeys } = useProject();
+    const { createResource } = useRequestData();
+    const actorProperties = createResource('actorProperties');
     fieldKeys.data = testData.extendedFieldKeys.sorted();
+    actorProperties.data = testData.actorProperties.sorted();
     return {};
   },
   template: `
     <vg-field-key-list
       :project-id="projectId"
       @fetch-field-keys="$emit('fetch-field-keys', $event)"
+      @fetch-actor-properties="$emit('fetch-actor-properties')"
     />
   `
 };

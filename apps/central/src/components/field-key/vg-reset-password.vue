@@ -54,7 +54,6 @@ except according to the terms contained in the LICENSE file.
 </template>
 
 <script>
-import FormGroup from '../form-group.vue';
 import Spinner from '../spinner.vue';
 import Modal from '../modal.vue';
 import VgFieldKeyQrPanel from './vg-qr-panel.vue';
@@ -67,7 +66,7 @@ import { generatePassword } from '../../util/password-generator';
 
 export default {
   name: 'VgFieldKeyResetPassword',
-  components: { FormGroup, Spinner, Modal, VgFieldKeyQrPanel, SentenceSeparator },
+  components: { Spinner, Modal, VgFieldKeyQrPanel, SentenceSeparator },
   props: {
     state: {
       type: Boolean,

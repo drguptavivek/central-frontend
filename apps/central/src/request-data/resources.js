@@ -56,10 +56,8 @@ export default (container, createResource) => {
   createResource('analyticsConfig', noargs(setupOption));
   createResource('systemSettings', noargs(setupOption));
   createResource('enketoStatus', () => ({
-    transformResponse: ({ data }) => {
-      // Store the entire response (data + meta) as the resource data
-      return data;
-    }
+    // Store the entire response (data + meta) as the resource data
+    transformResponse: ({ data }) => data
   }));
   createResource('projectAppUserSettings', noargs(setupOption));
   createResource('roles', (roles) => ({

@@ -193,6 +193,7 @@ export const apiPaths = {
   entityVersions: entityPath('/versions'),
   entityRestore: entityPath('/restore'),
   fieldKeys: projectPath('/app-users'),
+  actorProperties: projectPath('/actor-properties'),
   fieldKeyLogin: (projectId) => `/v1/projects/${projectId}/app-users/login`,
   fieldKeyUpdate: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}`,
   fieldKeyResetPassword: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/password/reset`,
@@ -211,7 +212,7 @@ export const apiPaths = {
   enketoStatus: (query = undefined) =>
     `/v1/system/enketo-status${queryString(query)}`,
   enketoStatusRegenerate: () =>
-    `/v1/system/enketo-status/regenerate`,
+    '/v1/system/enketo-status/regenerate',
   serverUrlForFieldKey: (token, projectId) =>
     `/v1/key/${token}/projects/${projectId}`,
   audits: (query) => `/v1/audits${queryString(query)}`,

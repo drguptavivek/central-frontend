@@ -30,8 +30,9 @@ except according to the terms contained in the LICENSE file.
         </template>
       </i18n-t>
     </div>
-    <table id="field-key-list-table" class="table">
-      <thead>
+    <table-freeze v-if="dataExists" id="field-key-list-table" :data="fieldKeys.data" key-prop="id"
+      :frozen-only="actorProperties.length === 0" :divider="actorProperties.length > 0">
+      <template #head-frozen>
         <tr>
           <th>{{ $t('header.displayName') }}</th>
           <th>{{ $t('header.username') }}</th>
@@ -41,24 +42,32 @@ except according to the terms contained in the LICENSE file.
           <th>{{ $t('header.configureClient') }}</th>
           <th class="actions">{{ $t('header.actions') }}</th>
         </tr>
-      </thead>
-      <tbody v-if="fieldKeys.dataExists">
-        <vg-field-key-row v-for="fieldKey of fieldKeys" :key="fieldKey.id"
-          :field-key="fieldKey" :highlighted="highlighted"
+      </template>
+      <template #head-scrolling>
+        <th v-for="property of actorProperties" :key="property.name">
+          <span v-tooltip.text>{{ property.name }}</span>
+        </th>
+      </template>
+      <template #data-frozen="{ data: fieldKey }">
+        <vg-field-key-row :field-key="fieldKey" :highlighted="highlighted"
           @toggle-qr="togglePopover"
           @edit="editModal.show({ fieldKey: $event })"
           @sessions="goToLoginHistory"
           @revoke="revokeModal.show({ fieldKey: $event })"
           @restore="restoreModal.show({ fieldKey: $event })"
           @reset-password="resetPasswordModal.show({ fieldKey: $event })"/>
-      </tbody>
-    </table>
+      </template>
+      <template #data-scrolling="{ data: fieldKey }">
+        <custom-props-data-row :actor="fieldKey" :highlighted="highlighted"
+          :properties="actorProperties"/>
+      </template>
+    </table-freeze>
     <popover ref="popover" :target="popover.target" placement="left"
       @hide="hidePopover">
       <vg-field-key-qr-panel :field-key="popover.fieldKey" :managed="managed"/>
     </popover>
-    <loading :state="fieldKeys.initiallyLoading"/>
-    <p v-if="fieldKeys.dataExists && fieldKeys.length === 0"
+    <loading :state="initiallyLoading"/>
+    <p v-if="dataExists && fieldKeys.length === 0"
       class="empty-table-message">
       {{ $t('emptyTable') }}
     </p>
@@ -86,6 +95,8 @@ import { useRouter } from 'vue-router';
 import Popover from '../popover.vue';
 import DocLink from '../doc-link.vue';
 import Loading from '../loading.vue';
+import TableFreeze from '../table/freeze.vue';
+import CustomPropsDataRow from '../custom-props-data-row.vue';
 import VgFieldKeyRow from './vg-row.vue';
 import VgFieldKeyEdit from './vg-edit.vue';
 import VgFieldKeyRevoke from './vg-revoke.vue';
@@ -107,6 +118,8 @@ export default {
     Popover,
     DocLink,
     Loading,
+    TableFreeze,
+    CustomPropsDataRow,
     VgFieldKeyRow,
     VgFieldKeyNew,
     VgFieldKeyEdit,
@@ -123,12 +136,18 @@ export default {
       required: true
     }
   },
-  emits: ['fetch-field-keys'],
+  emits: ['fetch-field-keys', 'fetch-actor-properties'],
   setup() {
-    const { fieldKeys } = useRequestData();
+    const { fieldKeys, actorProperties, resourceStates } = useRequestData();
     const { projectPath } = useRoutes();
     const router = useRouter();
-    return { fieldKeys, projectPath, router };
+    return {
+      fieldKeys,
+      actorProperties,
+      ...resourceStates([fieldKeys, actorProperties]),
+      projectPath,
+      router
+    };
   },
   data() {
     return {
@@ -150,6 +169,7 @@ export default {
     };
   },
   created() {
+    this.$emit('fetch-actor-properties');
     this.fetchData(false);
   },
   mounted() {
@@ -226,10 +246,17 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../../assets/scss/variables';
+@import '../../assets/scss/mixins';
 
 #field-key-list-table {
-  table-layout: fixed;
+  .table-freeze-scrolling {
+    th, td {
+      @include text-overflow-ellipsis;
+      max-width: 250px;
+    }
+  }
+
+  &.frozen-only .table-freeze-frozen { width: 100%; }
 
   th.actions { width: 125px; }
 }
