@@ -134,7 +134,7 @@ describe('VgFieldKeyRoute', () => {
       .afterResponses(async (app) => {
         await app.vm.$nextTick();
         app.should.alert('success', 'The App User “Updated App User” was updated successfully.');
-        app.find('#field-key-edit').classes('in').should.be.false;
+        app.find('#field-key-edit').exists().should.be.false;
         const emitted = app.emitted('fetch-field-keys');
         emitted[emitted.length - 1].should.eql([true]);
       });
