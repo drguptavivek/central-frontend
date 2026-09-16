@@ -1,0 +1,137 @@
+{
+  "component": {
+    "Preview": {
+      "formNotFound": {
+        "string": "Tidak ada formulir yang ditemukan pada URL ini, mohon periksa kembali."
+      }
+    },
+    "Submission": {
+      "formNotFound": {
+        "title": {
+          "string": "Tidak dapat membuka formulir"
+        },
+        "body": {
+          "string": "Pastikan tautan sudah benar. Formulir mungkin sudah tidak tersedia, atau akses Anda mungkin telah kedaluwarsa. Jika masalah berlanjut, hubungi orang yang mengirimkan tautan formulir tersebut kepada Anda."
+        }
+      },
+      "errorNotProblem": {
+        "title": {
+          "string": "Terjadi kesalahan"
+        },
+        "body": {
+          "string": "Coba lagi nanti. Jika masalah berlanjut, hubungi orang yang mengirimkan tautan formulir tersebut kepada Anda."
+        },
+        "status": {
+          "string": "Kode error: {status}"
+        }
+      }
+    },
+    "WebFormRenderer": {
+      "action": {
+        "close": {
+          "string": "Tutup"
+        },
+        "tryAgain": {
+          "string": "Coba lagi"
+        }
+      },
+      "previewModal": {
+        "title": {
+          "string": "Data valid"
+        },
+        "body": {
+          "string": "Data yang Anda masukkan valid, tetapi tidak dikirim karena ini adalah pratinjau Formulir."
+        }
+      },
+      "submissionModal": {
+        "title": {
+          "string": "Formulir berhasil dikirim!"
+        },
+        "body": {
+          "string": "Anda dapat mengisi Formulir ini lagi atau tutup jika sudah selesai."
+        },
+        "action": {
+          "fillOutAgain": {
+            "string": "Isi lagi"
+          }
+        }
+      },
+      "thankYouModal": {
+        "title": {
+          "string": "Terima kasih atas partisipasi Anda!"
+        },
+        "body": {
+          "string": "Anda dapat menutup jendela ini sekarang."
+        }
+      },
+      "editSubmissionModal": {
+        "title": {
+          "string": "Pengiriman berhasil"
+        },
+        "body": {
+          "string": "Anda akan segera dialihkan."
+        }
+      },
+      "errorModal": {
+        "title": {
+          "string": "Kesalahan pengiriman"
+        },
+        "body": {
+          "string": "Data Anda tidak terkirim. Pesan kesalahan: {errorMessage} Anda dapat menutup dialog ini dan mencoba lagi. Jika kesalahan terus terjadi, silakan hubungi orang yang meminta Anda mengisi Formulir ini atau {supportEmail}."
+        }
+      },
+      "sendingDataModal": {
+        "title": {
+          "string": "Sedang mengirim"
+        },
+        "body": {
+          "string": "Data Anda sedang dikirim. Mohon jangan menutup jendela ini hingga proses selesai."
+        }
+      },
+      "sessionTimeoutModal": {
+        "title": {
+          "string": "Sesi kedaluwarsa"
+        },
+        "body": {
+          "full": {
+            "string": "Silakan masuk {here} di tab browser yang berbeda dan coba lagi.",
+            "developer_comment": "{here} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nhere"
+          },
+          "here": {
+            "string": "di sini",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {here} is in the following text:\n\nPlease log in {here} in a different browser tab and try again."
+          }
+        }
+      },
+      "retryModal": {
+        "title": {
+          "string": "Kesalahan pengiriman"
+        },
+        "body": {
+          "string": "Data Anda tidak sepenuhnya terkirim. Silakan tekan tombol “Coba lagi” untuk mengulang. Jika kesalahan terus terjadi, silakan hubungi orang yang meminta Anda mengisi Formulir ini atau {supportEmail}."
+        }
+      },
+      "util": {
+        "request": {
+          "noResponse": {
+            "string": "Terjadi kesalahan: tidak ada respons terhadap permintaan Anda."
+          },
+          "problem": {
+            "404_1": {
+              "string": "Sumber daya yang Anda cari tidak dapat ditemukan. Sumber daya tersebut mungkin telah dihapus."
+            }
+          }
+        }
+      },
+      "mixin": {
+        "request": {
+          "alert": {
+            "entityTooLarge": {
+              "string": "Data yang Anda coba unggah terlalu besar."
+            }
+          }
+        }
+      }
+    }
+  }
+}

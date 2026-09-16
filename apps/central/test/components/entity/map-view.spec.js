@@ -81,22 +81,24 @@ describe('EntityMapView', () => {
   });
 
   describe('filters and search', () => {
-    it('passes filters and search through to the request', () => {
+    it('passes filters, search, and viewAs through to the request', () => {
       setLuxon({ defaultZoneName: 'UTC' });
       testData.extendedDatasets.createPast(1, {
         properties: [{ name: 'geometry' }]
       });
-      return load('/projects/1/entity-lists/trees/entities?map=true&creatorId=1&creatorId=2&start=1970-01-01&end=1970-01-02&conflict=true&search=foo')
+      const { id } = testData.extendedFieldKeys.createPast(1).last();
+      return load(`/projects/1/entity-lists/trees/entities?map=true&creatorId=1&creatorId=2&start=1970-01-01&end=1970-01-02&conflict=true&search=foo&viewAs=${id}`)
         .testRequestsInclude([{
           url: ({ pathname, searchParams }) => {
             pathname.should.equal('/v1/projects/1/datasets/trees/entities.geojson');
             searchParams.get('$filter').split(' and ').should.eql([
               '(__system/creatorId eq 1 or __system/creatorId eq 2)',
               '__system/createdAt ge 1970-01-01T00:00:00.000Z',
-              '__system/createdAt le 1970-01-02T23:59:59.999Z',
+              '__system/createdAt lt 1970-01-03T00:00:00.000Z',
               '__system/conflict ne null'
             ]);
             searchParams.get('$search').should.equal('foo');
+            searchParams.get('viewAs').should.equal(String(id));
           }
         }]);
     });

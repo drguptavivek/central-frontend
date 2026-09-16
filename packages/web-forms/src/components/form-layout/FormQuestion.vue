@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { QUESTION_HAS_ERROR, SUBMIT_PRESSED } from '@/lib/constants/injection-keys.ts';
+import { QUESTION_HAS_ERROR, SUBMIT_PRESSED, TOUCHED_QUESTIONS } from '@getodk/web-forms/lib/constants/injection-keys.ts';
+import { containerId } from '@getodk/web-forms/lib/format/ids.ts';
 import type {
 	AnyInputNode,
 	AnyNoteNode,
@@ -7,14 +8,14 @@ import type {
 	RankNode,
 	SelectNode,
 } from '@getodk/xforms-engine';
-import { computed, inject, provide, type Ref, ref, watch } from 'vue';
-import InputControl from '@/components/form-elements/input/InputControl.vue';
+import { computed, inject, provide, reactive, type Ref, ref, watch } from 'vue';
+import InputControl from '@getodk/web-forms/components/form-elements/input/InputControl.vue';
 import NoteControl from '../form-elements/NoteControl.vue';
-import RangeControl from '@/components/form-elements/range/RangeControl.vue';
+import RangeControl from '@getodk/web-forms/components/form-elements/range/RangeControl.vue';
 import RankControl from '../form-elements/RankControl.vue';
-import SelectControl from '@/components/form-elements/select/SelectControl.vue';
+import SelectControl from '@getodk/web-forms/components/form-elements/select/SelectControl.vue';
 import TriggerControl from '../form-elements/TriggerControl.vue';
-import UploadControl from '@/components/form-elements/upload/UploadControl.vue';
+import UploadControl from '@getodk/web-forms/components/form-elements/upload/UploadControl.vue';
 
 const props = defineProps<{ question: ControlNode }>();
 
@@ -28,18 +29,16 @@ const isUploadNode = (node: ControlNode) => node.nodeType === 'upload';
 
 const submitPressed = inject<Ref<boolean>>(SUBMIT_PRESSED, ref(false));
 
-const touched = ref(false);
-const stopWatch = watch(
+// Shared across the form so the touched state survives page changes that unmount this component.
+const touchedQuestions = inject<Set<string>>(TOUCHED_QUESTIONS, () => reactive(new Set<string>()), true);
+watch(
 	() => props.question.currentState.instanceValue,
-	() => {
-		touched.value = true;
-		stopWatch();
-	}
+	() => touchedQuestions.add(props.question.nodeId)
 );
 
 const questionHasError = computed(() => {
 	return (
-		(touched.value || submitPressed.value) &&
+		(touchedQuestions.has(props.question.nodeId) || submitPressed.value) &&
 		props.question.validationState.violation?.valid === false
 	);
 });
@@ -48,7 +47,8 @@ provide(QUESTION_HAS_ERROR, questionHasError);
 
 <template>
 	<div
-		:id="question.nodeId + '_container'"
+		:id="containerId(question.nodeId)"
+		tabindex="-1"
 		:class="{
 			'question-container': true,
 			'highlight': questionHasError,

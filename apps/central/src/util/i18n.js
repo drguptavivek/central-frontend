@@ -68,10 +68,7 @@ export const loadLocale = ({ i18n, logger }, locale) => {
     return Promise.resolve();
   }
 
-  return import(
-    /* webpackChunkName: "i18n-[request]" */
-    `../locales/${locale}.json`
-  )
+  return import(`../locales/${locale}.json`)
     .then(m => {
       i18n.setLocaleMessage(locale, m.default);
       setLocale(i18n, locale);
@@ -143,6 +140,11 @@ const useGlobalUtils = memoizeForContainer(({ i18n }) => {
     formatRange: (start, end, key = 'default') => (start === end
       ? i18n.n(start, key)
       : getNumberFormat(key).formatRange(start, end)),
+    formatSize: (bytes) => {
+      if (bytes == null) return null;
+      if (bytes < 1024 * 1024) return i18n.n(bytes / 1024, 'kilobyte');
+      return i18n.n(bytes / (1024 * 1024), 'megabyte');
+    },
     formatList: (list, key = 'default') => getListFormat(key).format(list),
     formatListToParts: (list, key = 'default') =>
       getListFormat(key).formatToParts(list),

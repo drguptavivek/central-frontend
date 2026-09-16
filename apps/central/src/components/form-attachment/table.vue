@@ -17,6 +17,7 @@ except according to the terms contained in the LICENSE file.
           <th>{{ $t('header.type') }}</th>
           <th>{{ $t('header.name') }}</th>
           <th>{{ $t('header.uploaded') }}</th>
+          <th>{{ $t('header.size') }}</th>
           <th></th>
         </tr>
       </thead>
@@ -25,7 +26,6 @@ except according to the terms contained in the LICENSE file.
           :key="attachment.name" :attachment="attachment"
           :file-is-over-drop-zone="fileIsOverDropZone"
           :dragover-attachment="dragoverAttachment"
-          :planned-uploads="plannedUploads"
           :updated-attachments="updatedAttachments"
           :linkable="attachment.type === 'file' && dsHashset.has(attachment.name.replace(/\.[^.]+$/i, ''))"
           @link="$emit('link', $event)"/>
@@ -48,10 +48,6 @@ defineOptions({
 defineProps({
   fileIsOverDropZone: Boolean,
   dragoverAttachment: Object,
-  plannedUploads: {
-    type: Array,
-    required: true
-  },
   updatedAttachments: {
     type: Set,
     required: true
@@ -76,6 +72,7 @@ const dsHashset = computed(() =>
 
   th:first-child { width: 125px; }
   th:nth-child(2) { width: 250px; }
+  th:nth-child(3) { width: 250px; }
   th:last-child { width: #{200px + $padding-left-table-data + $padding-right-table-data}; }
 }
 </style>
@@ -87,7 +84,9 @@ const dsHashset = computed(() =>
     "header": {
       // This is the text of a table column header. The column shows when each
       // Media File was uploaded.
-      "uploaded": "Uploaded"
+      "uploaded": "Uploaded",
+      // This is the text of a table column header. The column shows the file size of each uploaded Media File.
+      "size": "Size"
     }
   }
 }
@@ -103,7 +102,8 @@ const dsHashset = computed(() =>
   },
   "de": {
     "header": {
-      "uploaded": "Hochgeladen"
+      "uploaded": "Hochgeladen",
+      "size": "Grösse"
     }
   },
   "es": {
@@ -113,7 +113,8 @@ const dsHashset = computed(() =>
   },
   "fr": {
     "header": {
-      "uploaded": "Téléversés"
+      "uploaded": "Téléversés",
+      "size": "Taille"
     }
   },
   "id": {
@@ -123,7 +124,8 @@ const dsHashset = computed(() =>
   },
   "it": {
     "header": {
-      "uploaded": "Caricati"
+      "uploaded": "Caricati",
+      "size": "Dimensione"
     }
   },
   "ja": {

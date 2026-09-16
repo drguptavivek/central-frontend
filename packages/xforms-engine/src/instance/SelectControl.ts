@@ -1,6 +1,7 @@
 import { XPathNodeKindKey, type XPathChoiceNode } from '@getodk/xpath';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
+import type { PageBoundary } from '../client/identity.ts';
 import type {
   SelectDefinition,
   SelectItem,
@@ -31,7 +32,7 @@ import type { Attribute } from './Attribute.ts';
 import type { Root } from './Root.ts';
 import type { ValueNodeStateSpec } from './abstract/ValueNode.ts';
 import { ValueNode } from './abstract/ValueNode.ts';
-import { buildAttributes } from './attachments/buildAttributes.ts';
+import { buildAttributes } from './buildAttributes.ts';
 import type { GeneralParentNode } from './hierarchy.ts';
 import type { EvaluationContext } from './internal-api/EvaluationContext.ts';
 import type { ValidationContext } from './internal-api/ValidationContext.ts';
@@ -58,6 +59,7 @@ interface SelectControlStateSpec extends ValueNodeStateSpec<readonly string[]> {
   readonly hint: Accessor<TextRange<'hint'> | null>;
   readonly valueOptions: Accessor<SelectValueOptions>;
   readonly isSelectWithImages: Accessor<boolean>;
+  readonly pageBoundary: PageBoundary;
 }
 
 export class SelectControl
@@ -166,6 +168,7 @@ export class SelectControl
         value: valueState,
         instanceValue: this.getInstanceValue,
         isSelectWithImages,
+        pageBoundary: this.root.pagination.attachLeaf(this),
       },
       this.instanceConfig
     );

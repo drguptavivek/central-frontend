@@ -63,7 +63,7 @@ module.exports = (config) => {
       // Images
       '/v1/config/public/hero-image': '/base/src/assets/images/whats-new/banner@1x.png',
       '/v1/config/public/logo': '/base/src/assets/images/odk-logo.png',
-      '/img/banner@1x.d8793b44.png': '/base/src/assets/images/whats-new/banner@1x.png', // Smaller resolution for circleCI test
+      '/img/banner@1x.d7ed244f.png': '/base/src/assets/images/whats-new/banner@1x.png', // Smaller resolution for circleCI test
       '/img/fullscreen.37a932a6.svg': '/base/src/assets/images/geojson-map/fullscreen.svg'
     },
     preprocessors: {
@@ -74,7 +74,7 @@ module.exports = (config) => {
     browserDisconnectTimeout: 300_000,
     browserDisconnectTolerance: 3,
     reporters: ['spec'],
-    singleRun: true,
+    singleRun: !!(process.env.CI || process.env.KARMA_FORCE_SINGLE_RUN),
     client: {
       mocha: {
         grep: process.env.TEST_PATTERN || '.',

@@ -1,5 +1,6 @@
 import { XPathNodeKindKey } from '@getodk/xpath';
 import type { Accessor } from 'solid-js';
+import type { PageBoundary } from '../client/identity.ts';
 import type { TextRange } from '../client/TextRange.ts';
 import type { UploadDefinition, UploadNode, UploadNodeOptions } from '../client/UploadNode.ts';
 import type { ValueType } from '../client/ValueType.ts';
@@ -35,7 +36,7 @@ import type {
   InstanceAttachment,
   InstanceAttachmentRuntimeValue,
 } from './attachments/InstanceAttachment.ts';
-import { buildAttributes } from './attachments/buildAttributes.ts';
+import { buildAttributes } from './buildAttributes.ts';
 import type { GeneralParentNode } from './hierarchy.ts';
 import type { EvaluationContext } from './internal-api/EvaluationContext.ts';
 import type { InstanceAttachmentContext } from './internal-api/InstanceAttachmentContext.ts';
@@ -71,6 +72,7 @@ interface UploadControlStateSpec extends DescendantNodeStateSpec<InstanceAttachm
   readonly value: SimpleAtomicState<InstanceAttachmentRuntimeValue>;
   readonly instanceValue: Accessor<InstanceAttachmentFileName>;
   readonly attachmentState: Accessor<BaseInstanceAttachmentState>;
+  readonly pageBoundary: PageBoundary;
 }
 
 export class UploadControl
@@ -168,6 +170,7 @@ export class UploadControl
         attributes: this.attributeState.getAttributes,
         instanceValue: instanceAttachment.getInstanceValue,
         attachmentState: instanceAttachment.getState,
+        pageBoundary: this.root.pagination.attachLeaf(this),
       },
       this.instanceConfig
     );

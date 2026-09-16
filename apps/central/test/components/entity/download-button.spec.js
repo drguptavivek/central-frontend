@@ -28,7 +28,7 @@ describe('EntityDownloadButton', () => {
         const component = mountComponent({
           props: { odataFilter: '__system/conflict ne null' }
         });
-        component.find('.btn-primary').attributes()['data-toggle'].should.be.eql('dropdown');
+        component.find('.btn-primary').attributes()['aria-haspopup'].should.be.eql('true');
       });
 
       it('show the dropdown menu when searchTerm is set', () => {
@@ -36,7 +36,15 @@ describe('EntityDownloadButton', () => {
         const component = mountComponent({
           props: { searchTerm: 'lorem ipsum' }
         });
-        component.find('.btn-primary').attributes()['data-toggle'].should.be.eql('dropdown');
+        component.find('.btn-primary').attributes()['aria-haspopup'].should.be.eql('true');
+      });
+
+      it('show the dropdown menu when viewAs filter is set', () => {
+        testData.extendedDatasets.createPast(1);
+        const component = mountComponent({
+          props: { viewAs: 10 }
+        });
+        component.find('.btn-primary').attributes()['aria-haspopup'].should.be.eql('true');
       });
 
       it('show the dropdown menu when both odataFilter and searchTerm are set', () => {
@@ -44,7 +52,15 @@ describe('EntityDownloadButton', () => {
         const component = mountComponent({
           props: { odataFilter: '__system/conflict ne null', searchTerm: 'lorem ipsum' }
         });
-        component.find('.btn-primary').attributes()['data-toggle'].should.be.eql('dropdown');
+        component.find('.btn-primary').attributes()['aria-haspopup'].should.be.eql('true');
+      });
+
+      it('show the dropdown menu when both odataFilter, searchTerm, and viewAs filter are set', () => {
+        testData.extendedDatasets.createPast(1);
+        const component = mountComponent({
+          props: { odataFilter: '__system/conflict ne null', searchTerm: 'lorem ipsum', viewAs: 10 }
+        });
+        component.find('.btn-primary').attributes()['aria-haspopup'].should.be.eql('true');
       });
 
       it('shows correct text while first chunk of entities is loading for the first button', () => {
@@ -110,16 +126,28 @@ describe('EntityDownloadButton', () => {
         url.searchParams.get('$search').should.equal('lorem ipsum');
       });
 
-      it('sets the correct attribute for downloading filtered entities with both odataFilter and searchTerm', () => {
+      it('sets the correct attribute for downloading filtered entities with viewAs', () => {
         testData.extendedDatasets.createPast(1, { name: 'á' });
         const component = mountComponent({
-          props: { odataFilter: '__system/conflict ne null', searchTerm: 'lorem ipsum' }
+          props: { viewAs: 10 }
+        });
+        const { href } = component.find('li:nth-of-type(1) a').attributes();
+        const url = relativeUrl(href);
+        url.pathname.should.equal('/v1/projects/1/datasets/%C3%A1/entities.csv');
+        url.searchParams.get('viewAs').should.equal('10');
+      });
+
+      it('sets the correct attribute for downloading filtered entities with odataFilter, searchTerm, and viewAs', () => {
+        testData.extendedDatasets.createPast(1, { name: 'á' });
+        const component = mountComponent({
+          props: { odataFilter: '__system/conflict ne null', searchTerm: 'lorem ipsum', viewAs: 10 }
         });
         const { href } = component.find('li:nth-of-type(1) a').attributes();
         const url = relativeUrl(href);
         url.pathname.should.equal('/v1/projects/1/datasets/%C3%A1/entities.csv');
         url.searchParams.get('$filter').should.equal('__system/conflict ne null');
         url.searchParams.get('$search').should.equal('lorem ipsum');
+        url.searchParams.get('viewAs').should.equal('10');
       });
 
       it('sets the correct attribute for downloading all entities', () => {

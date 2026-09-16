@@ -1,8 +1,9 @@
-import type { FormOptions } from '@/lib/init/load-form-state.ts';
+import type { FormOptions } from '@getodk/web-forms/lib/init/load-form-state.ts';
 import type {
   EditFormInstance,
   InstanceAttachmentsConfig,
   InstancePayload,
+  InstanceDefaults,
   PreloadProperties,
 } from '@getodk/xforms-engine';
 import { reactive } from 'vue';
@@ -11,6 +12,8 @@ interface GetFormInstanceConfigOptions {
   readonly form: FormOptions;
   readonly deviceID?: string;
   readonly preloadProperties?: PreloadProperties;
+  readonly instanceDefaults?: InstanceDefaults;
+  readonly lastSavedXml?: string;
 }
 
 /**
@@ -54,6 +57,8 @@ export const getFormInstanceConfig = (options: GetFormInstanceConfigOptions) => 
     stateFactory: reactive,
     instanceAttachments: INSTANCE_ATTACHMENTS_CONFIG,
     preloadProperties: getPreloadProperties(options),
+    instanceDefaults: options.instanceDefaults,
     geolocationProvider: options.form.geolocationProvider,
+    lastSavedXml: options.lastSavedXml,
   };
 };

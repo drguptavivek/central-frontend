@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { OdkWebForm, POST_SUBMIT__NEW_INSTANCE } from '@getodk/web-forms';
 import { type MonolithicInstancePayload } from '@getodk/xforms-engine';
 import { queryString, type Form } from '../utils/api';
@@ -10,6 +10,8 @@ import { Translation } from 'vue-i18n'
 import Location from '../utils/location';
 import { getDeviceId } from '../utils/device-id';
 import { hideSpinner } from '../utils/spinner';
+import { deleteLastSaved, getLastSaved, setLastSaved } from '../utils/last-saved';
+import { hasSubmitted, setSubmitted } from '../utils/once-store';
 defineOptions({
   name: 'WebFormRenderer'
 });
@@ -20,7 +22,8 @@ export interface WebFormsRendererProps {
   actionType: string;
   instanceId?: string | null;
   submissionAttachments?: string[] | null;
-  st?: string | null
+  defaultParameters?: Record<string, string>;
+  st?: string | null;
 }
 
 const props = defineProps<WebFormsRendererProps>();
@@ -35,13 +38,15 @@ interface PostPrimaryInstanceParams {
   deviceID?: string | undefined;
 }
 
-let clearForm:Function;
+let clearForm: Function;
 let submissionData: SubmissionData;
 
 const submissionResult:any = {};
+const inited = ref(false);
 const isEdit = computed(() => props.actionType === 'edit');
 const isPublicLink = computed(() => props.actionType === 'public-link');
 const draftPath = computed(() => props.form.draft ? '/draft' : '');
+const lastSavedXml = ref<string | undefined>();
 
 const deviceID = getDeviceId();
 
@@ -50,8 +55,12 @@ const visibleModal = ref();
 const withToken = (url) => `${url}${queryString({ st: props.st })}`;
 
 const getAttachment = (requestUrl: URL) => {
-  const encodedName = encodeURIComponent(requestUrl.pathname.split('/').pop()!);
-  const url = withToken(`/v1/projects/${props.form.projectId}/forms/${props.form.xmlFormId}${draftPath.value}/attachments/${encodedName}`);
+  const fileName = requestUrl.pathname.split('/').pop()!;
+  const decoded = decodeURIComponent(fileName);
+  if (!props.form.attachments.some(a => a.name === decoded)) {
+    return new Response('Not Found', { status: 404 });
+  }
+  const url = withToken(`/v1/projects/${props.form.projectId}/forms/${props.form.xmlFormId}${draftPath.value}/attachments/${fileName}`);
   return fetch(url);
 };
 
@@ -79,6 +88,9 @@ const postPrimaryInstance = async (file:File) => {
   try {
     const response = await fetch(url, { body: file, headers, method });
     if (response.ok) {
+      if (props.form.once && props.form.enketoOnceId) {
+        setSubmitted(props.form.enketoOnceId);
+      }
       const data = await response.json();
       return { success: true, data };
     }
@@ -89,7 +101,7 @@ const postPrimaryInstance = async (file:File) => {
   }
 };
 
-const isProblem = (data:any) => {
+const isProblem = (data: any) => {
   return data != null &&
     typeof data === 'object' &&
     typeof data.code === 'number' &&
@@ -131,8 +143,8 @@ const handleResult = () => {
   // Success handler
   if (submissionResult.primaryInstanceResult.success && attachmentResultArr.every(r => r.success)) {
 
-    clearForm();
-    
+    clearForm(props.form.once ? {} : { next: POST_SUBMIT__NEW_INSTANCE });
+
     if (isPublicLink.value) {
       visibleModal.value = { type: 'thankYouModal', hideable: false };
     } else if (isEdit.value) {
@@ -214,7 +226,7 @@ const submitData = async () => {
   handleResult();
 };
 
-const initializeSubmissionState = (data:SubmissionData, clearFormCallback:Function) => {
+const initializeSubmissionState = (data: SubmissionData) => {
   submissionData = data;
 
   submissionResult.primaryInstanceResult = {
@@ -227,14 +239,26 @@ const initializeSubmissionState = (data:SubmissionData, clearFormCallback:Functi
       success: false
     });
   });
-
-  clearForm = () => {
-    clearFormCallback({ next: POST_SUBMIT__NEW_INSTANCE });
-  };
 };
 
 const webFormLoaded = () => {
   hideSpinner();
+};
+
+const updateLastSaved = (hasLastSaved: boolean) => {
+  if (!isEdit.value
+    && !props.form.draft
+    && submissionResult.primaryInstanceResult.success
+    && !props.form.once
+  ) {
+    if (hasLastSaved) {
+      setLastSaved(props.form.projectId, props.form.xmlFormId, submissionData.instanceFile);
+    } else {
+      // clean up any stored data in the case where a previous form version
+      // had last-saved data but the current version doesn't
+      deleteLastSaved(props.form.projectId, props.form.xmlFormId);
+    }
+  }
 };
 
 const handleSubmit = async (
@@ -245,14 +269,21 @@ const handleSubmit = async (
     visibleModal.value = { type: 'previewModal', hideable: true };
     return;
   }
-  const { data: [data], status } = payload;
+  const { data: [data], status, hasLastSaved } = payload;
   if (status !== 'ready') {
     // Status is not ready when Form is not valid and in that case submit button will be disabled,
     // hence this branch should never execute.
     return;
   }
-  initializeSubmissionState(data as unknown as SubmissionData, clearFormCallback);
+  if (alreadySubmittedOnce()) {
+    // The user has already submitted a single submission form - should not get here.
+    return;
+  }
+  initializeSubmissionState(data as unknown as SubmissionData);
+  clearForm = clearFormCallback;
+
   await submitData();
+  updateLastSaved(hasLastSaved);
 };
 
 const fetchSubmissionXml = async () => {
@@ -279,9 +310,21 @@ const editInstanceOptions = computed(() => {
   return null;
 });
 
-const closeWindow = () => {
-  window.close();
+const alreadySubmittedOnce = () => {
+  return props.form.once && props.form.enketoOnceId && hasSubmitted(props.form.enketoOnceId);
 };
+
+onMounted(async () => {
+  if (alreadySubmittedOnce()) {
+    visibleModal.value = { type: 'thankYouModal', hideable: false };
+    webFormLoaded(); // hide the spinner
+    return;
+  }
+  if (!isEdit.value && !props.form.draft) {
+    lastSavedXml.value = await getLastSaved(props.form.projectId, props.form.xmlFormId);
+  }
+  inited.value = true;
+});
 </script>
 
 <style scoped>
@@ -293,11 +336,13 @@ const closeWindow = () => {
 
 <template>
 
-  <OdkWebForm
+  <OdkWebForm v-if="inited"
     :form-xml="props.xform"
     :edit-instance="editInstanceOptions"
     :fetch-form-attachment="getAttachment"
     :device-id="deviceID"
+    :instance-defaults="defaultParameters"
+    :last-saved-xml="lastSavedXml"
     @loaded="webFormLoaded"
     @submit="handleSubmit"/>
 
@@ -331,7 +376,6 @@ const closeWindow = () => {
     </template>
     <template #footer>
       <template v-if="visibleModal.type === 'submissionModal'">
-        <Button type="button" @click="closeWindow()" variant="text">{{ $t('action.close') }}</Button>
         <Button type="button" @click="visibleModal = null">{{ $t('submissionModal.action.fillOutAgain') }}</Button>
       </template>
       <!-- Any type of error while sending attachments -->
@@ -355,7 +399,7 @@ const closeWindow = () => {
     "en": {
       "action": {
         "close": "Close",
-        "tryAgain": "Try again",
+        "tryAgain": "Try again"
       },
       "previewModal": {
         "title": "Data is valid",
@@ -406,7 +450,7 @@ const closeWindow = () => {
       "mixin": {
         "request": {
           "alert": {
-            "entityTooLarge":  "The data that you are trying to upload is too large.",
+            "entityTooLarge":  "The data that you are trying to upload is too large."
           }
         }
       }
@@ -414,12 +458,13 @@ const closeWindow = () => {
   }
 </i18n>
 
+<!-- Autogenerated by destructure.js -->
 <i18n>
 {
   "de": {
     "action": {
       "close": "Schließen",
-      "tryAgain": "Nochmals versuchen",
+      "tryAgain": "Nochmals versuchen"
     },
     "previewModal": {
       "title": "Daten sind gültig",
@@ -470,7 +515,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "Die Daten, die Sie hochzuladen versuchen, sind zu gross.",
+          "entityTooLarge": "Die Daten, die Sie hochzuladen versuchen, sind zu gross."
         }
       }
     }
@@ -478,7 +523,7 @@ const closeWindow = () => {
   "es": {
     "action": {
       "close": "Cerrar",
-      "tryAgain": "Inténtalo de nuevo",
+      "tryAgain": "Inténtalo de nuevo"
     },
     "previewModal": {
       "title": "Los datos son válidos",
@@ -529,7 +574,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "Los datos que estás intentando cargar son demasiado grandes.",
+          "entityTooLarge": "Los datos que estás intentando cargar son demasiado grandes."
         }
       }
     }
@@ -537,7 +582,7 @@ const closeWindow = () => {
   "fr": {
     "action": {
       "close": "Fermer",
-      "tryAgain": "Essayer encore",
+      "tryAgain": "Essayer encore"
     },
     "previewModal": {
       "title": "Les données sont valides",
@@ -588,7 +633,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "Les données que vous essayez d'envoyer sont trop volumineuses.",
+          "entityTooLarge": "Les données que vous essayez d'envoyer sont trop volumineuses."
         }
       }
     }
@@ -596,7 +641,7 @@ const closeWindow = () => {
   "it": {
     "action": {
       "close": "Chiudere",
-      "tryAgain": "Ritenta ancora",
+      "tryAgain": "Ritenta ancora"
     },
     "previewModal": {
       "title": "I dati sono validi",
@@ -647,7 +692,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "I dati che stai tentando di caricare sono troppo grandi.",
+          "entityTooLarge": "I dati che stai tentando di caricare sono troppo grandi."
         }
       }
     }
@@ -655,7 +700,7 @@ const closeWindow = () => {
   "pt": {
     "action": {
       "close": "Fechar",
-      "tryAgain": "Tentar novamente",
+      "tryAgain": "Tentar novamente"
     },
     "previewModal": {
       "title": "Os dados são válidos",
@@ -705,7 +750,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "Os dados que você está tentando carregar são muito grandes.",
+          "entityTooLarge": "Os dados que você está tentando carregar são muito grandes."
         }
       }
     }
@@ -713,7 +758,7 @@ const closeWindow = () => {
   "zh": {
     "action": {
       "close": "关闭",
-      "tryAgain": "重试",
+      "tryAgain": "重试"
     },
     "previewModal": {
       "title": "数据有效",
@@ -764,7 +809,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "您上传的数据过大。",
+          "entityTooLarge": "您上传的数据过大。"
         }
       }
     }
@@ -772,7 +817,7 @@ const closeWindow = () => {
   "zh-Hant": {
     "action": {
       "close": "關閉",
-      "tryAgain": "再試一次",
+      "tryAgain": "再試一次"
     },
     "previewModal": {
       "title": "資料有效",
@@ -823,7 +868,7 @@ const closeWindow = () => {
     "mixin": {
       "request": {
         "alert": {
-          "entityTooLarge":  "您嘗試上傳的資料太大。",
+          "entityTooLarge": "您嘗試上傳的資料太大。"
         }
       }
     }

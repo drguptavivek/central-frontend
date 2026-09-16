@@ -10,15 +10,14 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 
-<!-- This component should not use v-bind:class on the .modal element. Bootstrap
-may add the `in` class to the element, and the checkScroll() method may add the
-`has-scroll` class. -->
+<!-- This component should not use v-bind:class on the .modal element. The
+checkScroll() method may add the `has-scroll` class. -->
 <template>
   <teleport-if-exists to="#modals">
-    <div ref="el" v-bind="$attrs" class="modal" tabindex="-1"
-      :data-backdrop="backdrop ? 'static' : 'false'" data-keyboard="false"
+    <div v-show="state" ref="el" v-bind="$attrs" class="modal" tabindex="-1"
+      :style="backdrop ? { backgroundColor: 'rgba(0, 0, 0, 0.5)' } : null"
       role="dialog" :aria-labelledby="titleId" @mousedown="modalMousedown"
-      @click="modalClick" @keydown.esc="hideIfCan" @focusout="refocus">
+      @click="modalClick" @keydown.esc="hideOnEsc">
       <div class="modal-dialog" :class="sizeClass" role="document">
         <div class="modal-content">
           <div class="modal-top-actions">
@@ -48,25 +47,13 @@ let id = 0;
 </script>
 <script setup>
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import 'bootstrap/js/modal';
 
 import RedAlert from './red-alert.vue';
 import TeleportIfExists from './teleport-if-exists.vue';
 
-import { noop } from '../util/util';
-
 /*
-We manually toggle the modal:
-
-  - If the `backdrop` prop is `true`, we specify data-backdrop="static" rather
-    than "true". We also add our own event listeners.
-  - We specify data-keyboard="false" and add our own event listener.
-
-We do this for two reasons:
-
-  - It simplifies communication with the parent component: the modal hides only
-    after the parent component sets the `state` prop to `false`.
-  - It is needed to implement the `hideable` prop.
+Previously this component relied on bootstrap/modal.js plugin. Now it only relies
+on bootstrap's css.
 */
 
 defineOptions({
@@ -82,28 +69,35 @@ const props = defineProps({
     type: String,
     default: 'normal'
   },
-  backdrop: Boolean
+  // Shows a dark overlay behind the modal
+  backdrop: Boolean,
+  // If true, the modal will not close on ESC key or click outside
+  persistent: Boolean
 });
-const emit = defineEmits(['shown', 'hide', 'resize', 'mutate']);
+const emit = defineEmits(['shown', 'hide', 'mutate']);
 
 const { toast, redAlert, openModal } = inject('container');
 
 const el = ref(null);
 const body = ref(null);
 
-// The modal() method of the Boostrap plugin
-let bs;
+let attachedToDocument = false;
+
 onMounted(() => {
-  if (el.value.closest('body') != null) {
-    const wrapper = $(el.value);
-    bs = wrapper.modal.bind(wrapper);
-  } else {
-    // We do not call modal() if the component is not attached to the document,
-    // because modal() can have side effects on the document. Most tests do not
-    // attach the component to the document.
-    bs = noop;
-  }
+  // Check if the component is attached to the document. Most tests do not
+  // attach the component to the document.
+  attachedToDocument = el.value.closest('body') != null;
 });
+
+const addModalOpenClass = () => {
+  if (!attachedToDocument) return;
+  document.body.classList.add('modal-open');
+};
+
+const removeModalOpenClass = () => {
+  if (!attachedToDocument) return;
+  document.body.classList.remove('modal-open');
+};
 
 /*
 Showing a modal hides alerts, both `toast` and `redAlert`. A modal is a new
@@ -149,28 +143,16 @@ const checkScroll = () => {
     el.value.classList.remove('has-scroll');
 };
 
-let bodyHeight = 0;
-const handleHeightChange = () => {
-  // Call checkScroll() before measuring the height, as the has-scroll class can
-  // affect the height.
-  checkScroll();
-  const newHeight = body.value.getBoundingClientRect().height;
-  if (newHeight !== bodyHeight) {
-    bs('handleUpdate');
-    bodyHeight = newHeight;
-    emit('resize', newHeight);
-  }
-};
 const handleWindowResize = () => {
   // Most of the time, a window resize won't affect the height of the modal.
   // However, if props.size === 'full', it could.
-  if (props.state && props.size === 'full') handleHeightChange();
+  if (props.state && props.size === 'full') checkScroll();
 };
 
 let ignoreMutation = false;
 const observer = new MutationObserver(() => {
   if (!props.state) return;
-  handleHeightChange();
+  checkScroll();
   if (!ignoreMutation) {
     emit('mutate');
     // Ignore mutations for a tick, effectively ignoring any mutations that the
@@ -184,10 +166,19 @@ const observer = new MutationObserver(() => {
   }
 });
 
+// Redirects focus back to the modal if it moves outside. Similar to bootstrap's internal
+// implementation
+const enforceFocus = (event) => {
+  if (!props.state || el.value == null) return;
+  // Do not focus the .modal element if it is already focused or if it
+  // contains the focused element.
+  if (event.target === el.value || event.target.closest('.modal') === el.value) return;
+  el.value.focus();
+};
+
 const show = () => {
-  bs('show');
+  addModalOpenClass();
   checkScroll();
-  bodyHeight = body.value.getBoundingClientRect().height;
   observer.observe(body.value, {
     subtree: true,
     childList: true,
@@ -195,8 +186,16 @@ const show = () => {
     characterData: true
   });
   window.addEventListener('resize', handleWindowResize);
-  emit('shown');
-  emit('resize', bodyHeight);
+  document.addEventListener('focusin', enforceFocus);
+
+  // Emit shown after nextTick to ensure DOM is updated (v-show has made element visible)
+  nextTick(() => {
+    // Focus the modal so that pressing Escape will hide it.
+    if (document.activeElement == null || document.activeElement.closest('.modal') !== el.value) {
+      el.value.focus();
+    }
+    emit('shown');
+  });
   openModal.shown(el.value);
 };
 const removeSelection = () => {
@@ -207,12 +206,11 @@ const removeSelection = () => {
 };
 const hide = () => {
   observer.disconnect();
-  bs('hide');
+  removeModalOpenClass();
   el.value.classList.remove('has-scroll');
-  bodyHeight = 0;
   window.removeEventListener('resize', handleWindowResize);
+  document.removeEventListener('focusin', enforceFocus);
   removeSelection();
-  emit('resize', 0);
   openModal.hidden();
 };
 watch(() => props.state, (state) => {
@@ -227,6 +225,7 @@ onMounted(() => { if (props.state) show(); });
 onBeforeUnmount(() => { if (props.state) hide(); });
 
 const hideIfCan = () => { if (props.hideable) emit('hide'); };
+const hideOnEsc = () => { if (!props.persistent) hideIfCan(); };
 
 const sizeClass = computed(() => {
   switch (props.size) {
@@ -241,31 +240,12 @@ const modalMousedown = (event) => {
   mousedownOutsideDialog = event.target === event.currentTarget;
 };
 const modalClick = (event) => {
+  if (props.persistent) return;
   const mouseupOutsideDialog = event.target === event.currentTarget;
   if (mousedownOutsideDialog && mouseupOutsideDialog) hideIfCan();
 };
 
-// Refocuses the modal if it has lost focus. This is needed so that the escape
-// key still hides the modal.
-const refocus = () => {
-  /* As the user moves from one element in the modal to another, there may be
-  the briefest moment when neither element is focused. We should not refocus the
-  modal in that moment, because the second element will soon receive focus, and
-  focusing the .modal element would prevent that. Thus, we use setTimeout() to
-  give the second element time to receive focus. (Using nextTick() instead of
-  setTimeout() didn't work.) */
-  setTimeout(() => {
-    // Do not focus the modal if it has lost focus after being hidden or
-    // unmounted.
-    if (!props.state || el.value == null) return;
-    // Do not focus the .modal element if it is already focused or if it
-    // contains the active element.
-    if (document.activeElement != null &&
-      document.activeElement.closest('.modal') === el.value)
-      return;
-    el.value.focus();
-  });
-};
+
 
 id += 1;
 const titleId = `modal-title${id}`;
@@ -273,6 +253,11 @@ const titleId = `modal-title${id}`;
 
 <style lang="scss">
 @import '../assets/scss/mixins';
+
+// Override Bootstrap's display:none so v-show can control visibility
+.modal {
+  display: block;
+}
 
 .modal-dialog {
   margin-top: 20vh;
@@ -328,9 +313,11 @@ const titleId = `modal-title${id}`;
         margin-bottom: $padding-modal-content-spacing;
       }
 
-      p {
+      // Using :where() to make it easy to override the margin in individual
+      // modals.
+      :where(&) p {
         max-width: 100%;
-        margin: 0 0 $padding-modal-content-spacing;
+        margin-bottom: $padding-modal-content-spacing;
 
         // If p is the last element or right before modal-actions, remove bottom spacing
         &:last-child,

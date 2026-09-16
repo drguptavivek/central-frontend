@@ -1,5 +1,5 @@
-import { toGeoJsonCoordinateArray } from '@/components/common/map/geojson-parsers.ts';
-import { createCurrentLocationStyle } from '@/components/common/map/map-styles.ts';
+import { toGeoJsonCoordinateArray } from '@getodk/web-forms/components/common/map/geojson-parsers.ts';
+import { createCurrentLocationStyle } from '@getodk/web-forms/components/common/map/map-styles.ts';
 import type { TimerID } from '@getodk/common/types/timers.ts';
 import { Map, type View } from 'ol';
 import type { Coordinate } from 'ol/coordinate';
@@ -71,7 +71,7 @@ export function useMapViewControls(mapInstance: Map): UseMapViewControls {
     }
 
     const extent = source.getExtent();
-    if (isExtendEmpty(extent)) {
+    if (!extent || isExtendEmpty(extent)) {
       return;
     }
 

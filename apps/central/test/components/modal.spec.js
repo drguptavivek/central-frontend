@@ -51,22 +51,12 @@ describe('Modal', () => {
       document.body.classList.contains('modal-open').should.be.true;
     });
 
-    it('emits a shown event', () => {
+    it('emits a shown event', async () => {
       const modal = mountComponent({
         props: { state: true }
       });
+      await nextTick();
       modal.emitted().shown.should.eql([[]]);
-    });
-
-    it('emits a resize event', () => {
-      const modal = mountComponent({
-        props: { state: true },
-        slots: {
-          body: { template: '<div id="div" style="height: 10px;"></div>' }
-        },
-        attachTo: document.body
-      });
-      modal.emitted().resize.should.eql([[22]]);
     });
 
     it('updates openModal', () => {
@@ -101,17 +91,6 @@ describe('Modal', () => {
       document.body.classList.contains('modal-open').should.be.false;
     });
 
-    it('emits a resize event', async () => {
-      const modal = mountComponent({
-        slots: {
-          body: { template: '<div id="div" style="height: 10px;"></div>' }
-        },
-        attachTo: document.body
-      });
-      await modal.setProps({ state: false });
-      modal.emitted().resize.should.eql([[22], [0]]);
-    });
-
     it('updates openModal', async () => {
       const modal = mountComponent({
         props: { state: true }
@@ -119,18 +98,6 @@ describe('Modal', () => {
       await modal.setProps({ state: false });
       modal.vm.$container.openModal.should.eql({ state: false, el: null });
     });
-  });
-
-  it('emits a resize event after the height of the modal changes', async () => {
-    const modal = mountComponent({
-      slots: {
-        body: { template: '<div id="div" style="height: 10px;"></div>' }
-      },
-      attachTo: document.body
-    });
-    modal.get('#div').element.setAttribute('style', 'height: 20px;');
-    await nextTick();
-    modal.emitted().resize.should.eql([[22], [32]]);
   });
 
   describe('mutation', () => {
@@ -168,6 +135,17 @@ describe('Modal', () => {
       await wait();
       modal.get('#div').attributes().style.should.equal('height: 100px;');
       modal.emitted().mutate.length.should.equal(1);
+    });
+  });
+
+  describe('focus', () => {
+    it('focuses the modal after it is shown', async () => {
+      const modal = mountComponent({
+        props: { state: true },
+        attachTo: document.body
+      });
+      await nextTick();
+      document.activeElement.should.equal(modal.get('.modal').element);
     });
   });
 
@@ -224,6 +202,40 @@ describe('Modal', () => {
           modal.get('.modal').classes('has-scroll').should.be.true;
         });
       });
+    });
+  });
+
+  describe('hiding the modal', () => {
+    it('emits hide on ESC key by default', async () => {
+      const modal = mountComponent();
+      await modal.get('.modal').trigger('keydown.esc');
+      should.exist(modal.emitted().hide);
+    });
+
+    it('emits hide on click outside by default', async () => {
+      const modal = mountComponent();
+      const modalEl = modal.get('.modal');
+      await modalEl.trigger('mousedown');
+      await modalEl.trigger('click');
+      should.exist(modal.emitted().hide);
+    });
+
+    it('does not emit hide on ESC key when persistent is true', async () => {
+      const modal = mountComponent({
+        props: { persistent: true }
+      });
+      await modal.get('.modal').trigger('keydown.esc');
+      should.not.exist(modal.emitted().hide);
+    });
+
+    it('does not emit hide on click outside when persistent is true', async () => {
+      const modal = mountComponent({
+        props: { persistent: true }
+      });
+      const modalEl = modal.get('.modal');
+      await modalEl.trigger('mousedown');
+      await modalEl.trigger('click');
+      should.not.exist(modal.emitted().hide);
     });
   });
 });

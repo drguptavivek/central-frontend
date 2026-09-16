@@ -1,3 +1,4 @@
+import { batch } from 'solid-js';
 import type { RepeatRangeNodeAppearances } from '../../client/repeat/BaseRepeatRangeNode.ts';
 import type { RepeatRangeUncontrolledNode } from '../../client/repeat/RepeatRangeUncontrolledNode.ts';
 import type { AncestorNodeValidationState } from '../../client/validation.ts';
@@ -7,6 +8,8 @@ import { createAggregatedViolations } from '../../lib/reactivity/validation/crea
 import type { UncontrolledRepeatDefinition } from '../../parse/model/RepeatDefinition.ts';
 import type { GeneralParentNode } from '../hierarchy.ts';
 import type { EvaluationContext } from '../internal-api/EvaluationContext.ts';
+import { findFirstVisibleControl } from '../navigation/findFirstVisibleControl.ts';
+import { collectPages } from '../pagination/pageSequence.ts';
 import type { Root } from '../Root.ts';
 import { BaseRepeatRange } from './BaseRepeatRange.ts';
 import { RepeatInstance } from './RepeatInstance.ts';
@@ -36,7 +39,22 @@ export class RepeatRangeUncontrolled
   addInstances(afterIndex = this.getLastIndex(), count = 1): Root {
     const definitions = Array(count).fill(this.definition.template);
 
-    this.addChildren(definitions, afterIndex);
+    // Batch the add with the navigation, so the reachability watcher settles once on the final state.
+    batch(() => {
+      const instances = this.addChildren(definitions, afterIndex);
+      const firstNewInstance = instances[afterIndex + 1];
+      const page = firstNewInstance == null ? null : collectPages([firstNewInstance])[0];
+      if (page != null) {
+        this.root.setCurrentPage(page.nodeId);
+      }
+
+      // On non-paginated forms the page move above is a no-op, but the new instance's first
+      // question still becomes the navigation target.
+      const target = firstNewInstance == null ? null : findFirstVisibleControl(firstNewInstance);
+      if (target != null) {
+        this.root.setNavigationTarget(target.nodeId);
+      }
+    });
 
     return this.root;
   }
@@ -59,8 +77,46 @@ export class RepeatRangeUncontrolled
    * reactivity is cleaned up.
    */
   removeInstances(startIndex: number, count = 1): Root {
-    this.removeChildren(startIndex, count);
+    batch(() => {
+      this.removeChildren(startIndex, count);
+      this.navigateAfterRemoval(startIndex);
+    });
 
     return this.root;
+  }
+
+  private navigateAfterRemoval(removedIndex: number) {
+    if (!this.isCurrentPageRemoved()) {
+      return;
+    }
+
+    const children = this.getChildren();
+    const replacement = children[removedIndex] ?? children[removedIndex - 1];
+    const page = collectPages([replacement ?? this])[0];
+    if (page == null) {
+      return;
+    }
+
+    // Move page, otherwise initPagination's createComputed relocates the page itself and overwrites the target below
+    this.root.setCurrentPage(page.nodeId);
+    if (replacement == null) {
+      // The Add button renders there
+      this.root.setNavigationTarget(this.nodeId);
+      return;
+    }
+
+    const target = findFirstVisibleControl(replacement);
+    if (target != null) {
+      this.root.setNavigationTarget(target.nodeId);
+    }
+  }
+
+  private isCurrentPageRemoved() {
+    if (!this.root.isPaginated) {
+      return false;
+    }
+
+    const currentPage = this.root.getCurrentPage();
+    return currentPage == null || !this.root.isPageReachable(currentPage);
   }
 }

@@ -1,5 +1,6 @@
 import { XPathNodeKindKey } from '@getodk/xpath';
 import type { Accessor } from 'solid-js';
+import type { PageBoundary } from '../client/identity.ts';
 import type { TextRange } from '../client/TextRange.ts';
 import type { TriggerNode, TriggerNodeDefinition } from '../client/TriggerNode.ts';
 import type { ValueType } from '../client/ValueType.ts';
@@ -22,7 +23,7 @@ import type { UnknownAppearanceDefinition } from '../parse/body/appearance/unkno
 import type { Attribute } from './Attribute.ts';
 import type { Root } from './Root.ts';
 import { ValueNode, type ValueNodeStateSpec } from './abstract/ValueNode.ts';
-import { buildAttributes } from './attachments/buildAttributes.ts';
+import { buildAttributes } from './buildAttributes.ts';
 import type { GeneralParentNode } from './hierarchy.ts';
 import type { EvaluationContext } from './internal-api/EvaluationContext.ts';
 import type { ValidationContext } from './internal-api/ValidationContext.ts';
@@ -32,6 +33,7 @@ interface TriggerControlStateSpec extends ValueNodeStateSpec<TriggerRuntimeValue
   readonly label: Accessor<TextRange<'label'> | null>;
   readonly hint: Accessor<TextRange<'hint'> | null>;
   readonly valueOptions: null;
+  readonly pageBoundary: PageBoundary;
 }
 
 type AnyTriggerNodeDefinition = {
@@ -112,6 +114,7 @@ export class TriggerControl
         valueOptions: null,
         value: this.valueState,
         instanceValue: this.getInstanceValue,
+        pageBoundary: this.root.pagination.attachLeaf(this),
       },
       this.instanceConfig
     );

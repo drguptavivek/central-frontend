@@ -3,6 +3,7 @@
 import Modal from '../../../src/components/modal.vue';
 import Spinner from '../../../src/components/spinner.vue';
 
+import { isDisabled } from '../dom';
 import { relativeUrl } from '../request';
 
 const assertRequestsMatch = (actual, expected) => {
@@ -62,9 +63,11 @@ export function testRequests(expectedConfigs) {
 }
 
 export function testRequestsInclude(expectedConfigs) {
+  const actual = [];
   const matched = [];
   return this
     .beforeEachResponse((component, config) => {
+      actual.push(config);
       for (const [i, expected] of expectedConfigs.entries()) {
         if (matched.includes(i)) continue; // eslint-disable-line no-continue
         try {
@@ -75,8 +78,18 @@ export function testRequestsInclude(expectedConfigs) {
       }
     })
     .afterResponses(() => {
-      if (matched.length !== expectedConfigs.length)
-        throw new Error('an expected request was not sent');
+      if (matched.length !== expectedConfigs.length) {
+        const nicely = cfgs => cfgs
+          .map((c, idx) => `${idx}. ${c.method} ${c.url} body:${c.data && JSON.stringify(c.data)}`)
+          .join('\n');
+
+        throw new Error(`An expected request was not sent.
+          Expected:
+            ${nicely(expectedConfigs)}
+          Actual:
+            ${nicely(actual)}
+        `);
+      }
     });
 }
 
@@ -151,10 +164,9 @@ const assertStandardButton = (component, {
   if (hasSpinner) spinner.props().state.should.equal(awaitingResponse);
 
   for (const selector of disabledSelectors) {
-    const wrapper = component.get(selector);
-    const disabled = wrapper.element.tagName === 'A'
-      ? wrapper.classes('disabled')
-      : wrapper.attributes('aria-disabled') === 'true';
+    const disabled = typeof selector === 'string'
+      ? isDisabled(component.get(selector).element)
+      : component.getComponent(selector).props().disabled;
     disabled.should.equal(awaitingResponse);
   }
 
@@ -177,7 +189,7 @@ export function testStandardButton({
   // Selector for the button
   button,
   request = (component) => component.get(button).trigger('click'),
-  // Selectors for additional actions that should be disabled during the request
+  // Selectors for additional elements that should be disabled during the request
   disabled = [],
   // Specifies a modal that should not be hideable during the request. If the
   // series' component is a modal, specify `true`. Otherwise, specify the modal
