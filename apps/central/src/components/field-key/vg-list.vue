@@ -72,9 +72,9 @@ except according to the terms contained in the LICENSE file.
       <vg-field-key-qr-panel :field-key="popover.fieldKey" :managed="managed"/>
     </popover>
     <loading :state="initiallyLoading"/>
-    <p v-if="dataExists && fieldKeys.length === 0"
+    <p v-if="dataExists && filteredFieldKeys.length === 0"
       class="empty-table-message">
-      {{ $t('emptyTable') }}
+      {{ filter != null ? $t('noFilterResults') : $t('emptyTable') }}
     </p>
 
     <vg-field-key-new v-bind="createModal" :managed="managed"
@@ -317,6 +317,7 @@ export default {
       "configureClient": "Configure Client"
     },
     "emptyTable": "There are no App Users yet. You will need to create some to download Forms and submit data from your device.",
+    "noFilterResults": "No App Users match the current filter.",
     "alert": {
       "create": "The App User “{displayName}” was created successfully.",
       "revoke": "App User {displayName}’s access successfully revoked.",

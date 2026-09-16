@@ -66,5 +66,17 @@ describe('FieldKeyList', () => {
       app.findAll('.field-key-row').length.should.equal(1);
       app.get('.field-key-row .display-name').text().should.equal('App User 1');
     });
+
+    it('shows a no-results message when the active filter matches no app users', async () => {
+      testData.extendedProjects.createPast(1, { appUsers: 2 });
+      testData.extendedFieldKeys
+        .createPast(1, { displayName: 'App User 1', properties: { region: 'North' } })
+        .createPast(1, { displayName: 'App User 2', properties: { region: 'South' } });
+      testData.actorProperties.createPast(1, { name: 'region' });
+      const app = await load('/projects/1/app-users');
+      app.vm.filter = { property: 'region', value: 'West' };
+      await app.vm.$nextTick();
+      app.get('.empty-table-message').text().should.equal('No App Users match the current filter.');
+    });
   });
 });

@@ -3410,6 +3410,9 @@
       "emptyTable": {
         "string": "There are no App Users yet. You will need to create some to download Forms and submit data from your device."
       },
+      "noFilterResults": {
+        "string": "No App Users match the current filter."
+      },
       "alert": {
         "create": {
           "string": "The App User “{displayName}” was created successfully."
