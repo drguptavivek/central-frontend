@@ -10,17 +10,17 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 */
 
-// eslint-disable-next-line import/no-unresolved
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'url';
 import { readFileSync } from 'fs';
+import { playwright } from '@vitest/browser-playwright'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const webFormsPackage = JSON.parse(
-  readFileSync(resolve(__dirname, 'node_modules/@getodk/web-forms/package.json'), 'utf-8')
+  readFileSync(resolve(__dirname, 'packages/web-forms/package.json'), 'utf-8')
 );
 
 // The default is es2020, but we need es2022 or later because Web Forms uses
@@ -36,24 +36,47 @@ const proxyPaths = [
   '/version.txt'
 ];
 const devServer = {
-  host: true,
+  // To make dev server accessible using devcontainers
+  // bind it on `127.0.0.1` instead of `localhost` (default).
+  // See https://github.com/vitejs/vite/issues/16522
+  host: '0.0.0.0',
+  allowedHosts: [process.env.DOMAIN || 'localhost', 'client'],
   port: 8989,
-  allowedHosts: true,
-  // We are behind Nginx reverse proxy which handles SSL termination
-  hmr: {
-    clientPort: 443
-  },
+  proxy: Object.fromEntries(proxyPaths.map(path => [path, 'http://localhost:8686'])),
   // Because we proxy to nginx, which itself proxies to Backend and other
   // things, the dev server doesn't need to allow CORS. CORS is already limited
   // by default, but we just don't need it at all.
   cors: false
 };
 
+// used to route requests to the right app in development
+const devAppRouter = () => ({
+  name: 'dev-app-router',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      // NOTE: must match the regex paths defined in Nginx
+
+      // matches public link paths and Enketo style paths, eg: /f/{enketoId}?st={token}
+      const enketoRegex = /^\/f\//;
+
+      // matches restful forms paths, eg: /projects/{projectId}/forms/{formId}/submissions/{submissionId}/edit
+      const restRegex = /^\/projects\/\d+\/forms\/[^/]+(?:\/draft)?(?:\/preview|\/submissions\/new(?:\/offline)?\/?|\/submissions\/[^/]+\/edit)\/?/;
+
+      if (enketoRegex.test(req.url) || restRegex.test(req.url)) {
+        req.url = '/apps/forms/index.html';
+      }
+      next();
+    })
+  }
+});
+
 export default defineConfig(({ mode }) => ({
+  envPrefix: ['VITE_'],
   plugins: [
     vue(),
+    devAppRouter(),
     VueI18nPlugin({
-      include: resolve(dirname(fileURLToPath(import.meta.url)), './src/locales/**'),
+      include: resolve(dirname(fileURLToPath(import.meta.url)), './apps/central/src/locales/**'),
       compositionOnly: false,
       defaultSFCLang: 'json5',
       // We install what we need in src/container.js.
@@ -68,7 +91,31 @@ export default defineConfig(({ mode }) => ({
     target: buildTarget,
     // `false` during dev for performance reasons
     reportCompressedSize: mode === 'production',
-    cssCodeSplit: false
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        forms: resolve(import.meta.dirname, 'apps/forms/index.html'),
+      },
+      output: {
+        entryFileNames: (chunkInfo) => {
+          const moduleId = chunkInfo.facadeModuleId;
+          if (moduleId && moduleId.includes('/apps/forms/')) {
+            return 'assets/forms/[name]-[hash].js';
+          }
+          return 'assets/central/[name]-[hash].js';
+        }
+      },
+    },
+  },
+  test: {
+    environment: 'jsdom',
+    browser: {
+      enabled: true,
+      headless: true,
+      screenshotFailures: false,
+      provider: playwright(),
+      instances: [{ browser: 'chromium' }],
+    },
   },
   // Not sure why this is needed in addition to build.target above and why it's
   // only an issue in development. `npm run dev` doesn't work without this.

@@ -42,15 +42,15 @@ See:
 
 ## Contributing
 
-We need your help to make ODK Central Frontend as useful as possible! Please see the [Contribution Guide](/CONTRIBUTING.md) for detailed information on discussion forums, project policies, code guidelines, and an overview of the software architecture.
+We need your help to make ODK Central Frontend as useful as possible! Please see the [Contribution Guide](/apps/central/docs/CONTRIBUTING.md) for detailed information on discussion forums, project policies, code guidelines, and an overview of the software architecture.
 
 ## Setting up your development environment
 
 Follow these steps to set up your development environment:
 
-- Install Node.js 20.
+- Install [Volta](https://volta.sh/)
 - Install dependencies by running `npm install`.
-- Install NGINX.
+- Install docker (for `nginx`).
 - Set up [ODK Central Backend](https://github.com/getodk/central-backend).
   - You will need to create a user using an ODK Central Backend command line script.
   - You will probably also want to promote that user to a sitewide administrator.
@@ -61,7 +61,7 @@ Follow these instructions to run ODK Central Frontend in development. For deploy
 
 First, run ODK Central Backend.
 
-Next, run ODK Central Frontend in development by running `npm run dev`. This will start a Vite dev server. ODK Central Frontend will be available on port 8989. `npm run dev` will also start NGINX, which will forward requests to ODK Central Backend.
+Next, run ODK Central Frontend in development by running `npm run dev`. This will start a Vite dev server. ODK Central Frontend will be available on port 8989. `npm run dev` will also start NGINX on port 8686, which will forward requests to ODK Central Backend.
 
 ODK Central Frontend communicates with ODK Central Backend in part using a session cookie. The cookie is `Secure`, but will be sent over HTTP on localhost. ODK Central Frontend also interacts with data collection clients and with services:
 

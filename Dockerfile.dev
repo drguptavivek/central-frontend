@@ -1,8 +1,8 @@
-FROM node:24.13.0-slim
+FROM node:24.16.0-slim
 
-# Install Nginx and git (git is often needed for dependencies)
+# Install development and browser-test dependencies. NGINX runs as the
+# separate Central proxy service and is intentionally not duplicated here.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
     git \
     procps \
     chromium \

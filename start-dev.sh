@@ -3,7 +3,5 @@
 echo "Installing/updating npm dependencies..."
 npm install
 
-mkdir -p .nginx/client_body_temp .nginx/proxy_temp
-
 echo "Starting Vite dev server..."
-exec npm run dev
+exec npx vite --host 0.0.0.0 --port 8989
