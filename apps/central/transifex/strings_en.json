@@ -3348,7 +3348,7 @@
       },
       "alert": {
         "updated": {
-          "string": "The App User “{displayName}” was updated."
+          "string": "The App User “{displayName}” was updated successfully."
         }
       }
     },
