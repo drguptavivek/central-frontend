@@ -1,3 +1,4 @@
+import VgFieldKeyList from '../../../src/components/field-key/vg-list.vue';
 import ProjectSubmissionOptions from '../../../src/components/project/submission-options.vue';
 
 import testData from '../../data';
@@ -74,8 +75,9 @@ describe('FieldKeyList', () => {
         .createPast(1, { displayName: 'App User 2', properties: { region: 'South' } });
       testData.actorProperties.createPast(1, { name: 'region' });
       const app = await load('/projects/1/app-users');
-      app.vm.filter = { property: 'region', value: 'West' };
-      await app.vm.$nextTick();
+      const list = app.getComponent(VgFieldKeyList);
+      list.vm.filter = { property: 'region', value: 'West' };
+      await list.vm.$nextTick();
       app.get('.empty-table-message').text().should.equal('No App Users match the current filter.');
     });
   });
