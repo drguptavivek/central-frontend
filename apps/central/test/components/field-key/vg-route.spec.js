@@ -100,6 +100,46 @@ describe('VgFieldKeyRoute', () => {
     row.get('.dropdown-menu').should.be.visible();
   });
 
+  it('edits an App User from the actions menu and refreshes the list', () => {
+    testData.extendedProjects.createPast(1, { appUsers: 1 });
+    const fieldKey = createAppUser();
+    const updatedFieldKey = {
+      ...fieldKey,
+      displayName: 'Updated App User',
+      phone: '(+1) 555 987 6543'
+    };
+
+    return mockHttp()
+      .mount(VgFieldKeyRouteHarness, baseMountOptions({ attachTo: document.body }))
+      .request(async (app) => {
+        await app.get('.field-key-row .dropdown-toggle').trigger('click');
+        const editLink = app.findAll('.field-key-row .dropdown-menu a')
+          .find((link) => link.text().includes('Edit details'));
+        await editLink.trigger('click');
+        const inputs = app.get('#field-key-edit').findAll('input');
+        await inputs[0].setValue('Updated App User');
+        await inputs[1].setValue('(+1) 555 987 6543');
+        return app.get('#field-key-edit form').trigger('submit');
+      })
+      .respondWithData(() => updatedFieldKey)
+      .testRequests([{
+        method: 'PATCH',
+        url: '/v1/projects/1/app-users/1',
+        data: {
+          fullName: 'Updated App User',
+          phone: '(+1) 555 987 6543',
+          properties: {}
+        }
+      }])
+      .afterResponses(async (app) => {
+        await app.vm.$nextTick();
+        app.should.alert('success', 'The App User “Updated App User” was updated successfully.');
+        app.find('#field-key-edit').classes('in').should.be.false;
+        const emitted = app.emitted('fetch-field-keys');
+        emitted[emitted.length - 1].should.eql([true]);
+      });
+  });
+
   it('creates an app user with username and phone, then shows a QR success panel', () => {
     testData.extendedProjects.createPast(1, { appUsers: 0 });
 

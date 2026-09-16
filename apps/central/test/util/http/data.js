@@ -85,7 +85,7 @@ const responsesByComponent = {
     projectAssignments: () => testData.extendedProjectAssignments.sorted()
   }),
   VgFieldKeyList: componentResponses({ actorProperties: true, fieldKeys: true }),
-  CustomPropertyList: componentResponses({ project: true, actorProperties: true }),
+  CustomPropertyList: componentResponses({ actorProperties: true }),
   ProjectFormAccess: componentResponses({
     forms: true,
     fieldKeys: true,
