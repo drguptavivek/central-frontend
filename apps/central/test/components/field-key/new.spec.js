@@ -395,6 +395,7 @@ describe('FieldKeyNew', () => {
           return app.get('#field-key-new form').trigger('submit');
         })
         .respondWithData(() => testData.standardFieldKeys.createNew({ displayName: 'App User 3' }))
+        .respondWithData(() => ({ admin_pw: 'vg_custom' }))
         .complete()
         .request(app => app.get('#field-key-new .btn-primary').trigger('click'))
         .respondWithData(() => testData.extendedFieldKeys.sorted())
