@@ -198,6 +198,9 @@ describe('ProjectShow', () => {
         'Entity Lists 1',
         'Project Roles',
         'App Users',
+        'Custom Properties',
+        'App User Settings',
+        'Login History',
         'Form Access',
         'Settings'
       ]);

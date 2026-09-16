@@ -91,7 +91,7 @@ describe('VgFieldKeyRoute', () => {
 
     trigger.attributes('aria-haspopup').should.equal('true');
     trigger.attributes('aria-expanded').should.equal('false');
-    trigger.attributes('data-toggle').should.equal(undefined);
+    should.not.exist(trigger.attributes('data-toggle'));
 
     await trigger.trigger('click');
 
