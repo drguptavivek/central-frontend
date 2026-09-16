@@ -18,7 +18,6 @@ import * as PublicLinks from './public-links';
 import * as Roles from './roles';
 import * as Sessions from './sessions';
 import * as Submissions from './submissions';
-import * as VgSubmissions from './vg-submissions';
 import * as Users from './users';
 import seed from './seed';
 import { resetDataStores } from './data-store';
@@ -45,7 +44,6 @@ const testData = Object.assign( // eslint-disable-line prefer-object-spread
   Roles,
   Sessions,
   Submissions,
-  VgSubmissions,
   Users
 );
 

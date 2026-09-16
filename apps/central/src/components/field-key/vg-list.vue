@@ -106,11 +106,19 @@ import ProjectSubmissionOptions from '../project/submission-options.vue';
 import useRoutes from '../../composables/routes';
 import { modalData } from '../../util/reactivity';
 import { useRequestData } from '../../request-data';
-import { loadAsync } from '../../util/load-async';
 
-const VgFieldKeyNew = defineAsyncComponent(loadAsync('VgFieldKeyNew'));
-const VgFieldKeyResetPassword = defineAsyncComponent(loadAsync('VgFieldKeyResetPassword'));
-const VgFieldKeyQrPanel = defineAsyncComponent(loadAsync('VgFieldKeyQrPanel'));
+const VgFieldKeyNew = defineAsyncComponent(() => import(
+  /* webpackChunkName: "component-vg-field-key-new" */
+  './vg-new.vue'
+));
+const VgFieldKeyResetPassword = defineAsyncComponent(() => import(
+  /* webpackChunkName: "component-vg-field-key-reset-password" */
+  './vg-reset-password.vue'
+));
+const VgFieldKeyQrPanel = defineAsyncComponent(() => import(
+  /* webpackChunkName: "component-vg-field-key-qr-panel" */
+  './vg-qr-panel.vue'
+));
 
 export default {
   name: 'VgFieldKeyList',

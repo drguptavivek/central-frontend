@@ -114,7 +114,7 @@ import VgTelemetryMapView from './vg-telemetry-map-view.vue';
 import useDataView from '../../composables/data-view';
 import useRequest from '../../composables/request';
 import { useRequestData } from '../../request-data';
-import { apiPaths } from '../../util/request';
+import { vgApiPaths } from '../../util/vg-request';
 
 const toIso = (value) => {
   if (!value) return undefined;
@@ -164,18 +164,6 @@ export default {
       }
     };
   },
-  created() {
-    this.$emit('fetch-field-keys', false);
-    this.fetchTelemetry(true);
-  },
-  watch: {
-    'pagination.page'() {
-      this.fetchTelemetry();
-    },
-    'pagination.size'() {
-      this.fetchTelemetry(true);
-    }
-  },
   computed: {
     appUsers() {
       return (this.fieldKeys != null && this.fieldKeys.dataExists)
@@ -222,7 +210,21 @@ export default {
       };
     }
   },
+  watch: {
+    'pagination.page': 'onPageChange',
+    'pagination.size': 'onPageSizeChange'
+  },
+  created() {
+    this.$emit('fetch-field-keys', false);
+    this.fetchTelemetry(true);
+  },
   methods: {
+    onPageChange() {
+      this.fetchTelemetry();
+    },
+    onPageSizeChange() {
+      this.fetchTelemetry(true);
+    },
     getUserColors() {
       // Color palette for different users (distinct, accessible colors)
       const colorPalette = [
@@ -241,7 +243,7 @@ export default {
         '#e7298a', // magenta
         '#66a61e', // olive
         '#e6ab02', // gold
-        '#a6761d'  // tan
+        '#a6761d' // tan
       ];
 
       // Get unique app user IDs from telemetry
@@ -297,7 +299,7 @@ export default {
         limit: this.pagination.size,
         offset: this.pagination.page * this.pagination.size
       };
-      this.request({ url: apiPaths.projectAppUserTelemetry(this.projectId, query) })
+      this.request({ url: vgApiPaths.projectAppUserTelemetry(this.projectId, query) })
         .then((response) => {
           const headerTotal = Number(response.headers['x-total-count']);
           this.totalCount = Number.isFinite(headerTotal)

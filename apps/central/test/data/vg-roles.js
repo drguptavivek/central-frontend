@@ -1,4 +1,4 @@
-export const dataManagerRole = {
+const dataManagerRole = {
   name: 'Data Manager',
   system: 'data_mgr',
   verbs: [
@@ -20,3 +20,5 @@ export const dataManagerRole = {
     'vg_telemetry.read'
   ]
 };
+
+export default dataManagerRole;

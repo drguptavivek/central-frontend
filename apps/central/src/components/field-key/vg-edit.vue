@@ -48,7 +48,7 @@ import ActorPropertiesUpsert from '../actor-properties/upsert.vue';
 
 import useRequest from '../../composables/request';
 import { useRequestData } from '../../request-data';
-import { apiPaths } from '../../util/request';
+import { vgApiPaths } from '../../util/vg-request';
 import { noop } from '../../util/util';
 
 export default {
@@ -105,7 +105,7 @@ export default {
     submit() {
       this.request({
         method: 'PATCH',
-        url: apiPaths.fieldKeyUpdate(this.projectId, this.fieldKey.id),
+        url: vgApiPaths.fieldKeyUpdate(this.projectId, this.fieldKey.id),
         data: {
           fullName: this.displayName,
           phone: this.phone,

@@ -18,6 +18,7 @@ export const extendedFieldKeys = dataStore({
       : extendedProjects.createPast(1, { appUsers: 1 }).last(),
     displayName = faker.word.noun(),
     token = faker.string.alphanumeric(64),
+    active = token != null,
     lastUsed = undefined,
     properties = {}
   }) => {
@@ -32,6 +33,7 @@ export const extendedFieldKeys = dataStore({
       type: 'field_key',
       displayName,
       token,
+      active,
       lastUsed: lastUsed !== undefined
         ? lastUsed
         : (inPast && faker.datatype.boolean() ? fakePastDate([createdAt]) : null),

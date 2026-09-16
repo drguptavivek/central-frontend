@@ -10,10 +10,12 @@ import testData from './data';
 import { loadAsyncRouteComponents } from './util/load-async';
 import { mockLogin } from './util/session';
 import { setupLanguages } from './util/i18n';
+import installExpectedFailureHandling from './util/expected-failures';
 import './assertions';
 
 window.beforeAll = before; // eslint-disable-line no-undef
 window.afterAll = after; // eslint-disable-line no-undef
+const expectedFailureState = installExpectedFailureHandling();
 window.test = it;
 
 window.should = should();
@@ -50,6 +52,7 @@ afterEach(() => {
   document.cookie = '';
 });
 setupLanguages(afterEach);
+afterAll(expectedFailureState.report);
 
 
 

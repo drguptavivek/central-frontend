@@ -15,10 +15,11 @@
   },
   "projectShow": {
     "tab": {
-      "appUserSettings": "App User Settings",
       "formAccess": "Form Access",
+      "customProperties": "Custom Properties",
+      "appUserSettings": "App User Settings",
       "telemetry": "Telemetry",
-      "loginHistory": "Login History"
+      "loginHistory": "Login History",
     }
   },
   "formHead": {
@@ -99,7 +100,8 @@
         "create": "Create",
         "update": "Update Details",
         "session_end": "Revoke",
-        "delete": "Delete"
+        "delete": "Delete",
+        "property_set": "Set Property"
       },
       // This is shown in the log of actions performed on the server.
       "analytics": "Report Usage",
@@ -119,11 +121,17 @@
         "create": "@:audit.action.default.create",
         "update": "Update",
         "update_publish": "Publish",
-        "delete": "@:audit.action.default.delete"
+        "delete": "@:audit.action.default.delete",
+        "update_property_delete": "Delete Property"
       },
       "entity": {
         "bulk_delete": "Bulk Delete",
         "bulk_restore": "Bulk Restore"
+      },
+      // This is shown in the log of actions performed on the server. It is a
+      // type of action that can be taken on an Actor Property.
+      "actor_property": {
+        "create": "Create Custom Property"
       },
       // This is shown in the log of actions performed on the server. It is a
       // type of action that can be taken on an App User.
@@ -132,7 +140,8 @@
         "assignment_create": "Give Access",
         "assignment_delete": "Remove Access",
         "session_end": "@:audit.action.default.session_end",
-        "delete": "@:audit.action.default.delete"
+        "delete": "@:audit.action.default.delete",
+        "property_set": "@:audit.action.default.property_set"
       },
       // This is shown in the log of actions performed on the server. It is a
       // type of action that can be taken on a Form.
@@ -141,6 +150,7 @@
         "update": "@:audit.action.default.update",
         "update_draft_set": "Create or Update Draft",
         "update_draft_replace": "Replace Draft",
+        "update_draft_update": "Update Draft Settings",
         "update_publish": "Publish Draft",
         "update_draft_delete": "Abandon Draft",
         "attachment_update": "Update Attachments",
@@ -163,7 +173,8 @@
         "assignment_create": "Give Access",
         "assignment_delete": "Remove Access",
         "session_end": "@:audit.action.default.session_end",
-        "delete": "@:audit.action.default.delete"
+        "delete": "@:audit.action.default.delete",
+        "property_set": "@:audit.action.default.property_set"
       },
       // This is shown in the log of actions performed on the server.
       "submission": {
@@ -223,7 +234,6 @@
     "saveSettings": "Save settings",
     // This text is shown next to a dropdown menu or other way to change the sorting of Projects or Forms
     "sort": "Sort",
-    // @transifexKey component.WebFormRenderer.retryModal.action.tryAgain
     "tryAgain": "Try again",
     "undo": "Undo",
     "update": "Update",
@@ -234,15 +244,14 @@
     "showPreview": "Preview",
     // This text is shown on a button that the user clicks to hide a preview of something
     "hidePreview": "Hide preview",
-    // This text is show on a button that the user clicks to see the Form preview in the new Web Forms component
-    "newPreview": "New Preview",
     "expand": "Expand",
     "collapse": "Collapse",
     // @transifexKey component.FormTrashRow.action.restore
     "restore": "Restore",
     "selectRow": "Select row",
     // This text is shown on a button that resets the data filters
-    "reset": "Reset"
+    "reset": "Reset",
+    "change": "Change"
   },
   "field": {
     "comment": "Leave a comment…",
@@ -255,6 +264,7 @@
     "passphrase": "Passphrase",
     "password": "Password",
     "passwordConfirm": "New password (confirm)",
+    "title": "Title",
     "type": "Type"
   },
   "header": {
@@ -291,9 +301,12 @@
     // This is the text of a table column header. The column shows the number of entities
     // for the Entity List
     "entities": "Total Entities",
-    // This is the text of a table column header. The column shows the date and time of the 
+    // This is the text of a table column header. The column shows the date and time of the
     // newest entity
-    "lastEntity": "Latest Entity"
+    "lastEntity": "Latest Entity",
+    // This is the text of a table column header. "Value" refers to the value of a property of
+    // an object (App User, Public Link and Data Collector)
+    "value": "Value"
   },
   "plural": {
     "appUser": "App User | App Users",
@@ -324,6 +337,7 @@
     "entityLists": "Entity Lists",
     "form": "Form",
     "forms": "Forms",
+    "newForm": "New Form",
     // @transifexKey component.FormHead.draftNav.title
     "draft": "Draft",
     "formAttachments": "Form Attachments",
@@ -369,10 +383,12 @@
   },
   "login": {
     "odkLogo": "ODK logo",
+    // @transifexKey component.AccountPageContainer.customLogoAlt
+    "customLogoAlt": "Organization logo",
     "defaultTitle": "Welcome to ODK Central",
     "defaultDescription": "Log into your account to get started",
-    "heroImage": "Login image",
-    "customLogoAlt": "Organization logo"
+    // An image shown on the login page
+    "heroImage": "Login image"
   },
   "analytics": {
     "alwaysImprove": "We are always trying to improve ODK Central.",
@@ -444,7 +460,7 @@
     "no": "No",
     // This is shown if a search returned no results.
     "noResults": "No results",
-    // This is shown for a missing or unavailable value.
+    // This is shown for a missing or unavailable value in VG telemetry and login history.
     "notAvailable": "Not available",
     "noUndo": "This action cannot be undone.",
     // @transifexKey field.reviewState
@@ -464,8 +480,6 @@
     "table": "Table",
     "total": "Total",
     "totalSubmissions": "Total Submissions",
-    // This is shown when an expected value is unknown.
-    "unknown": "Unknown",
     // {inform} is the number of Entity Properties defined by the form.
     // {count} is the total number of Properties. The string will be pluralized based on {count}.
     "propertiesCount": "{inform} of {count} property | {inform} of {count} properties",
@@ -480,9 +494,17 @@
     "versionShort": "v{version}",
     // This text is shown on its own before details about a warning.
     "warning": "Warning",
-    "beta": "Beta",
+    // Standalone text shown as a badge next to a recommendation. Not part of a longer phrase.
+    "recommended": "recommended",
     "none": "(none)",
-    "search": "Search"
+    "search": "Search",
+    // @transifexKey component.FormTrashList.title
+    "trash": "Trash",
+    // The word "Enketo" should not be translated
+    "useEnketo": "Enketo compatibility mode",
+    "updateInProgress": "Update request in progress",
+    // This is shown when an expected VG telemetry or session value is unknown.
+    "unknown": "Unknown"
   },
   "mixin": {
     "request": {
@@ -547,13 +569,5 @@
   },
   "router": {
     "unsavedChanges": "Are you sure you want to leave this page? Your changes might not be saved."
-  },
-  "vgSettings": {
-    "heading": "Configure App User Session Settings",
-    "ttl": "Session TTL (Days)",
-    "cap": "Max Sessions per User",
-    "alert": {
-      "invalidValues": "Values must be at least 1."
-    }
   }
 }

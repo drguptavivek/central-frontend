@@ -10,7 +10,7 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 <template>
-  <alert class="toast" :class="toast.options?.type" :alert="toast"/>
+  <alert class="toast" :alert="toast"/>
 </template>
 
 <script setup>
@@ -27,10 +27,6 @@ const toast = inject('toast');
 .toast {
   background-color: #333;
   color: #fff;
-
-  &.success {
-    background-color: $color-success;
-  }
 
   .alert-cta {
     color: $color-action-light;

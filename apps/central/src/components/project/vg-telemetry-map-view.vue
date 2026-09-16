@@ -32,7 +32,7 @@ defineOptions({
   name: 'VgTelemetryMapView'
 });
 
-const props = defineProps({
+defineProps({
   geojsonData: {
     type: Object,
     default: null

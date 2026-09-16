@@ -24,6 +24,7 @@ import Loading from '../loading.vue';
 import Spinner from '../spinner.vue';
 import { useRequestData } from '../../request-data';
 import { noop } from '../../util/util';
+import { vgApiPaths } from '../../util/vg-request';
 
 export default {
   name: 'VgSettings',
@@ -41,9 +42,6 @@ export default {
       adminPw: 'vg_custom'
     };
   },
-  created() {
-    this.fetchData();
-  },
   watch: {
     dataExists: {
       handler(exists) {
@@ -59,9 +57,12 @@ export default {
       immediate: true
     }
   },
+  created() {
+    this.fetchData();
+  },
   methods: {
     fetchData() {
-      this.systemSettings.request({ url: '/v1/system/settings' });
+      this.systemSettings.request({ url: vgApiPaths.systemSettings() });
     },
     submit() {
       if (this.ttl < 1 || this.cap < 1) {
@@ -70,17 +71,17 @@ export default {
       }
       this.systemSettings.request({
         method: 'PUT',
-        url: '/v1/system/settings',
+        url: vgApiPaths.systemSettings(),
         data: {
           vg_app_user_session_ttl_days: this.ttl,
           vg_app_user_session_cap: this.cap,
           admin_pw: this.adminPw
         }
       })
-      .then(() => {
-        this.alert.success(this.$t('alert.success'));
-      })
-      .catch(noop);
+        .then(() => {
+          this.alert.success(this.$t('alert.success'));
+        })
+        .catch(noop);
     }
   }
 };
@@ -102,7 +103,10 @@ export default {
       "heading": "Configure App User Session Settings",
       "ttl": "Session TTL (Days)",
       "cap": "Max Sessions per User",
-      "adminPw": "Admin Password (for ODK Collect settings)"
+      "adminPw": "Admin Password (for ODK Collect settings)",
+      "alert": {
+        "invalidValues": "Values must be at least 1."
+      }
     }
   }
 }

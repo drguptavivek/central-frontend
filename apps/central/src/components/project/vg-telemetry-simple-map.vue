@@ -11,8 +11,8 @@ except according to the terms contained in the LICENSE file.
 -->
 <template>
   <div class="telemetry-map-wrapper">
-    <div ref="mapContainer" class="telemetry-simple-map" :style="{height: height + 'px'}"></div>
-    <div ref="tooltipElement" class="telemetry-tooltip" v-show="tooltip.visible">
+    <div ref="mapContainer" class="telemetry-simple-map" :style="{ height: height + 'px' }"></div>
+    <div v-show="tooltip.visible" ref="tooltipElement" class="telemetry-tooltip">
       <div><strong>{{ tooltip.user }}</strong></div>
       <div>Device: {{ tooltip.device }}</div>
       <div>{{ tooltip.dateTime }}</div>
@@ -66,6 +66,27 @@ const tooltip = reactive({
   dateTime: '',
   eventType: ''
 });
+
+const loadFeatures = () => {
+  if (!props.geojsonData || !vectorSource) return;
+
+  // Clear existing features
+  vectorSource.clear();
+
+  // Read features from GeoJSON
+  const features = new GeoJSON().readFeatures(props.geojsonData, {
+    featureProjection: 'EPSG:3857'
+  });
+
+  if (features.length === 0) return;
+
+  // Add features to source
+  vectorSource.addFeatures(features);
+
+  // Fit map to features
+  const extent = vectorSource.getExtent();
+  map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 16 });
+};
 
 const formatDateTime = (isoString) => {
   if (!isoString) return '';
@@ -165,27 +186,6 @@ onMounted(() => {
   // Load initial data
   loadFeatures();
 });
-
-const loadFeatures = () => {
-  if (!props.geojsonData || !vectorSource) return;
-
-  // Clear existing features
-  vectorSource.clear();
-
-  // Read features from GeoJSON
-  const features = new GeoJSON().readFeatures(props.geojsonData, {
-    featureProjection: 'EPSG:3857'
-  });
-
-  if (features.length === 0) return;
-
-  // Add features to source
-  vectorSource.addFeatures(features);
-
-  // Fit map to features
-  const extent = vectorSource.getExtent();
-  map.getView().fit(extent, { padding: [50, 50, 50, 50], maxZoom: 16 });
-};
 
 // Watch for data changes
 watch(() => props.geojsonData, () => {

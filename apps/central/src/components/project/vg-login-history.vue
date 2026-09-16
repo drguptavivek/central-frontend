@@ -115,7 +115,7 @@ import Pagination from '../pagination.vue';
 
 import useRequest from '../../composables/request';
 import { useRequestData } from '../../request-data';
-import { apiPaths } from '../../util/request';
+import { vgApiPaths } from '../../util/vg-request';
 import { modalData } from '../../util/reactivity';
 
 const toIso = (value) => {
@@ -139,6 +139,7 @@ export default {
     Loading,
     Pagination
   },
+  inject: ['alert'],
   props: {
     projectId: {
       type: String,
@@ -146,7 +147,6 @@ export default {
     }
   },
   emits: ['fetch-field-keys'],
-  inject: ['alert'],
   setup() {
     const { fieldKeys } = useRequestData();
     const { request, awaitingResponse } = useRequest();
@@ -186,24 +186,27 @@ export default {
       return this.confirmModal.session.deviceId || this.$t('common.notAvailable');
     }
   },
+  watch: {
+    'pagination.page': 'onPageChange',
+    'pagination.size': 'onPageSizeChange',
+    'route.query.appUserId': 'onAppUserIdChange'
+  },
   created() {
     this.$emit('fetch-field-keys', false);
     this.filters.appUserId = toOptionalInt(this.route.query.appUserId);
     this.fetchSessions(true);
   },
-  watch: {
-    'pagination.page'() {
+  methods: {
+    onPageChange() {
       this.fetchSessions();
     },
-    'pagination.size'() {
+    onPageSizeChange() {
       this.fetchSessions(true);
     },
-    'route.query.appUserId'(value) {
+    onAppUserIdChange(value) {
       this.filters.appUserId = toOptionalInt(value);
       this.fetchSessions(true);
-    }
-  },
-  methods: {
+    },
     applyFilters() {
       this.fetchSessions(true);
     },
@@ -246,7 +249,7 @@ export default {
       if (session == null) return;
       this.request({
         method: 'POST',
-        url: apiPaths.projectAppUserSessionRevoke(this.projectId, session.id)
+        url: vgApiPaths.projectAppUserSessionRevoke(this.projectId, session.id)
       })
         .then(() => {
           this.alert.success(this.$t('alert.deactivated'));
@@ -270,7 +273,7 @@ export default {
         offset: this.pagination.page * this.pagination.size
       };
       this.request({
-        url: apiPaths.projectAppUserSessions(this.projectId, query)
+        url: vgApiPaths.projectAppUserSessions(this.projectId, query)
       })
         .then((response) => {
           const headerTotal = Number(response.headers['x-total-count']);
@@ -347,7 +350,9 @@ export default {
     "confirm": {
       "title": "Deactivate Session",
       "body": {
-        "full": "Deactivate the session for {appUser} on device {device}?"
+        "full": "Deactivate the session for {appUser} on device {device}?",
+        "appUser": "App User",
+        "device": "device"
       }
     },
     "alert": {

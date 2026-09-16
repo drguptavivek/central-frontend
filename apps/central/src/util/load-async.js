@@ -59,10 +59,6 @@ const loaders = new Map()
     /* webpackChunkName: "component-client-config-error" */
     '../components/client-config-error.vue'
   )))
-  .set('ConfigError', loader(() => import(
-    /* webpackChunkName: "component-config-error" */
-    '../components/config-error.vue'
-  )))
   .set('ConfigLogin', loader(() => import(
     '../components/config/login.vue'
   )))
@@ -211,18 +207,6 @@ const loaders = new Map()
   .set('SystemHome', loader(() => import(
     /* webpackChunkName: "component-system-home" */
     '../components/system/home.vue'
-  )))
-  .set('VgFieldKeyNew', loader(() => import(
-    /* webpackChunkName: "component-vg-field-key-new" */
-    '../components/field-key/vg-new.vue'
-  )))
-  .set('VgFieldKeyResetPassword', loader(() => import(
-    /* webpackChunkName: "component-vg-field-key-reset-password" */
-    '../components/field-key/vg-reset-password.vue'
-  )))
-  .set('VgFieldKeyQrPanel', loader(() => import(
-    /* webpackChunkName: "component-vg-field-key-qr-panel" */
-    '../components/field-key/vg-qr-panel.vue'
   )))
   .set('VgSettings', loader(() => import(
     /* webpackChunkName: "component-vg-settings" */

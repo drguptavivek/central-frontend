@@ -42,7 +42,7 @@ import Modal from '../modal.vue';
 import Spinner from '../spinner.vue';
 
 import useRequest from '../../composables/request';
-import { apiPaths } from '../../util/request';
+import { vgApiPaths } from '../../util/vg-request';
 import { noop } from '../../util/util';
 
 export default {
@@ -61,7 +61,7 @@ export default {
     revoke() {
       this.request({
         method: 'POST',
-        url: apiPaths.fieldKeyRevoke(this.fieldKey.projectId, this.fieldKey.id)
+        url: vgApiPaths.fieldKeyRevoke(this.fieldKey.projectId, this.fieldKey.id)
       })
         .then(() => {
           this.$emit('success', this.fieldKey);

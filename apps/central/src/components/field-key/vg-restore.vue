@@ -41,7 +41,7 @@ import Modal from '../modal.vue';
 import Spinner from '../spinner.vue';
 
 import useRequest from '../../composables/request';
-import { apiPaths } from '../../util/request';
+import { vgApiPaths } from '../../util/vg-request';
 import { noop } from '../../util/util';
 
 export default {
@@ -60,7 +60,7 @@ export default {
     restore() {
       this.request({
         method: 'POST',
-        url: apiPaths.fieldKeyActive(this.fieldKey.projectId, this.fieldKey.id),
+        url: vgApiPaths.fieldKeyActive(this.fieldKey.projectId, this.fieldKey.id),
         data: { active: true }
       })
         .then(() => {

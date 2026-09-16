@@ -1,5 +1,5 @@
 import { standardRoles } from './roles';
-import { dataManagerRole } from './vg-roles';
+import dataManagerRole from './vg-roles';
 
 export default () => {
   // Only creating roles that we currently use in Frontend.
@@ -54,7 +54,11 @@ export default () => {
         'user.read',
         'user.update',
         'user.delete',
-        'user.password.invalidate'
+        'user.password.invalidate',
+        // Administrators can manage the VG form-access settings, just as the
+        // backend administrator authorization does. Keep this in the fixture
+        // role so route guards do not redirect route-focused tests to Home.
+        'vg_form_access.update'
       ]
     })
     .createPast(1, {

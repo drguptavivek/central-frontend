@@ -33,7 +33,6 @@
     "admin": "Administrateur",
     "manager": "Gestionnaire de projet",
     "viewer": "Lecteur de projet",
-    "data_mgr": "Data Manager",
     "formfill": "Collecteur de données"
   },
   "formState": {

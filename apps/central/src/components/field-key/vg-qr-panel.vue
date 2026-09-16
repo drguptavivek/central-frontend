@@ -75,6 +75,7 @@ import QrPanel from '../qr-panel.vue';
 import SentenceSeparator from '../sentence-separator.vue';
 
 import { useRequestData } from '../../request-data';
+import { vgApiPaths } from '../../util/vg-request';
 
 export default {
   name: 'VgFieldKeyQrPanel',
@@ -136,7 +137,7 @@ export default {
   },
   created() {
     if (!this.projectAppUserSettings.dataExists) {
-      this.projectAppUserSettings.request({ url: `/v1/projects/${this.project.id}/app-users/settings` });
+      this.projectAppUserSettings.request({ url: vgApiPaths.projectAppUserSettings(this.project.id) });
     }
   }
 };

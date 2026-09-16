@@ -94,7 +94,6 @@ export const apiPaths = {
   formSummaryAssignments: (projectId, role) =>
     `/v1/projects/${projectId}/assignments/forms/${role}`,
   form: formPath(''),
-  formXml: formOrDraftPath('.xml'),
   formDatasetDiff: formPath('/dataset-diff'),
   odataSvc: formOrDraftPath('.svc'),
   formActors: (projectId, xmlFormId, role) => {
@@ -172,6 +171,10 @@ export const apiPaths = {
   },
   submissionXml: submissionPath('.xml'),
   publicLinks: formPath('/public-links'),
+  publicLink: (projectId, xmlFormId, publicLinkId) => {
+    const encodedFormId = encodeURIComponent(xmlFormId);
+    return `/v1/projects/${projectId}/forms/${encodedFormId}/public-links/${publicLinkId}`;
+  },
   datasets: projectPath('/datasets'),
   dataset: datasetPath(''),
   datasetProperties: datasetPath('/properties'),
@@ -193,26 +196,8 @@ export const apiPaths = {
   entityVersions: entityPath('/versions'),
   entityRestore: entityPath('/restore'),
   fieldKeys: projectPath('/app-users'),
+  fieldKey: (projectId, fieldKeyId) => `/v1/projects/${projectId}/app-users/${fieldKeyId}`,
   actorProperties: projectPath('/actor-properties'),
-  fieldKeyLogin: (projectId) => `/v1/projects/${projectId}/app-users/login`,
-  fieldKeyUpdate: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}`,
-  fieldKeyResetPassword: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/password/reset`,
-  fieldKeyRevoke: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/revoke-admin`,
-  fieldKeyActive: (projectId, id) => `/v1/projects/${projectId}/app-users/${id}/active`,
-  fieldKeySessions: (projectId, id, query = undefined) =>
-    `/v1/projects/${projectId}/app-users/${id}/sessions${queryString(query)}`,
-  projectAppUserSessions: (projectId, query = undefined) =>
-    `/v1/projects/${projectId}/app-users/sessions${queryString(query)}`,
-  projectAppUserSessionRevoke: (projectId, sessionId) =>
-    `/v1/projects/${projectId}/app-users/sessions/${sessionId}/revoke`,
-  systemAppUserTelemetry: (query = undefined) =>
-    `/v1/system/app-users/telemetry${queryString(query)}`,
-  projectAppUserTelemetry: (projectId, query = undefined) =>
-    `/v1/projects/${projectId}/app-users/telemetry${queryString(query)}`,
-  enketoStatus: (query = undefined) =>
-    `/v1/system/enketo-status${queryString(query)}`,
-  enketoStatusRegenerate: () =>
-    '/v1/system/enketo-status/regenerate',
   serverUrlForFieldKey: (token, projectId) =>
     `/v1/key/${token}/projects/${projectId}`,
   audits: (query) => `/v1/audits${queryString(query)}`,
@@ -282,7 +267,7 @@ export const requestAlertMessage = (i18n, axiosError, problemToAlert = undefined
   if (problem.code === 409.17) {
     const { duplicateProperties } = problem.details;
     // eslint-disable-next-line prefer-template
-    return i18n.t('util.request.problem.409_17.message', duplicateProperties.length) +
+    return i18n.tc('util.request.problem.409_17.message', duplicateProperties.length) +
       '\n\n' +
       duplicateProperties
         .map(p => `• ${i18n.t('util.request.problem.409_17.duplicateProperty', p)}`)

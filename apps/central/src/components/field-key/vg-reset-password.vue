@@ -60,9 +60,9 @@ import VgFieldKeyQrPanel from './vg-qr-panel.vue';
 import SentenceSeparator from '../sentence-separator.vue';
 
 import useRequest from '../../composables/request';
-import { apiPaths } from '../../util/request';
+import { vgApiPaths } from '../../util/vg-request';
 import { noop } from '../../util/util';
-import { generatePassword } from '../../util/password-generator';
+import generatePassword from '../../util/vg-password-generator';
 
 export default {
   name: 'VgFieldKeyResetPassword',
@@ -104,7 +104,7 @@ export default {
 
       this.request({
         method: 'POST',
-        url: apiPaths.fieldKeyResetPassword(this.fieldKey.projectId, this.fieldKey.id),
+        url: vgApiPaths.fieldKeyResetPassword(this.fieldKey.projectId, this.fieldKey.id),
         data: { newPassword: password },
         problemToAlert: ({ code }) => {
           if (code === 400.20) return this.$t('alert.passwordWeak');

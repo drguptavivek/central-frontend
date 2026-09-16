@@ -24,6 +24,7 @@ import Loading from '../loading.vue';
 import Spinner from '../spinner.vue';
 import { useRequestData } from '../../request-data';
 import { noop } from '../../util/util';
+import { vgApiPaths } from '../../util/vg-request';
 
 export default {
   name: 'VgProjectAppUserSettings',
@@ -47,9 +48,6 @@ export default {
       adminPw: 'vg_custom'
     };
   },
-  created() {
-    this.fetchData();
-  },
   watch: {
     dataExists: {
       handler(exists) {
@@ -64,10 +62,13 @@ export default {
       immediate: true
     }
   },
+  created() {
+    this.fetchData();
+  },
   methods: {
     fetchData() {
       this.projectAppUserSettings.request({
-        url: `/v1/projects/${this.projectId}/app-users/settings`
+        url: vgApiPaths.projectAppUserSettings(this.projectId)
       });
     },
     submit() {
@@ -77,17 +78,17 @@ export default {
       }
       this.projectAppUserSettings.request({
         method: 'PUT',
-        url: `/v1/projects/${this.projectId}/app-users/settings`,
+        url: vgApiPaths.projectAppUserSettings(this.projectId),
         data: {
           vg_app_user_session_ttl_days: this.ttl,
           vg_app_user_session_cap: this.cap,
           admin_pw: this.adminPw
         }
       })
-      .then(() => {
-        this.alert.success(this.$t('alert.success'));
-      })
-      .catch(noop);
+        .then(() => {
+          this.alert.success(this.$t('alert.success'));
+        })
+        .catch(noop);
     }
   }
 };

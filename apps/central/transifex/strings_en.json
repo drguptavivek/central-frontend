@@ -34,6 +34,18 @@
       "customProperties": {
         "string": "Custom Properties",
         "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
+      },
+      "appUserSettings": {
+        "string": "App User Settings",
+        "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
+      },
+      "telemetry": {
+        "string": "Telemetry",
+        "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
+      },
+      "loginHistory": {
+        "string": "Login History",
+        "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
       }
     }
   },
@@ -77,6 +89,14 @@
       "analytics": {
         "string": "Usage Reporting",
         "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
+      },
+      "settings": {
+        "string": "App User Settings",
+        "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
+      },
+      "enketoStatus": {
+        "string": "Enketo Status",
+        "developer_comment": "This is the text of a navigation tab, which may also be shown as the page title (browser tab)."
       }
     }
   },
@@ -95,6 +115,10 @@
     },
     "viewer": {
       "string": "Project Viewer",
+      "developer_comment": "This is the name of a user Role."
+    },
+    "data_mgr": {
+      "string": "Data Manager",
       "developer_comment": "This is the name of a user Role."
     },
     "formfill": {
@@ -998,6 +1022,10 @@
       "string": "No results",
       "developer_comment": "This is shown if a search returned no results."
     },
+    "notAvailable": {
+      "string": "Not available",
+      "developer_comment": "This is shown for a missing or unavailable value in VG telemetry and login history."
+    },
     "noUndo": {
       "string": "This action cannot be undone."
     },
@@ -1064,6 +1092,10 @@
     },
     "updateInProgress": {
       "string": "Update request in progress"
+    },
+    "unknown": {
+      "string": "Unknown",
+      "developer_comment": "This is shown when an expected VG telemetry or session value is unknown."
     }
   },
   "mixin": {
@@ -1208,6 +1240,12 @@
       "problem": {
         "401_2": {
           "string": "Incorrect email address and/or password."
+        },
+        "attemptsRemaining": {
+          "string": "Attempts left: {count}."
+        },
+        "lockedOut": {
+          "string": "Locked out. Please retry after {minutes} minutes."
         }
       }
     },
@@ -3128,6 +3166,375 @@
         }
       }
     },
+    "FieldKeyVgEdit": {
+      "title": {
+        "string": "Edit App User"
+      },
+      "field": {
+        "displayName": {
+          "string": "Display Name",
+          "developer_comment": "This is the text of a form field."
+        },
+        "phoneWithFormat": {
+          "string": "Phone (+1 555 123 1234)",
+          "developer_comment": "This is the text of a form field."
+        }
+      },
+      "action": {
+        "cancel": {
+          "string": "Cancel",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "save": {
+          "string": "Save",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      },
+      "alert": {
+        "updated": {
+          "string": "The App User “{displayName}” was updated."
+        }
+      }
+    },
+    "FieldKeyVgList": {
+      "action": {
+        "create": {
+          "string": "Create App User",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      },
+      "heading": {
+        "0": {
+          "full": {
+            "string": "App Users are used to collect data from an application such as {collect}. They typically represent a shared role such as “Vaccinator” but may also represent individuals. App Users in this Project can only download and use Forms within this Project. When you create a new App User, it will not have access to any Forms at first. To set the Forms each App User may access, use the {formAccess} tab.",
+            "developer_comment": "{collect} is a link whose text is \"ODK Collect\".\n\n{formAccess} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nForm Access"
+          },
+          "formAccess": {
+            "string": "Form Access",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {formAccess} is in the following text:\n\nApp Users are used to collect data from an application such as {collect}. They typically represent a shared role such as “Vaccinator” but may also represent individuals. App Users in this Project can only download and use Forms within this Project. When you create a new App User, it will not have access to any Forms at first. To set the Forms each App User may access, use the {formAccess} tab."
+          }
+        },
+        "1": {
+          "full": {
+            "string": "App Users are most appropriate when data collectors need access to multiple Forms, are offline, or you have a complex Form. If you need respondents to self-report or have an online-only form, {clickHere} for other options.",
+            "developer_comment": "{clickHere} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nclick here"
+          },
+          "clickHere": {
+            "string": "click here",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {clickHere} is in the following text:\n\nApp Users are most appropriate when data collectors need access to multiple Forms, are offline, or you have a complex Form. If you need respondents to self-report or have an online-only form, {clickHere} for other options."
+          }
+        }
+      },
+      "header": {
+        "displayName": {
+          "string": "Display Name",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "username": {
+          "string": "Username",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "phone": {
+          "string": "Phone",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "created": {
+          "string": "Created",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "lastUsed": {
+          "string": "Last Used",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "configureClient": {
+          "string": "Configure Client",
+          "developer_comment": "Header for the table column that shows QR codes to configure data collection clients such as ODK Collect."
+        }
+      },
+      "emptyTable": {
+        "string": "There are no App Users yet. You will need to create some to download Forms and submit data from your device."
+      },
+      "alert": {
+        "create": {
+          "string": "The App User “{displayName}” was created successfully."
+        },
+        "revoke": {
+          "string": "App User {displayName}’s access successfully revoked."
+        },
+        "restore": {
+          "string": "App User {displayName}’s access successfully restored."
+        },
+        "resetPassword": {
+          "string": "Password for “{displayName}” has been reset."
+        }
+      }
+    },
+    "FieldKeyVgNew": {
+      "title": {
+        "string": "Create App User",
+        "developer_comment": "This is the title at the top of a pop-up."
+      },
+      "introduction": {
+        "0": {
+          "string": "This user will not have access to any Forms at first. You will be able to assign Forms after the user is created."
+        }
+      },
+      "field": {
+        "displayName": {
+          "string": "Display Name",
+          "developer_comment": "This is the text of a form field."
+        },
+        "username": {
+          "string": "Username",
+          "developer_comment": "This is the text of a form field."
+        },
+        "phone": {
+          "string": "Phone Number",
+          "developer_comment": "This is the text of a form field."
+        },
+        "phoneWithFormat": {
+          "string": "Phone Number (+xx) xxxxxxxxxx",
+          "developer_comment": "This is the text of a form field."
+        },
+        "password": {
+          "string": "Password",
+          "developer_comment": "This is the text of a form field."
+        },
+        "confirmPassword": {
+          "string": "Confirm Password",
+          "developer_comment": "This is the text of a form field."
+        },
+        "passwordHelp": {
+          "string": "Must be at least 10 characters, with upper/lowercase, number, and symbol",
+          "developer_comment": "This is the text of a form field."
+        }
+      },
+      "alert": {
+        "passwordTooShort": {
+          "string": "Password must be at least 10 characters"
+        },
+        "passwordMismatch": {
+          "string": "Passwords do not match"
+        },
+        "passwordWeak": {
+          "string": "Password must contain uppercase, lowercase, number, and symbol"
+        }
+      },
+      "success": {
+        "0": {
+          "string": "The App User “{displayName}” has been created."
+        },
+        "1": {
+          "string": "You can configure a mobile device for “{displayName}” right now.",
+          "developer_comment": "Clicking \"See code\" displays a QR code."
+        },
+        "2": {
+          "full": {
+            "string": "You may wish to visit this Project’s {formAccessSettings} to give this user access to Forms.",
+            "developer_comment": "{formAccessSettings} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nForm Access settings"
+          },
+          "formAccessSettings": {
+            "string": "Form Access settings",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {formAccessSettings} is in the following text:\n\nYou may wish to visit this Project’s {formAccessSettings} to give this user access to Forms."
+          }
+        }
+      },
+      "action": {
+        "createAnother": {
+          "string": "Create another",
+          "developer_comment": "This is the text of a button that is used to create another App User."
+        },
+        "generate": {
+          "string": "Generate",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      }
+    },
+    "FieldKeyVgQrPanel": {
+      "title": {
+        "managed": {
+          "string": "Client Configuration Code",
+          "developer_comment": "This is the title at the top of a pop-up. \"Client\" refers to a data collection client like ODK Collect. \"Code\" refers to a QR code."
+        },
+        "legacy": {
+          "string": "Legacy Client Configuration Code",
+          "developer_comment": "This is the title at the top of a pop-up. \"Client\" refers to a data collection client like ODK Collect. \"Code\" refers to a QR code."
+        }
+      },
+      "body": {
+        "0": {
+          "managed": {
+            "full": {
+              "string": "This is a {managedCode}.",
+              "developer_comment": "{managedCode} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nManaged QR Code"
+            },
+            "managedCode": {
+              "string": "Managed QR Code",
+              "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {managedCode} is in the following text:\n\nThis is a {managedCode}."
+            }
+          },
+          "legacy": {
+            "full": {
+              "string": "This is a {legacyCode}.",
+              "developer_comment": "{legacyCode} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nLegacy QR Code"
+            },
+            "legacyCode": {
+              "string": "Legacy QR Code",
+              "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {legacyCode} is in the following text:\n\nThis is a {legacyCode}."
+            }
+          }
+        },
+        "1": {
+          "managed": {
+            "string": "Collect will exactly match the Forms available to “{displayName}” including automatically applying updates. Users will not need to manually Get Blank Forms. Additionally, finalized Forms will be sent automatically as soon as a connection is found.",
+            "developer_comment": "\"Get Blank Form\" is the text of a button in ODK Collect."
+          },
+          "legacy": {
+            "string": "Users will have to manually Get Blank Forms on the device and determine which Forms to update. They will also need to manually Send Finalized Forms.",
+            "developer_comment": "\"Get Blank Form\" and \"Send Finalized Form\" are the text of buttons in ODK Collect."
+          }
+        },
+        "2": {
+          "managed": {
+            "full": {
+              "string": "For the old behavior, {switchToLegacy}.",
+              "developer_comment": "The following are separate strings that will be translated below. They will be formatted within ODK Central, for example, they might be bold or a link.\n\n- {switchToLegacy} has the text: switch to a {legacyCode}\n- {legacyCode} has the text: Legacy QR Code"
+            },
+            "switchToLegacy": {
+              "string": "switch to a {legacyCode}",
+              "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {switchToLegacy} is in the following text:\n\nFor the old behavior, {switchToLegacy}.\n\nNote that {legacyCode} is a separate string that will be translated below. Its text is:\n\nLegacy QR Code"
+            },
+            "legacyCode": {
+              "string": "Legacy QR Code",
+              "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {legacyCode} is in the following text:\n\nFor the old behavior, switch to a {legacyCode}."
+            }
+          },
+          "legacy": {
+            "full": {
+              "string": "For a more controlled and foolproof process, {switchToManaged}.",
+              "developer_comment": "The following are separate strings that will be translated below. They will be formatted within ODK Central, for example, they might be bold or a link.\n\n- {switchToManaged} has the text: switch to a {managedCode}\n- {managedCode} has the text: Managed QR Code"
+            },
+            "switchToManaged": {
+              "string": "switch to a {managedCode}",
+              "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {switchToManaged} is in the following text:\n\nFor a more controlled and foolproof process, {switchToManaged}.\n\nNote that {managedCode} is a separate string that will be translated below. Its text is:\n\nManaged QR Code"
+            },
+            "managedCode": {
+              "string": "Managed QR Code",
+              "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {managedCode} is in the following text:\n\nFor a more controlled and foolproof process, switch to a {managedCode}."
+            }
+          }
+        },
+        "3": {
+          "string": "Scan this QR code to configure a device with the account “{displayName}”."
+        },
+        "4": {
+          "string": "Password"
+        }
+      },
+      "usernameLabel": {
+        "string": "Username"
+      },
+      "passwordLabel": {
+        "string": "Password"
+      }
+    },
+    "FieldKeyVgResetPassword": {
+      "title": {
+        "string": "Reset Password"
+      },
+      "introduction": {
+        "string": "Are you sure you want to reset the password for this App User? A new password will be generated."
+      },
+      "field": {
+        "password": {
+          "string": "New Password",
+          "developer_comment": "This is the text of a form field."
+        }
+      },
+      "success": {
+        "0": {
+          "string": "Password for “{displayName}” has been reset."
+        },
+        "1": {
+          "string": "You can configure a mobile device for “{displayName}” right now."
+        }
+      },
+      "action": {
+        "reset": {
+          "string": "Reset Password",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "generate": {
+          "string": "Generate",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      },
+      "alert": {
+        "passwordWeak": {
+          "string": "Password must contain uppercase, lowercase, number, and symbol"
+        }
+      }
+    },
+    "FieldKeyVgRestore": {
+      "title": {
+        "string": "Restore User Access"
+      },
+      "introduction": {
+        "0": {
+          "string": "Are you sure you want to restore access for the App User {displayName}?"
+        },
+        "1": {
+          "string": "This user will be able to log in and access Forms again."
+        }
+      }
+    },
+    "FieldKeyVgRevoke": {
+      "title": {
+        "string": "Revoke User Access",
+        "developer_comment": "This is the title at the top of a pop-up."
+      },
+      "introduction": {
+        "0": {
+          "string": "Are you sure you want to revoke access from the App User {displayName}?",
+          "developer_comment": "{displayName} is formatted in bold."
+        },
+        "1": {
+          "string": "Existing Submissions from this user will remain, but anybody relying on this user will have to create a new one to continue downloading Forms or uploading Submissions."
+        }
+      }
+    },
+    "FieldKeyVgRow": {
+      "showQr": {
+        "string": "SHOW QR",
+        "developer_comment": "Clicking on this text displays an App User QR code for configuring ODK Collect."
+      },
+      "accessRevoked": {
+        "string": "Access revoked",
+        "developer_comment": "This text is shown for an App User whose access has been revoked."
+      },
+      "action": {
+        "revokeAccess": {
+          "string": "Revoke access",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "loginHistory": {
+          "string": "Login History",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "edit": {
+          "string": "Edit details",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "restoreAccess": {
+          "string": "Restore access",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "resetPassword": {
+          "string": "Reset Password",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      }
+    },
     "FormAttachmentLinkDataset": {
       "title": {
         "string": "Link Entity List",
@@ -4808,6 +5215,16 @@
         },
         "2": {
           "full": {
+            "string": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
+            "developer_comment": "This text is shown in a list of Roles.\n\n{dataManagers} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nData Managers"
+          },
+          "dataManagers": {
+            "string": "Data Managers",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {dataManagers} is in the following text:\n\n{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data"
+          }
+        },
+        "3": {
+          "full": {
             "string": "{projectViewers} can access and download all Form and Entity data in this Project, but cannot make any changes to settings or data",
             "developer_comment": "This text is shown in a list of Roles.\n\n{projectViewers} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nProject Viewers"
           },
@@ -4816,7 +5233,7 @@
             "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {projectViewers} is in the following text:\n\n{projectViewers} can access and download all Form and Entity data in this Project, but cannot make any changes to settings or data"
           }
         },
-        "3": {
+        "4": {
           "full": {
             "string": "{dataCollectors} can fill Forms out in a web browser, but cannot view or change data or settings",
             "developer_comment": "This text is shown in a list of Roles.\n\n{dataCollectors} is a separate string that will be translated below. Its text will be formatted within ODK Central, for example, it might be bold or a link. Its text is:\n\nData Collectors"
@@ -4878,6 +5295,259 @@
         "projectRole": {
           "string": "Project Role",
           "developer_comment": "This is the text of a form field."
+        }
+      }
+    },
+    "ProjectVgAppUserSettings": {
+      "vgAppUserSettings": {
+        "heading": {
+          "string": "Configure Project App User Settings"
+        },
+        "ttl": {
+          "string": "Session TTL (Days)"
+        },
+        "cap": {
+          "string": "Max Sessions per User"
+        },
+        "adminPw": {
+          "string": "Admin Password (for ODK Collect settings)"
+        },
+        "alert": {
+          "invalidValues": {
+            "string": "TTL and max sessions must be at least 1."
+          }
+        }
+      }
+    },
+    "ProjectVgLoginHistory": {
+      "heading": {
+        "string": "App User Login History"
+      },
+      "filter": {
+        "appUser": {
+          "string": "App User"
+        },
+        "anyUser": {
+          "string": "All App Users"
+        },
+        "dateFrom": {
+          "string": "Date From"
+        },
+        "dateTo": {
+          "string": "Date To"
+        }
+      },
+      "action": {
+        "apply": {
+          "string": "Apply Filters",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "clear": {
+          "string": "Clear",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "deactivate": {
+          "string": "Deactivate",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      },
+      "confirm": {
+        "title": {
+          "string": "Deactivate Session"
+        },
+        "body": {
+          "full": {
+            "string": "Deactivate the session for {appUser} on device {device}?",
+            "developer_comment": "The following are separate strings that will be translated below. They will be formatted within ODK Central, for example, they might be bold or a link.\n\n- {appUser} has the text: App User\n- {device} has the text: device"
+          },
+          "appUser": {
+            "string": "App User",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {appUser} is in the following text:\n\nDeactivate the session for {appUser} on device {device}?"
+          },
+          "device": {
+            "string": "device",
+            "developer_comment": "This text will be formatted within ODK Central, for example, it might be bold or a link. It will be inserted where {device} is in the following text:\n\nDeactivate the session for {appUser} on device {device}?"
+          }
+        }
+      },
+      "alert": {
+        "deactivated": {
+          "string": "Session deactivated."
+        }
+      },
+      "header": {
+        "created": {
+          "string": "Signed In",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "expires": {
+          "string": "Expires",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "appUser": {
+          "string": "App User",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "status": {
+          "string": "Status",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "ip": {
+          "string": "IP",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "deviceId": {
+          "string": "Device ID",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "comments": {
+          "string": "Comments",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "userAgent": {
+          "string": "User Agent",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "actions": {
+          "string": "Actions",
+          "developer_comment": "This is the text of a table column header."
+        }
+      },
+      "emptyTable": {
+        "string": "No login history found for this project."
+      }
+    },
+    "ProjectVgTelemetry": {
+      "heading": {
+        "string": "App User Telemetry"
+      },
+      "filter": {
+        "appUser": {
+          "string": "App User"
+        },
+        "anyUser": {
+          "string": "All App Users"
+        },
+        "deviceId": {
+          "string": "Device ID"
+        },
+        "dateFrom": {
+          "string": "Date From"
+        },
+        "dateTo": {
+          "string": "Date To"
+        }
+      },
+      "action": {
+        "apply": {
+          "string": "Apply Filters",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        },
+        "clear": {
+          "string": "Clear",
+          "developer_comment": "This is the text for an action, for example, the text of a button."
+        }
+      },
+      "header": {
+        "receivedAt": {
+          "string": "Received At",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "deviceTime": {
+          "string": "Device Time",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "appUser": {
+          "string": "App User",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "deviceId": {
+          "string": "Device ID",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "collectVersion": {
+          "string": "Collect Version",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "event": {
+          "string": "Event",
+          "developer_comment": "This is the text of a table column header."
+        },
+        "location": {
+          "string": "Location",
+          "developer_comment": "This is the text of a table column header."
+        }
+      },
+      "emptyTable": {
+        "string": "No telemetry found for this project."
+      },
+      "emptyMap": {
+        "string": "No telemetry with location data found for these filters."
+      }
+    },
+    "ProjectVgTelemetryMapPopup": {
+      "title": {
+        "string": "Device: {deviceId}"
+      },
+      "field": {
+        "deviceId": {
+          "string": "Device ID",
+          "developer_comment": "This is the text of a form field."
+        },
+        "appUser": {
+          "string": "App User",
+          "developer_comment": "This is the text of a form field."
+        },
+        "collectVersion": {
+          "string": "Collect Version",
+          "developer_comment": "This is the text of a form field."
+        },
+        "receivedAt": {
+          "string": "Received At",
+          "developer_comment": "This is the text of a form field."
+        },
+        "deviceTime": {
+          "string": "Device Time",
+          "developer_comment": "This is the text of a form field."
+        },
+        "eventType": {
+          "string": "Event Type",
+          "developer_comment": "This is the text of a form field."
+        },
+        "eventId": {
+          "string": "Event ID",
+          "developer_comment": "This is the text of a form field."
+        },
+        "eventTime": {
+          "string": "Event Time",
+          "developer_comment": "This is the text of a form field."
+        },
+        "eventDetails": {
+          "string": "Event Details",
+          "developer_comment": "This is the text of a form field."
+        }
+      },
+      "location": {
+        "latitude": {
+          "string": "Latitude"
+        },
+        "longitude": {
+          "string": "Longitude"
+        },
+        "accuracy": {
+          "string": "Accuracy"
+        },
+        "altitude": {
+          "string": "Altitude"
+        },
+        "speed": {
+          "string": "Speed"
+        },
+        "bearing": {
+          "string": "Bearing"
+        },
+        "provider": {
+          "string": "Location Provider"
         }
       }
     },
@@ -5538,6 +6208,149 @@
         "notes": {
           "string": "Notes and comments (optional)",
           "developer_comment": "This is the text of a form field."
+        }
+      }
+    },
+    "SystemVgEnketoStatus": {
+      "vgEnketoStatus": {
+        "heading": {
+          "string": "Enketo Status"
+        },
+        "summary": {
+          "healthy": {
+            "string": "Healthy"
+          },
+          "neverPushed": {
+            "string": "Never Pushed"
+          },
+          "draftOnly": {
+            "string": "Draft Only"
+          },
+          "closed": {
+            "string": "Closed"
+          }
+        },
+        "filter": {
+          "projectId": {
+            "string": "Filter by Project ID"
+          },
+          "xmlFormId": {
+            "string": "Filter by Form ID"
+          },
+          "apply": {
+            "string": "Apply Filters"
+          },
+          "clear": {
+            "string": "Clear Filters"
+          }
+        },
+        "header": {
+          "project": {
+            "string": "Project",
+            "developer_comment": "This is the text of a table column header."
+          },
+          "form": {
+            "string": "Form",
+            "developer_comment": "This is the text of a table column header."
+          },
+          "status": {
+            "string": "Status",
+            "developer_comment": "This is the text of a table column header."
+          },
+          "enketoId": {
+            "string": "Enketo ID",
+            "developer_comment": "This is the text of a table column header."
+          },
+          "reason": {
+            "string": "Reason",
+            "developer_comment": "This is the text of a table column header."
+          },
+          "lastUpdated": {
+            "string": "Last Updated",
+            "developer_comment": "This is the text of a table column header."
+          },
+          "actions": {
+            "string": "Actions",
+            "developer_comment": "This is the text of a table column header."
+          }
+        },
+        "status": {
+          "healthy": {
+            "string": "Healthy"
+          },
+          "never_pushed": {
+            "string": "Never Pushed"
+          },
+          "draft_only": {
+            "string": "Draft Only"
+          },
+          "closed": {
+            "string": "Closed"
+          },
+          "push_failed": {
+            "string": "Push Failed"
+          }
+        },
+        "action": {
+          "regenerate": {
+            "string": "Regenerate",
+            "developer_comment": "This is the text for an action, for example, the text of a button."
+          },
+          "regenerating": {
+            "string": "Regenerating...",
+            "developer_comment": "This is the text for an action, for example, the text of a button."
+          },
+          "bulkRegenerate": {
+            "string": "Regenerate All Never Pushed",
+            "developer_comment": "This is the text for an action, for example, the text of a button."
+          },
+          "bulkRegenerating": {
+            "string": "Regenerating...",
+            "developer_comment": "This is the text for an action, for example, the text of a button."
+          }
+        },
+        "alert": {
+          "regenerateSuccess": {
+            "string": "Successfully regenerated Enketo ID for {form}"
+          },
+          "regenerateFailed": {
+            "string": "Failed to regenerate Enketo ID for {form}"
+          },
+          "bulkRegenerateComplete": {
+            "string": "Regenerated {success} forms ({errors} failed)"
+          },
+          "bulkRegenerateFailed": {
+            "string": "Bulk regenerate failed"
+          }
+        },
+        "confirm": {
+          "title": {
+            "string": "Regenerate Enketo IDs"
+          },
+          "bulkRegenerate": {
+            "string": "This will regenerate Enketo IDs for all forms that have never been pushed. Continue?"
+          }
+        }
+      }
+    },
+    "SystemVgSettings": {
+      "vgSettings": {
+        "heading": {
+          "string": "Configure App User Session Settings"
+        },
+        "ttl": {
+          "string": "Session TTL (Days)"
+        },
+        "cap": {
+          "string": "Max Sessions per User"
+        },
+        "adminPw": {
+          "string": "Admin Password (for ODK Collect settings)"
+        },
+        "alert": {
+          "invalidValues": {
+            "string": "Values must be at least 1."
+          }
         }
       }
     },

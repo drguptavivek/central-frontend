@@ -247,11 +247,11 @@ export default {
           const uploaded = total - this.uploadStatus.remaining;
           if (uploaded === 0)
             return this.$t('problem.noneUploaded', problem);
-          return this.$t('problem.someUploaded', {
+          return this.$tc('problem.someUploaded', uploaded, {
             message: problem.message,
             uploaded: this.$n(uploaded, 'default'),
             total: this.$n(total, 'default')
-          }, uploaded);
+          });
         }
       })
         .then(({ data }) => { updates.push(data); });

@@ -290,10 +290,7 @@ export default {
         "full": "{projectManagers} mohou provádět jakékoli administrativní úkoly související s tímto projektem a mohou vyplnit formuláře ve webovém prohlížeči",
         "projectManagers": "Projektoví manažeři"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} může přistupovat ke všem datům formulářů a entit v tomto projektu a stahovat je, ale nemůže provádět žádné změny nastavení nebo dat.",
         "projectViewers": "Prohlížeči Projektu"
@@ -326,10 +323,7 @@ export default {
         "full": "{projectManagers} können jede administrative Aufgabe im Zusammenhang mit diesem Projekt ausführen und können Formulare in einem Webbrowser ausfüllen.",
         "projectManagers": "Projekt-Manager"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} können auf alle Formular- und Objektdaten in diesem Projekt zugreifen und sie herunterladen, können jedoch keine Änderungen an Einstellungen oder Daten vornehmen.",
         "projectViewers": "Projekt-Viewer"
@@ -363,10 +357,7 @@ export default {
         "full": "{projectManagers} pueden realizar cualquier tarea administrativa relacionada con este proyecto y puede llenar formularios desde un navegador web",
         "projectManagers": "Administradores de proyecto"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} puede acceder y descargar todos los datos de formularios y entidades en este proyecto, pero no puede realizar ningún cambio en la configuración o los datos.",
         "projectViewers": "Visores de proyecto"
@@ -400,10 +391,7 @@ export default {
         "full": "Les {projectManagers} peuvent exécuter toutes les tâches administratives liées à ce projet et peuvent remplir des formulaires depuis leurs navigateurs.",
         "projectManagers": "gestionnaires de projet"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} peut/peuvent accéder et télécharger tous les Formulaires et entités dans ce Projet, mais ne peut/peuvent apporter aucun changement aux paramètres ou aux données.",
         "projectViewers": "lecteurs de projet"
@@ -437,10 +425,7 @@ export default {
         "full": "{projectManagers} bisa melakukan pekerjaan administratif apapun sehubungan dengan Proyek ini dan bisa mengisi formulir lewat web browser.",
         "projectManagers": "Manajer Proyek"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {},
       {
         "full": "{dataCollectors} dapat mengisi formulir di web browser, tetapi tidak bisa melihat atau mengubah data atau pengaturan.",
@@ -470,10 +455,7 @@ export default {
         "full": "{projectManagers} possono eseguire qualsiasi attività amministrativa relativa a questo progetto e possono compilare formulari in un browser web",
         "projectManagers": "Responsabili del progetto"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} possono accedere e scaricare tutti i dati del formulario e delle Entità di questo progetto, ma non possono apportare modifiche alle impostazioni o ai dati",
         "projectViewers": "Visualizzatori del progetto"
@@ -507,10 +489,7 @@ export default {
         "full": "{projectManagers}は、このプロジェクトに関連するあらゆる管理作業を行うことができ、Webブラウザでフォームを入力できます。",
         "projectManagers": "プロジェクト・マネージャー"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {},
       {
         "full": "{dataCollectors}は、Webブラウザでフォームを入力できますが、データや設定を閲覧・変更はできません。",
@@ -540,10 +519,7 @@ export default {
         "full": "{projectManagers} podem realizar qualquer tarefa administrativa relacionada a esse projeto e podem preencher formulários no navegador de internet.",
         "projectManagers": "Gerentes de projeto"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} podem acessar e baixar todos os dados de Formulários e Entidades neste projeto, mas não podem fazer nenhuma alteração em configurações ou dados",
         "projectViewers": "Observadores de projeto"
@@ -576,10 +552,7 @@ export default {
         "full": "{projectManagers} inaweza kutekeleza kazi yoyote ya usimamizi inayohusiana na Mradi huu na inaweza kujaza Fomu katika kivinjari cha wavuti.",
         "projectManagers": "Wasimamizi wa Mradi"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers} inaweza kufikia na kupakua data yote ya Fomu na Huluki katika Mradi huu, lakini haiwezi kufanya mabadiliko yoyote kwenye mipangilio au data.",
         "projectViewers": "Watazamaji wa Mradi"
@@ -612,10 +585,7 @@ export default {
         "full": "{projectManagers}可执行本项目所有管理任务，并可通过网页浏览器填写表单",
         "projectManagers": "项目经理"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers}可访问并下载本项目所有表单和实体数据，但无法更改设置或数据",
         "projectViewers": "项目查看者"
@@ -649,10 +619,7 @@ export default {
         "full": "{projectManagers}可以執行與該專案相關的任何管理任務，並可以在網頁瀏覽器中填寫表格",
         "projectManagers": "專案管理員"
       },
-      {
-        "full": "{dataManagers} can manage App Users, Form Access, Form state, and Submissions in this Project, but cannot connect to or download data",
-        "dataManagers": "Data Managers"
-      },
+      {},
       {
         "full": "{projectViewers}可以存取和下載此專案中的所有表單和實體數據，但無法對設定或數據進行任何更改",
         "projectViewers": "專案瀏覽者"

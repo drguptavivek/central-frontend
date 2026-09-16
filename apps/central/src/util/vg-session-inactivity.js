@@ -94,7 +94,7 @@ export const createInactivityLogoutHandler = ({
       logOut(true)
         .then(() => { alert.info(i18n.t('util.session.alert.expired')); })
         .catch(noop);
-    } else if (millisUntilLogout <= 180000 && lastActivityWhenWarned == null) {
+    } else if (millisUntilLogout < 180000 && lastActivityWhenWarned == null) {
       alert.info(i18n.t('util.session.alert.expiresSoon'));
       lastActivityWhenWarned = lastActivityAt;
     }

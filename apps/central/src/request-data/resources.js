@@ -33,7 +33,9 @@ export default (container, createResource) => {
     }
   }));
 
-  // Resources related to the system
+  // Resources related to configuration
+  // The `config` resource refers specifically to the client config. (It's
+  // probably named too generically.)
   createResource('config', (config) => ({
     // If client-config.json is completely invalid JSON, `data` seems to be a
     // string (e.g., '{]').
@@ -45,6 +47,9 @@ export default (container, createResource) => {
   createResource('serverConfig', () => ({
     transformResponse: ({ data }) => shallowReactive(data)
   }));
+  createResource('analyticsConfig', noargs(setupOption));
+
+  // Resources related to the system
   createResource('centralVersion', () => ({
     transformResponse: ({ data, headers }) =>
       shallowReactive({
@@ -53,13 +58,11 @@ export default (container, createResource) => {
         currentDate: new Date(headers.get('date'))
       })
   }));
-  createResource('analyticsConfig', noargs(setupOption));
   createResource('systemSettings', noargs(setupOption));
   createResource('enketoStatus', () => ({
     // Store the entire response (data + meta) as the resource data
     transformResponse: ({ data }) => data
   }));
-  createResource('projectAppUserSettings', noargs(setupOption));
   createResource('roles', (roles) => ({
     bySystem: computeIfExists(() => {
       // Using Object.create(null) in case there is a role whose `system`
@@ -78,6 +81,7 @@ export default (container, createResource) => {
   }));
 
   // Projects and subresources
+  createResource('projectAppUserSettings', noargs(setupOption));
   createResource('project', (project) => ({
     /* eslint-disable no-param-reassign */
     transformResponse: ({ data }) => {

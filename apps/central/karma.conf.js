@@ -47,7 +47,7 @@ webpackConfigForKarma.module.rules.push({
 
 module.exports = (config) => {
   config.set({
-    frameworks: ['webpack', 'mocha'],
+    frameworks: ['webpack', 'mocha', 'source-map-support'],
     files: [
       'test/index.js',
       { pattern: '../../public/fonts/icomoon.ttf', served: true, included: false },
@@ -70,7 +70,9 @@ module.exports = (config) => {
       'test/index.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfigForKarma,
-    browsers: ['ChromeHeadlessCI'],
+    browsers: process.env.CI ? ['ChromeHeadlessCI'] : ['ChromeHeadless'],
+    browserDisconnectTimeout: 300_000,
+    browserDisconnectTolerance: 3,
     reporters: ['spec'],
     singleRun: true,
     client: {
@@ -80,10 +82,12 @@ module.exports = (config) => {
       },
     },
     customLaunchers: {
-      ChromeHeadlessCI: {
-        base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-dev-shm-usage']
-      },
+      ...(process.env.CI ? {
+        ChromeHeadlessCI: {
+          base: 'ChromeHeadless',
+          flags: ['--no-sandbox', '--disable-dev-shm-usage']
+        }
+      } : {}),
       ChromeDebugging: {
         base: 'Chrome',
         flags: ['--remote-debugging-port=8333']

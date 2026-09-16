@@ -27,31 +27,37 @@
 
     <!-- Filters -->
     <div v-if="dataExists" class="filter-section">
+      <label for="vg-enketo-project-id-filter" class="sr-only">
+        {{ $t('vgEnketoStatus.filter.projectId') }}
+      </label>
       <input
+        id="vg-enketo-project-id-filter"
         v-model="projectIdFilter"
         type="text"
         :placeholder="$t('vgEnketoStatus.filter.projectId')"
         class="form-control"
-        style="width: 200px; margin-right: 10px;"
-      />
+        style="width: 200px; margin-right: 10px;">
+      <label for="vg-enketo-xml-form-id-filter" class="sr-only">
+        {{ $t('vgEnketoStatus.filter.xmlFormId') }}
+      </label>
       <input
+        id="vg-enketo-xml-form-id-filter"
         v-model="xmlFormIdFilter"
         type="text"
         :placeholder="$t('vgEnketoStatus.filter.xmlFormId')"
         class="form-control"
-        style="width: 200px;"
-      />
+        style="width: 200px;">
       <button
-        @click="applyFilters"
+        type="button"
         class="btn btn-primary"
         style="margin-left: 10px;"
-      >
+        @click="applyFilters">
         {{ $t('vgEnketoStatus.filter.apply') }}
       </button>
       <button
-        @click="clearFilters"
+        type="button"
         class="btn btn-default"
-      >
+        @click="clearFilters">
         {{ $t('vgEnketoStatus.filter.clear') }}
       </button>
     </div>
@@ -85,10 +91,10 @@
             <td v-if="canRegenerate">
               <button
                 v-if="canRegenerateForm(item)"
-                @click="regenerateEnketoId(item)"
+                type="button"
                 class="btn btn-sm btn-primary"
                 :aria-disabled="regenerating[item.formId]"
-              >
+                @click="regenerateEnketoId(item)">
                 {{ regenerating[item.formId] ? $t('vgEnketoStatus.action.regenerating') : $t('vgEnketoStatus.action.regenerate') }}
               </button>
             </td>
@@ -100,24 +106,33 @@
     <!-- Bulk Regenerate Button for Admins -->
     <div v-if="dataExists && canRegenerate && hasNeverPushedForms" class="bulk-action-section">
       <button
-        @click="bulkRegenerate"
+        type="button"
         class="btn btn-warning"
         :aria-disabled="bulkRegenerating"
-      >
+        @click="showBulkRegenerateConfirmation">
         {{ bulkRegenerating ? $t('vgEnketoStatus.action.bulkRegenerating') : $t('vgEnketoStatus.action.bulkRegenerate') }}
       </button>
     </div>
+    <confirmation v-bind="confirmModal" :awaiting-response="bulkRegenerating"
+      @hide="confirmModal.hide()" @success="bulkRegenerate">
+      <template #body>
+        <p>{{ $t('vgEnketoStatus.confirm.bulkRegenerate') }}</p>
+      </template>
+    </confirmation>
   </div>
 </template>
 
 <script>
+import Confirmation from '../confirmation.vue';
 import Loading from '../loading.vue';
 import { useRequestData } from '../../request-data';
+import { modalData } from '../../util/reactivity';
 import { noop } from '../../util/util';
+import { vgApiPaths } from '../../util/vg-request';
 
 export default {
   name: 'VgEnketoStatus',
-  components: { Loading },
+  components: { Confirmation, Loading },
   inject: ['alert'],
   setup() {
     const { enketoStatus, currentUser } = useRequestData();
@@ -129,7 +144,8 @@ export default {
       projectIdFilter: '',
       xmlFormIdFilter: '',
       regenerating: {},
-      bulkRegenerating: false
+      bulkRegenerating: false,
+      confirmModal: modalData()
     };
   },
   computed: {
@@ -149,11 +165,11 @@ export default {
   methods: {
     fetchData() {
       const params = {};
-      if (this.projectIdFilter) params.projectId = parseInt(this.projectIdFilter);
+      if (this.projectIdFilter) params.projectId = parseInt(this.projectIdFilter, 10);
       if (this.xmlFormIdFilter) params.xmlFormId = this.xmlFormIdFilter;
 
       this.enketoStatus.request({
-        url: '/v1/system/enketo-status',
+        url: vgApiPaths.enketoStatus(),
         params
       }).catch(noop);
     },
@@ -168,6 +184,9 @@ export default {
     canRegenerateForm(item) {
       return item.status === 'never_pushed' || item.status === 'push_failed';
     },
+    showBulkRegenerateConfirmation() {
+      this.confirmModal.show();
+    },
     formatDate(dateStr) {
       if (!dateStr) return '-';
       return new Date(dateStr).toLocaleString();
@@ -178,25 +197,25 @@ export default {
 
       this.enketoStatus.request({
         method: 'POST',
-        url: '/v1/system/enketo-status/regenerate',
+        url: vgApiPaths.enketoStatusRegenerate(),
         data: {
           forms: [{ formId: item.formId, projectId: item.projectId }]
         }
       })
-      .then(() => {
-        this.alert.success(this.$t('vgEnketoStatus.alert.regenerateSuccess', { form: item.formName }));
-        this.fetchData();
-      })
-      .catch(() => {
-        this.alert.danger(this.$t('vgEnketoStatus.alert.regenerateFailed', { form: item.formName }));
-      })
-      .finally(() => {
-        this.regenerating[item.formId] = false;
-        this.$forceUpdate();
-      });
+        .then(() => {
+          this.alert.success(this.$t('vgEnketoStatus.alert.regenerateSuccess', { form: item.formName }));
+          this.fetchData();
+        })
+        .catch(() => {
+          this.alert.danger(this.$t('vgEnketoStatus.alert.regenerateFailed', { form: item.formName }));
+        })
+        .finally(() => {
+          this.regenerating[item.formId] = false;
+          this.$forceUpdate();
+        });
     },
     async bulkRegenerate() {
-      if (!confirm(this.$t('vgEnketoStatus.confirm.bulkRegenerate'))) return;
+      this.confirmModal.hide();
 
       this.bulkRegenerating = true;
 
@@ -204,26 +223,26 @@ export default {
 
       this.enketoStatus.request({
         method: 'POST',
-        url: '/v1/system/enketo-status/regenerate',
+        url: vgApiPaths.enketoStatusRegenerate(),
         data: {
           forms: neverPushedForms.map(item => ({ formId: item.formId, projectId: item.projectId }))
         }
       })
-      .then((response) => {
-        const successCount = response.data.results?.length ?? 0;
-        const errorCount = response.data.errors?.length ?? 0;
-        this.alert.success(this.$t('vgEnketoStatus.alert.bulkRegenerateComplete', {
-          success: successCount,
-          errors: errorCount
-        }));
-        this.fetchData();
-      })
-      .catch(() => {
-        this.alert.danger(this.$t('vgEnketoStatus.alert.bulkRegenerateFailed'));
-      })
-      .finally(() => {
-        this.bulkRegenerating = false;
-      });
+        .then((response) => {
+          const successCount = response.data.results?.length ?? 0;
+          const errorCount = response.data.errors?.length ?? 0;
+          this.alert.success(this.$t('vgEnketoStatus.alert.bulkRegenerateComplete', {
+            success: successCount,
+            errors: errorCount
+          }));
+          this.fetchData();
+        })
+        .catch(() => {
+          this.alert.danger(this.$t('vgEnketoStatus.alert.bulkRegenerateFailed'));
+        })
+        .finally(() => {
+          this.bulkRegenerating = false;
+        });
     }
   }
 };
@@ -400,6 +419,7 @@ export default {
         "bulkRegenerateFailed": "Bulk regenerate failed"
       },
       "confirm": {
+        "title": "Regenerate Enketo IDs",
         "bulkRegenerate": "This will regenerate Enketo IDs for all forms that have never been pushed. Continue?"
       }
     }

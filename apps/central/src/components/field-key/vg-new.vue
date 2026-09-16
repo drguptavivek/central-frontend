@@ -90,7 +90,7 @@ import { afterNextNavigation } from '../../util/router';
 import { apiPaths } from '../../util/request';
 import { noop } from '../../util/util';
 import { useRequestData } from '../../request-data';
-import { generatePassword } from '../../util/password-generator';
+import generatePassword from '../../util/vg-password-generator';
 
 export default {
   name: 'VgFieldKeyNew',
