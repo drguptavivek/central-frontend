@@ -81,6 +81,25 @@ describe('VgFieldKeyRoute', () => {
     cells[5].text().should.equal('SHOW QR');
   });
 
+  it('opens the App User actions menu with the Vue dropdown trigger', async () => {
+    testData.extendedProjects.createPast(1, { appUsers: 1 });
+    createAppUser();
+
+    const app = createRouteComponent({ attachTo: document.body });
+    const row = app.get('.field-key-row');
+    const trigger = row.get('.dropdown-toggle');
+
+    trigger.attributes('aria-haspopup').should.equal('true');
+    trigger.attributes('aria-expanded').should.equal('false');
+    trigger.attributes('data-toggle').should.equal(undefined);
+
+    await trigger.trigger('click');
+
+    trigger.attributes('aria-expanded').should.equal('true');
+    row.get('.dropdown').classes('open').should.be.true;
+    row.get('.dropdown-menu').should.be.visible();
+  });
+
   it('creates an app user with username and phone, then shows a QR success panel', () => {
     testData.extendedProjects.createPast(1, { appUsers: 0 });
 

@@ -34,7 +34,7 @@ runs:
       path: |
         node_modules
         **/node_modules
-      key: install-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('package-lock.json', '.npmrc', '.github/workflows/*.yml', 'packages/*/package.json', 'package/*/package-lock.json') }}
+      key: install-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('package-lock.json', '.npmrc', '.github/workflows/*.yml', 'packages/*/package.json', 'packages/*/package-lock.json') }}
       fail-on-cache-miss: ${{ inputs.node-version == '' }}
 
   - name: 'npm ci'

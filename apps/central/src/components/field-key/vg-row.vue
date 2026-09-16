@@ -32,14 +32,14 @@ except according to the terms contained in the LICENSE file.
       <template v-else>{{ $t('accessRevoked') }}</template>
     </td>
     <td>
-      <div class="dropdown">
-        <button :id="actionsId" type="button"
-          class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
-          <span class="icon-cog"></span><span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right"
-          :aria-labelledby="actionsId">
+      <dropdown placement="bottom-end">
+        <template #toggle="{ toggle, attrs }">
+          <button type="button" class="btn btn-default dropdown-toggle"
+            :aria-label="$t('header.actions')" v-bind="attrs" @click="toggle">
+            <span class="icon-cog"></span><span class="caret"></span>
+          </button>
+        </template>
+        <template #menu>
           <li>
             <a href="#" @click.prevent="$emit('sessions', fieldKey)">
               {{ $t('action.loginHistory') }}&hellip;
@@ -65,19 +65,20 @@ except according to the terms contained in the LICENSE file.
               {{ $t('action.restoreAccess') }}&hellip;
             </a>
           </li>
-        </ul>
-      </div>
+        </template>
+      </dropdown>
     </td>
   </tr>
 </template>
 
 <script>
 import DateTime from '../date-time.vue';
+import Dropdown from '../dropdown.vue';
 import TimeAndUser from '../time-and-user.vue';
 
 export default {
   name: 'VgFieldKeyRow',
-  components: { DateTime, TimeAndUser },
+  components: { DateTime, Dropdown, TimeAndUser },
   props: {
     fieldKey: {
       type: Object,
@@ -86,11 +87,6 @@ export default {
     highlighted: Number
   },
   emits: ['toggle-qr', 'revoke', 'restore', 'reset-password', 'edit', 'sessions'],
-  computed: {
-    actionsId() {
-      return `field-key-row-actions${this.fieldKey.id}`;
-    }
-  },
   methods: {
     toggleQr() {
       this.$emit('toggle-qr', this.fieldKey, this.$refs.popoverLink);

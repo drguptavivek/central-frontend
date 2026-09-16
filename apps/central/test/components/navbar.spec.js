@@ -22,7 +22,13 @@ describe('Navbar', () => {
         .respondFor('/', { users: false })
         .afterResponses(app => {
           wasHidden.should.be.true;
-          app.getComponent(Navbar).should.be.visible();
+          const navbar = app.getComponent(Navbar);
+          navbar.should.be.visible();
+          // The navbar must use the Vue dropdown implementation. Bootstrap's
+          // collapse markup has no runtime after the v2026.3 upgrade.
+          navbar.get('#navbar nav').exists().should.be.true;
+          navbar.find('.navbar-toggle').exists().should.be.false;
+          navbar.find('[data-toggle="collapse"]').exists().should.be.false;
         });
     });
 
