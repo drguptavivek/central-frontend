@@ -154,9 +154,9 @@ const loaders = new Map()
   .set('ProjectUserList', loader(() => import(
     '../components/project/user/list.vue'
   )))
-  .set('CustomPropertyList', loader(() => import(
+  .set('VgCustomPropertyList', loader(() => import(
     /* webpackChunkName: "component-custom-properties-list" */
-    '../components/project/custom-properties/list.vue'
+    '../components/project/custom-properties/vg-list.vue'
   )))
   .set('PublicLinkList', loader(() => import(
     '../components/public-link/list.vue'

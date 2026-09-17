@@ -400,7 +400,7 @@ const routes = [
       }),
       asyncRoute({
         path: 'custom-properties',
-        component: 'CustomPropertyList',
+        component: 'VgCustomPropertyList',
         props: true,
         loading: 'tab',
         meta: {
@@ -834,7 +834,7 @@ const routesByName = new Map();
     'ProjectOverview',
     'ProjectUserList',
     'FieldKeyList',
-    'CustomPropertyList',
+    'VgCustomPropertyList',
     'VgProjectAppUserSettings',
     'VgProjectTelemetry',
     'VgProjectLoginHistory',

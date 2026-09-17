@@ -1,5 +1,5 @@
-import CustomPropertyList from '../../../../src/components/project/custom-properties/list.vue';
-import CustomPropertiesNew from '../../../../src/components/project/custom-properties/new.vue';
+import CustomPropertyList from '../../../../src/components/project/custom-properties/vg-list.vue';
+import CustomPropertiesNew from '../../../../src/components/project/custom-properties/vg-new.vue';
 
 import useProject from '../../../../src/request-data/project';
 

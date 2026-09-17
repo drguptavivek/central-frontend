@@ -47,7 +47,7 @@
 import { inject } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import CustomPropertiesNew from './new.vue';
+import CustomPropertiesNew from './vg-new.vue';
 import DocLink from '../../doc-link.vue';
 import Loading from '../../loading.vue';
 import PageSection from '../../page/section.vue';
@@ -57,7 +57,7 @@ import { modalData } from '../../../util/reactivity';
 import { useRequestData } from '../../../request-data';
 
 defineOptions({
-  name: 'CustomPropertyList'
+  name: 'VgCustomPropertyList'
 });
 
 defineProps({
