@@ -104,7 +104,7 @@ Change: model `active` in App User fixtures, seed Data Manager and the narrow VG
 
 Reason: exercise the changed secure contract without rewriting upstream scenarios. Expected failures are exact-title and exact-message matched and fail on unexpected pass.
 
-Risk/merge note: upstream test bodies must remain byte-identical to `v2026.2.4`. Only shared fixture/bootstrap adapters and VG-owned tests may differ.
+Risk/merge note: upstream test bodies must remain byte-identical to `v2026.3.0`. Only shared fixture/bootstrap adapters and VG-owned tests may differ.
 
 ## VG-owned files, not upstream core edits
 
@@ -152,6 +152,7 @@ apps/forms/test/utils/api.spec.ts
 bin/check-bundle-size.js
 e2e-tests/run-tests.sh
 vite.config.js
+packages/xforms-engine/src/instance/attachments/buildAttributes.ts (deleted unused duplicate; active imports use instance/buildAttributes.ts)
 ```
 
 `restore-node/action.yml` corrects the upstream cache glob typo (`package/*` to `packages/*`). The field-key/navbar/project tests and Forms API test adapt upstream assertions to the VG contract or carry upstream fixes. README and CONTRIBUTING describe the fork development contract. Each remaining path is covered by the functional groups above.
@@ -162,4 +163,4 @@ Fork-owned additions use `vg-`/`vg_` for runtime components and helpers. Generic
 
 - Run full monorepo lint, including Transifex and formatting, for every release.
 - Run the production web build, typecheck, and focused Vue tests for every release.
-- Full Central browser suite must use Playwright's bundled Chromium, not system Google Chrome; the final count is recorded in root `GATES.md`.
+- Full Central browser suite must use Playwright's bundled Chromium, not system Google Chrome; record the final count in the release changelog and CI run.
