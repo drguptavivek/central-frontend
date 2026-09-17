@@ -1,5 +1,3 @@
-import { pick } from 'ramda';
-
 import useForm from '../../../src/request-data/form';
 import useProject from '../../../src/request-data/project';
 import useDatasets from '../../../src/request-data/datasets';
@@ -87,6 +85,7 @@ const responsesByComponent = {
     projectAssignments: () => testData.extendedProjectAssignments.sorted()
   }),
   VgFieldKeyList: componentResponses({ actorProperties: true, fieldKeys: true }),
+  CustomPropertyList: componentResponses({ actorProperties: true }),
   ProjectFormAccess: componentResponses({
     forms: true,
     fieldKeys: true,
@@ -98,7 +97,6 @@ const responsesByComponent = {
     deletedDatasets: () => []
   }),
   ProjectSettings: [],
-  CustomPropertyList: componentResponses({ actorProperties: true }),
   FormNewPage: [],
   FormShow: componentResponses({
     project: true,
@@ -215,7 +213,7 @@ const responsesByComponent = {
     form: () => testData.extendedForms.last(),
     submission: () => {
       const odata = testData.submissionOData();
-      const selected = odata.value.map(pick(['__id', '__system', 'meta']));
+      const selected = odata.value;
       return { ...odata, value: selected };
     },
     submissionVersion: () => ({}),
@@ -235,6 +233,7 @@ const responsesByComponent = {
       .sort((fieldKey1, fieldKey2) =>
         fieldKey1.displayName.localeCompare(fieldKey2.displayName))
       .map(testData.toActor),
+    fieldKeys: () => testData.extendedFieldKeys.sorted(),
     deletedEntityCount: [
       ({ url }) => matchesApiPath(apiPaths.odataEntities, url) && url.includes('top=0'),
       () => testData.entityDeletedOData(0)

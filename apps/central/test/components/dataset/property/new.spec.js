@@ -1,3 +1,5 @@
+import { nextTick } from 'vue';
+
 import DatasetPropertyNew from '../../../../src/components/dataset/property/new.vue';
 import DatasetProperties from '../../../../src/components/dataset/overview/dataset-properties.vue';
 
@@ -50,8 +52,9 @@ describe('DatasetPropertyNew', () => {
       hide: '.btn-link'
     }));
 
-  it('focuses the input', () => {
+  it('focuses the input', async () => {
     const modal = mount(DatasetPropertyNew, mountOptions({ attachTo: document.body }));
+    await nextTick();
     modal.get('input').should.be.focused();
   });
 
@@ -122,7 +125,7 @@ describe('DatasetPropertyNew', () => {
       })
       .afterResponse(modal => {
         modal.should.alert('danger', (message) => {
-          message.should.startWith('A property already exists in this Entity List with the name of “my_new_property”.');
+          message.should.startWith('A property with this name already exists');
         });
       }));
 });

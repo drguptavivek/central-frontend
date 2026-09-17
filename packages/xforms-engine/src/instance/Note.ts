@@ -1,6 +1,7 @@
 import { UnreachableError } from '@getodk/common/lib/error/UnreachableError.ts';
 import { XPathNodeKindKey } from '@getodk/xpath';
 import type { Accessor } from 'solid-js';
+import type { PageBoundary } from '../client/identity.ts';
 import type { NoteNode, NoteNodeAppearances, NoteValue } from '../client/NoteNode.ts';
 import type { TextRange } from '../client/TextRange.ts';
 import type { ValueType } from '../client/ValueType.ts';
@@ -22,7 +23,7 @@ import { createNodeLabel } from '../lib/reactivity/text/createNodeLabel.ts';
 import { createNoteText, type ComputedNoteText } from '../lib/reactivity/text/createNoteText.ts';
 import type { NoteNodeDefinition } from '../parse/model/NoteNodeDefinition.ts';
 import { ValueNode, type ValueNodeStateSpec } from './abstract/ValueNode.ts';
-import { buildAttributes } from './attachments/buildAttributes.ts';
+import { buildAttributes } from './buildAttributes.ts';
 import type { Attribute } from './Attribute.ts';
 import type { GeneralParentNode } from './hierarchy.ts';
 import type { EvaluationContext } from './internal-api/EvaluationContext.ts';
@@ -35,6 +36,7 @@ interface NoteStateSpec<V extends ValueType> extends ValueNodeStateSpec<NoteValu
   readonly label: Accessor<TextRange<'label'> | null>;
   readonly hint: Accessor<TextRange<'hint'> | null>;
   readonly valueOptions: null;
+  readonly pageBoundary: PageBoundary;
 }
 
 export class Note<V extends ValueType = ValueType>
@@ -117,6 +119,7 @@ export class Note<V extends ValueType = ValueType>
         valueOptions: null,
         value: this.valueState,
         instanceValue: this.getInstanceValue,
+        pageBoundary: this.root.pagination.attachLeaf(this),
       },
       this.instanceConfig
     );

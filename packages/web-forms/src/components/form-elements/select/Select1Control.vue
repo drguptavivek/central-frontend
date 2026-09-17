@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-import ColumnarAppearance from '@/components/appearances/ColumnarAppearance.vue';
-import FieldListTable from '@/components/appearances/FieldListTable.vue';
-import UnsupportedAppearance from '@/components/appearances/UnsupportedAppearance.vue';
-import LikertWidget from '@/components/common/LikertWidget.vue';
-import AsyncMap from '@/components/common/map/AsyncMap.vue';
-import RadioButton from '@/components/common/RadioButton.vue';
-import SearchableDropdown from '@/components/common/SearchableDropdown.vue';
-import ValidationMessage from '@/components/common/ValidationMessage.vue';
-import ControlText from '@/components/form-elements/ControlText.vue';
+import ColumnarAppearance from '@getodk/web-forms/components/appearances/ColumnarAppearance.vue';
+import FieldListTable from '@getodk/web-forms/components/appearances/FieldListTable.vue';
+import UnsupportedAppearance from '@getodk/web-forms/components/appearances/UnsupportedAppearance.vue';
+import LikertWidget from '@getodk/web-forms/components/common/LikertWidget.vue';
+import AsyncMap from '@getodk/web-forms/components/common/map/AsyncMap.vue';
+import RadioButton from '@getodk/web-forms/components/common/RadioButton.vue';
+import SearchableDropdown from '@getodk/web-forms/components/common/SearchableDropdown.vue';
+import ValidationMessage from '@getodk/web-forms/components/common/ValidationMessage.vue';
+import ControlText from '@getodk/web-forms/components/form-elements/ControlText.vue';
+import { getCurrentPageViolations } from '@getodk/web-forms/lib/pagination/pagination.ts';
 import type { SelectNode } from '@getodk/xforms-engine';
-import { MODES } from '@/components/common/map/getModeConfig.ts';
+import { MODES } from '@getodk/web-forms/components/common/map/getModeConfig.ts';
 import { computed, ref, watchEffect } from 'vue';
 
 interface Select1ControlProps {
@@ -28,6 +29,24 @@ const savedFeatureValue = computed(() => {
 	const value = props.question.currentState.value?.[0];
 	return props.question.currentState.valueOptions.find((option) => option.value === value);
 });
+
+const advanceIfQuick = (question: SelectNode) => {
+	const { appearances } = question;
+	const isQuick = appearances.quick || appearances.quickcompact;
+	const pageViolations = getCurrentPageViolations(question.root);
+
+	if (isQuick && !appearances.likert && pageViolations.length === 0) {
+		question.root.nextPage();
+	}
+};
+
+const saveSelection = (value: string | undefined) => {
+	if (props.question.appearances.label) {
+		return;
+	}
+	props.question.selectValue(value ?? '');
+	advanceIfQuick(props.question);
+};
 
 watchEffect(() => {
 	const appearances = [...props.question.appearances];
@@ -49,12 +68,14 @@ watchEffect(() => {
 	<SearchableDropdown
 		v-if="question.appearances.autocomplete || question.appearances.minimal"
 		:question="question"
+		@change="saveSelection"
 	/>
 
 	<LikertWidget
 		v-else-if="question.appearances.likert"
 		:class="{ 'select-with-images': isSelectWithImages }"
 		:question="question"
+		@change="saveSelection"
 	/>
 
 	<AsyncMap
@@ -63,7 +84,7 @@ watchEffect(() => {
 		:mode="MODES.SELECT"
 		:saved-feature-value="savedFeatureValue"
 		:disabled="question.currentState.readonly"
-		@save="(value) => question.selectValue(value ?? '')"
+		@save="saveSelection"
 	/>
 
 	<FieldListTable
@@ -75,7 +96,7 @@ watchEffect(() => {
 			<ControlText :question="question" />
 		</template>
 		<template #default>
-			<RadioButton :question="question" />
+			<RadioButton :question="question" @change="saveSelection" />
 		</template>
 	</FieldListTable>
 
@@ -84,7 +105,7 @@ watchEffect(() => {
 		:class="{ 'select-with-images': isSelectWithImages }"
 		:appearances="question.appearances"
 	>
-		<RadioButton :question="question" />
+		<RadioButton :question="question" @change="saveSelection" />
 	</ColumnarAppearance>
 
 	<template v-else>
@@ -95,7 +116,7 @@ watchEffect(() => {
 			/>
 		</template>
 		<div class="default-appearance">
-			<RadioButton :question="question" />
+			<RadioButton :question="question" @change="saveSelection" />
 		</div>
 	</template>
 

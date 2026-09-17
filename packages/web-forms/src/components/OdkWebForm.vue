@@ -1,34 +1,38 @@
 <script setup lang="ts">
-import FormLoadFailureDialog from '@/components/FormLoadFailureDialog.vue';
-import IconSVG from '@/components/common/IconSVG.vue';
-import FormHeader from '@/components/form-layout/FormHeader.vue';
-import QuestionList from '@/components/form-layout/QuestionList.vue';
-import { waitAllTasksToFinish } from '@/lib/async/event-loop.ts';
-import { POST_SUBMIT__NEW_INSTANCE } from '@/lib/constants/control-flow.ts';
+import FormLoadFailureDialog from '@getodk/web-forms/components/FormLoadFailureDialog.vue';
+import IconSVG from '@getodk/web-forms/components/common/IconSVG.vue';
+import FormFooter from '@getodk/web-forms/components/form-layout/FormFooter.vue';
+import FormHeader from '@getodk/web-forms/components/form-layout/FormHeader.vue';
+import QuestionList from '@getodk/web-forms/components/form-layout/QuestionList.vue';
+import { waitAllTasksToFinish } from '@getodk/web-forms/lib/async/event-loop.ts';
 import {
 	TRANSLATE,
 	FORM_MEDIA_CACHE,
 	FORM_OPTIONS,
 	IS_FORM_EDIT_MODE,
 	SUBMIT_PRESSED,
-} from '@/lib/constants/injection-keys.ts';
-import type { FormStateSuccessResult } from '@/lib/init/form-state.ts';
-import { initializeFormState } from '@/lib/init/initialize-form-state.ts';
-import { loadFormState } from '@/lib/init/load-form-state';
-import type { EditInstanceOptions, FormOptions } from '@/lib/init/load-form-state.ts';
-import { updateSubmittedFormState } from '@/lib/init/update-submitted-form-state.ts';
-import { geolocationService } from '@/lib/services/geolocationService.ts';
-import { useLocale } from '@/lib/locale/useLocale.ts';
+	TOUCHED_QUESTIONS,
+} from '@getodk/web-forms/lib/constants/injection-keys.ts';
+import type { FormStateSuccessResult } from '@getodk/web-forms/lib/init/form-state.ts';
+import { initializeFormState } from '@getodk/web-forms/lib/init/initialize-form-state.ts';
+import { loadFormState } from '@getodk/web-forms/lib/init/load-form-state';
+import type { EditInstanceOptions, FormOptions } from '@getodk/web-forms/lib/init/load-form-state.ts';
+import { getCurrentPageViolations } from '@getodk/web-forms/lib/pagination/pagination.ts';
+import { useNavigationTarget } from '@getodk/web-forms/lib/useNavigationTarget.ts';
+import { updateSubmittedFormState } from '@getodk/web-forms/lib/init/update-submitted-form-state.ts';
+import { geolocationService } from '@getodk/web-forms/lib/services/geolocationService.ts';
+import { useLocale } from '@getodk/web-forms/lib/locale/useLocale.ts';
 import type {
 	HostSubmissionResultCallback,
 	OptionalAwaitableHostSubmissionResult,
-} from '@/lib/submission/host-submission-result-callback.ts';
+} from '@getodk/web-forms/lib/submission/host-submission-result-callback.ts';
 import type { JRResourceURLString } from '@getodk/common/jr-resources/JRResourceURL.ts';
 import type {
 	ChunkedInstancePayload,
 	FetchFormAttachment,
 	MissingResourceBehavior,
 	MonolithicInstancePayload,
+	InstanceDefaults,
 	PreloadProperties,
 } from '@getodk/xforms-engine';
 import Button from 'primevue/button';
@@ -40,12 +44,13 @@ import {
 	onErrorCaptured,
 	onUnmounted,
 	provide,
+	reactive,
 	readonly,
 	ref,
 	watch,
-	watchEffect,
 } from 'vue';
-import { FormInitializationError } from '@/lib/error/FormInitializationError';
+import { FormInitializationError } from '@getodk/web-forms/lib/error/FormInitializationError';
+import { FormDesignError } from '@getodk/xpath';
 
 const webFormsVersion = __WEB_FORMS_VERSION__;
 type ObjectURL = `blob:${string}`;
@@ -55,6 +60,7 @@ export interface OdkWebFormsProps {
 	readonly fetchFormAttachment: FetchFormAttachment;
 	readonly deviceId?: string; // different case to make it easier to bind
 	readonly preloadProperties?: PreloadProperties;
+	readonly instanceDefaults?: InstanceDefaults;
 	readonly missingResourceBehavior?: MissingResourceBehavior;
 	readonly attachmentMaxSize?: number;
 
@@ -69,6 +75,8 @@ export interface OdkWebFormsProps {
 	 * resources will be resolved and loaded for editing.
 	 */
 	readonly editInstance?: EditInstanceOptions;
+
+	readonly lastSavedXml?: string;
 }
 
 const props = defineProps<OdkWebFormsProps>();
@@ -80,15 +88,19 @@ const hostSubmissionResultCallbackFactory = (
 		hostResult: OptionalAwaitableHostSubmissionResult
 	): Promise<void> => {
 		const submissionResult = await hostResult;
+
+		// Use the current instance XML as the last-saved for the next submission. Using the copy in memory
+		// means we don't need to fetch it from the vue app, and also means it works for draft forms where
+		// the last-saved is never persisted.
+		const lastSavedXml = currentState.root.instanceState.instanceXML;
 		const options = {
 			form: formOptions,
 			preloadProperties: props.preloadProperties,
+			instanceDefaults: props.instanceDefaults,
 			deviceID: props.deviceId,
+			lastSavedXml
 		};
 		state.value = updateSubmittedFormState(submissionResult, currentState, options);
-		if (submissionResult?.next === POST_SUBMIT__NEW_INSTANCE) {
-			document.scrollingElement?.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-		}
 	};
 
 	return (hostResult) => {
@@ -186,14 +198,15 @@ const getLocation = async (): Promise<string> => {
 		// eslint-disable-next-line no-console -- Skip silently to match Collect behaviour.
 		console.warn('Error occurred while retrieving background location.', error);
 		geolocationErrorMessage.value = t('odk_web_forms.geolocation.error');
+		errorBannerDismissed.value = false;
 	}
 
-	floatingErrorActive.value = !!geolocationErrorMessage.value.length;
 	return point;
 };
 
 const formOptions = readonly<FormOptions>({
 	fetchFormAttachment: props.fetchFormAttachment,
+	lastSavedXml: props.lastSavedXml,
 	missingResourceBehavior: props.missingResourceBehavior,
 	geolocationProvider: { getLocation: () => getLocation() },
 	attachmentMaxSize: props.attachmentMaxSize,
@@ -205,16 +218,22 @@ provide(FORM_MEDIA_CACHE, mediaCache);
 const state = initializeFormState();
 const runtimeError = ref<FormInitializationError | null>(null);
 const submitPressed = ref(false);
-const floatingErrorActive = ref(false);
-const showValidationError = ref(false);
+const touchedQuestions = reactive(new Set<string>());
+// Close hides the banner until the next failed submit, blocked Next or geolocation error.
+const errorBannerDismissed = ref(false);
 const geolocationErrorMessage = ref<string | null>(null);
 const isFormEditMode = ref(false);
 provide(IS_FORM_EDIT_MODE, readonly(isFormEditMode));
 const { setLanguage, t } = useLocale(computed(() => state.value.root));
 provide(TRANSLATE, t);
+const { navigateToFirstViolation, navigateToNode } = useNavigationTarget(() => state.value.root);
 
 onErrorCaptured(err => {
 	runtimeError.value = FormInitializationError.from(err);
+	if (err instanceof FormDesignError) {
+		// don't let this error bubble to the console or sentry
+		return false;
+	}
 });
 
 watch(
@@ -227,8 +246,8 @@ watch(
 
 const resetComponentState = () => {
 	submitPressed.value = false;
-	floatingErrorActive.value = false;
-	showValidationError.value = false;
+	touchedQuestions.clear();
+	errorBannerDismissed.value = false;
 	geolocationErrorMessage.value = null;
 	geolocationService.teardown();
 };
@@ -238,46 +257,73 @@ const init = async () => {
 		form: formOptions,
 		editInstance: props.editInstance ?? null,
 		preloadProperties: props.preloadProperties,
-		deviceID: props.deviceId,
+		instanceDefaults: props.instanceDefaults,
+		deviceID: props.deviceId
 	});
 	emit('loaded');
 };
 
 void init();
 
+const releaseFocus = () => {
+	const active = document.activeElement;
+	if (active instanceof HTMLElement) {
+		active.blur();
+	}
+};
+
 const handleSubmit = (currentState: FormStateSuccessResult) => {
 	const { root } = currentState;
+	releaseFocus(); // so follow-up dialogs don't restore focus here and scroll back to it
 
 	if (root.validationState.violations.length === 0) {
-		floatingErrorActive.value = false;
 		// eslint-disable-next-line @typescript-eslint/no-floating-promises
 		emitSubmit(currentState);
 		// eslint-disable-next-line @typescript-eslint/no-floating-promises
 		emitSubmitChunked(currentState);
 	} else {
-		floatingErrorActive.value = true;
+		errorBannerDismissed.value = false;
 		submitPressed.value = true;
-		document.scrollingElement?.scrollTo(0, 0);
+		navigateToFirstViolation();
 	}
 };
 
-provide(SUBMIT_PRESSED, submitPressed);
+const handleNext = (currentState: FormStateSuccessResult) => {
+	const violations = getCurrentPageViolations(currentState.root);
+	if (!violations.length) {
+		currentState.root.nextPage();
+		return;
+	}
 
-const validationErrorMessage = computed(() => {
-	const violationLength = state.value.root?.validationState.violations.length ?? 0;
-	if (violationLength === 0) return '';
-	return t('odk_web_forms.validation.error', { count: violationLength });
+	violations.forEach((violation) => touchedQuestions.add(violation.nodeId));
+	errorBannerDismissed.value = false;
+	navigateToNode(violations[0]?.nodeId);
+};
+
+provide(SUBMIT_PRESSED, submitPressed);
+provide(TOUCHED_QUESTIONS, touchedQuestions);
+
+// It returns violations for questions the user has seen.
+const revealedViolations = computed(() => {
+	const violations = state.value.root?.validationState.violations ?? [];
+	if (submitPressed.value) {
+		return violations;
+	}
+	return violations.filter(({ nodeId }) => touchedQuestions.has(nodeId));
 });
 
-watchEffect(() => {
-	if (
-		floatingErrorActive.value &&
-		(validationErrorMessage.value?.length || geolocationErrorMessage.value?.length)
-	) {
-		showValidationError.value = true;
-	} else {
-		showValidationError.value = false;
+const validationErrorMessage = computed(() => {
+	if (!revealedViolations.value.length) {
+		return '';
 	}
+	return t('odk_web_forms.validation.error', { count: revealedViolations.value.length });
+});
+
+const showValidationError = computed(() => {
+	if (errorBannerDismissed.value) {
+		return false;
+	}
+	return !!(validationErrorMessage.value.length || geolocationErrorMessage.value?.length);
 });
 
 onUnmounted(() => {
@@ -317,14 +363,13 @@ onUnmounted(() => {
 		:class="{ 'submit-pressed': submitPressed }"
 	>
 		<div class="form-wrapper">
-			<div v-if="showValidationError" class="error-banner-placeholder" />
 			<!-- Closable error message to clear the view and avoid overlap with other elements -->
 			<Message
 				v-if="showValidationError"
 				severity="error"
 				class="form-error-message"
 				:closable="true"
-				@close="floatingErrorActive = false"
+				@close="errorBannerDismissed = true"
 			>
 				<IconSVG name="mdiAlertCircleOutline" variant="error" />
 				<ul class="form-error-text-wrap">
@@ -335,6 +380,14 @@ onUnmounted(() => {
 						{{ geolocationErrorMessage }}
 					</li>
 				</ul>
+				<Button
+					v-if="validationErrorMessage?.length"
+					link
+					class="view-error-button"
+					@click="navigateToFirstViolation"
+				>
+					<strong>{{ t('odk_web_forms.validation.view.label') }}</strong>
+				</Button>
 			</Message>
 
 			<FormHeader :form="state.root" @change-language="setLanguage" />
@@ -349,9 +402,7 @@ onUnmounted(() => {
 				</template>
 			</Card>
 
-			<div class="footer flex justify-content-end flex-wrap gap-3">
-				<Button :label="t('odk_web_forms.submit.label')" @click="handleSubmit(state)" />
-			</div>
+			<FormFooter :root="state.root" @submit="handleSubmit(state)" @next="handleNext(state)" />
 		</div>
 
 		<div class="powered-by-wrapper">
@@ -400,12 +451,8 @@ onUnmounted(() => {
 			padding: 2rem;
 		}
 
-		.error-banner-placeholder {
-			height: 4rem;
-		}
-
 		.form-error-message.p-message.p-message-error {
-			position: fixed;
+			position: sticky;
 			z-index: var(--odk-z-index-error-banner);
 			border-radius: var(--odk-radius);
 			background-color: var(--odk-error-background-color);
@@ -413,7 +460,7 @@ onUnmounted(() => {
 			outline: none;
 			max-width: var(--odk-max-form-width);
 			width: 100%;
-			margin: 0rem auto 1rem auto;
+			margin: 0 auto;
 			top: 1rem;
 
 			:deep(.p-message-wrapper) {
@@ -425,6 +472,7 @@ onUnmounted(() => {
 				display: flex;
 				align-items: center;
 				font-weight: 400;
+				flex: 1;
 			}
 
 			.odk-icon {
@@ -440,19 +488,18 @@ onUnmounted(() => {
 					margin-bottom: var(--odk-spacing-m);
 				}
 			}
+
+			.view-error-button {
+				margin-left: auto;
+				min-width: 0;
+				color: inherit;
+				text-align: right;
+			}
 		}
 	}
 
 	:deep(.p-button) {
 		min-height: 40px;
-	}
-
-	.footer {
-		margin: 1.5rem 0 0rem 0;
-
-		button {
-			min-width: 160px;
-		}
 	}
 
 	.powered-by-wrapper {
@@ -501,15 +548,11 @@ onUnmounted(() => {
 				order: 1;
 			}
 
-			.error-banner-placeholder {
-				order: 2;
-			}
-
 			.form-error-message.p-message.p-message-error {
-				margin: 4rem 1rem 0 1rem;
+				margin: 1rem 1rem 0 1rem;
 				max-width: unset;
 				width: calc(100% - 2rem);
-				top: 22px;
+				order: 2;
 			}
 
 			.questions-card {
@@ -519,12 +562,6 @@ onUnmounted(() => {
 				order: 3;
 			}
 
-			.footer {
-				order: 4;
-				button {
-					margin-right: var(--odk-spacing-xl);
-				}
-			}
 		}
 
 		.powered-by-wrapper {

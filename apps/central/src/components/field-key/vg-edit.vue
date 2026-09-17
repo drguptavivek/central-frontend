@@ -136,7 +136,7 @@ export default {
       "save": "Save"
     },
     "alert": {
-      "updated": "The App User “{displayName}” was updated."
+      "updated": "The App User “{displayName}” was updated successfully."
     }
   }
 }

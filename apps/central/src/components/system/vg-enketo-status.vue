@@ -113,7 +113,8 @@
         {{ bulkRegenerating ? $t('vgEnketoStatus.action.bulkRegenerating') : $t('vgEnketoStatus.action.bulkRegenerate') }}
       </button>
     </div>
-    <confirmation v-bind="confirmModal" :awaiting-response="bulkRegenerating"
+    <confirmation v-bind="confirmModal" :title="$t('vgEnketoStatus.confirm.title')"
+      :awaiting-response="bulkRegenerating"
       @hide="confirmModal.hide()" @success="bulkRegenerate">
       <template #body>
         <p>{{ $t('vgEnketoStatus.confirm.bulkRegenerate') }}</p>

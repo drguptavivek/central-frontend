@@ -25,45 +25,24 @@ jobs:
       fail-fast: false
       matrix:
         target: ['Node']
-        node-version: ['24.16.0']
+        node-version: ['24.20.0']
         include:
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: chromium
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: firefox
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: webkit
 
     steps:
       - uses: 'actions/checkout@v6'
 
-      - uses: 'volta-cli/action@v5'
+      - uses: ./.github/actions/restore-node
         with:
           node-version: '${{ matrix.node-version }}'
-
-      - uses: 'actions/cache@v5'
-        id: cache-install
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: install-v${{ matrix.node-version }}-${{ hashFiles('package-lock.json', '.npmrc', '.github/workflows/*.yml', 'packages/*/package.json', 'packages/*/package-lock.json') }}
-
-      - uses: 'actions/cache@v5'
-        id: cache-build
-        with:
-          path: |
-            dist
-            packages/*/dist
-          key: build-${{ github.sha }}
-          fail-on-cache-miss: true
-
-      - name: 'npm ci'
-        if: steps.cache-install.outputs.cache-hit != 'true'
-        run: npm ci
 
       - if: ${{ matrix.target == 'Node' }}
         run: 'npm run test:types -w packages/common'
@@ -85,44 +64,24 @@ jobs:
       fail-fast: false
       matrix:
         target: ['Node']
-        node-version: ['24.16.0']
+        node-version: ['24.20.0']
         include:
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: chromium
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: firefox
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: webkit
 
     steps:
       - uses: 'actions/checkout@v6'
 
-      - uses: 'volta-cli/action@v5'
+      - uses: ./.github/actions/restore-node
         with:
           node-version: '${{ matrix.node-version }}'
-
-      - uses: 'actions/cache@v5'
-        id: cache-install
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: install-v${{ matrix.node-version }}-${{ hashFiles('package-lock.json', '.npmrc', '.github/workflows/*.yml', 'packages/*/package.json', 'packages/*/package-lock.json') }}
-      - uses: 'actions/cache@v5'
-        id: cache-build
-        with:
-          path: |
-            dist
-            packages/*/dist
-          key: build-${{ github.sha }}
-          fail-on-cache-miss: true
-
-      - name: 'npm ci'
-        if: steps.cache-install.outputs.cache-hit != 'true'
-        run: npm ci
 
       - if: ${{ matrix.target == 'Node' }}
         run: |
@@ -144,44 +103,24 @@ jobs:
       fail-fast: false
       matrix:
         target: ['Node']
-        node-version: ['24.16.0']
+        node-version: ['24.20.0']
         include:
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: chromium
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: firefox
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: webkit
 
     steps:
       - uses: 'actions/checkout@v6'
 
-      - uses: 'volta-cli/action@v5'
+      - uses: ./.github/actions/restore-node
         with:
           node-version: '${{ matrix.node-version }}'
-
-      - uses: 'actions/cache@v5'
-        id: cache-install
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: install-v${{ matrix.node-version }}-${{ hashFiles('package-lock.json', '.npmrc', '.github/workflows/*.yml', 'packages/*/package.json', 'packages/*/package-lock.json') }}
-      - uses: 'actions/cache@v5'
-        id: cache-build
-        with:
-          path: |
-            dist
-            packages/*/dist
-          key: build-${{ github.sha }}
-          fail-on-cache-miss: true
-
-      - name: 'npm ci'
-        if: steps.cache-install.outputs.cache-hit != 'true'
-        run: npm ci
 
       - if: ${{ matrix.target == 'Node' }}
         run: 'npm run test:types -w=packages/xpath'
@@ -203,44 +142,24 @@ jobs:
       fail-fast: false
       matrix:
         target: ['Node']
-        node-version: ['24.16.0']
+        node-version: ['24.20.0']
         include:
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: chromium
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: firefox
           - target: 'Web'
-            node-version: '24.16.0'
+            node-version: '24.20.0'
             browser: webkit
 
     steps:
       - uses: 'actions/checkout@v6'
 
-      - uses: 'volta-cli/action@v5'
+      - uses: ./.github/actions/restore-node
         with:
           node-version: '${{ matrix.node-version }}'
-
-      - uses: 'actions/cache@v5'
-        id: cache-install
-        with:
-          path: |
-            node_modules
-            **/node_modules
-          key: install-v${{ matrix.node-version }}-${{ hashFiles('package-lock.json', '.npmrc', '.github/workflows/*.yml', 'packages/*/package.json', 'packages/*/package-lock.json') }}
-      - uses: 'actions/cache@v5'
-        id: cache-build
-        with:
-          path: |
-            dist
-            packages/*/dist
-          key: build-${{ github.sha }}
-          fail-on-cache-miss: true
-
-      - name: 'npm ci'
-        if: steps.cache-install.outputs.cache-hit != 'true'
-        run: npm ci
 
       - if: ${{ matrix.target == 'Node' }}
         run: 'npm run test:types -w=packages/web-forms'
@@ -248,17 +167,5 @@ jobs:
       - if: ${{ matrix.target == 'Web' }}
         run: 'npx playwright install ${{ matrix.browser }} --with-deps'
 
-      # TODO: hopefully temporary! Attempt to mitigate flakiness in webkit by
-      # running twice when first run fails. At least in local testing, this has
-      # been near (if not at) 100% success.
-      - if: ${{ matrix.target == 'Web' && matrix.browser == 'webkit' }}
-        run: 'npm run test-browser:${{ matrix.browser }} -w=packages/web-forms || npm run test-browser:${{ matrix.browser }} -w=packages/web-forms'
-
-      - if: ${{ matrix.target == 'Web' && matrix.browser != 'webkit' }}
+      - if: ${{ matrix.target == 'Web' }}
         run: 'npm run test-browser:${{ matrix.browser }} -w=packages/web-forms'
-
-      - if: ${{ matrix.node-version == '24.16.0' && matrix.target == 'Node' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: dist-demo
-          path: packages/web-forms/dist-demo

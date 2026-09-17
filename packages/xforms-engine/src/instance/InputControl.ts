@@ -1,5 +1,6 @@
 import { XPathNodeKindKey } from '@getodk/xpath';
 import type { Accessor } from 'solid-js';
+import type { PageBoundary } from '../client/identity.ts';
 import type {
   InputDefinition,
   InputNode,
@@ -25,7 +26,7 @@ import { createFieldHint } from '../lib/reactivity/text/createFieldHint.ts';
 import { createNodeLabel } from '../lib/reactivity/text/createNodeLabel.ts';
 import type { InputControlDefinition } from '../parse/body/control/InputControlDefinition.ts';
 import { ValueNode, type ValueNodeStateSpec } from './abstract/ValueNode.ts';
-import { buildAttributes } from './attachments/buildAttributes.ts';
+import { buildAttributes } from './buildAttributes.ts';
 import type { Attribute } from './Attribute.ts';
 import type { GeneralParentNode } from './hierarchy.ts';
 import type { EvaluationContext } from './internal-api/EvaluationContext.ts';
@@ -75,6 +76,7 @@ interface InputControlStateSpec<V extends ValueType> extends ValueNodeStateSpec<
   readonly hint: Accessor<TextRange<'hint'> | null>;
   readonly attributes: Accessor<readonly Attribute[]>;
   readonly valueOptions: null;
+  readonly pageBoundary: PageBoundary;
 }
 
 export class InputControl<V extends ValueType = ValueType>
@@ -141,6 +143,7 @@ export class InputControl<V extends ValueType = ValueType>
         valueOptions: null,
         value: this.valueState,
         instanceValue: this.getInstanceValue,
+        pageBoundary: this.root.pagination.attachLeaf(this),
       },
       this.instanceConfig
     );

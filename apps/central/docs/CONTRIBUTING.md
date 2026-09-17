@@ -52,21 +52,11 @@ Once you feel ready to share your progress, please feel free to submit a Pull Re
 
 We use Vue.js along with Vue Router, Vuex, and Vue CLI.
 
-### jQuery
-
-ODK Central Frontend uses jQuery in limited ways.
-
-Wherever possible, we try to use Vue instead of jQuery. Vue will not always know about or respect changes that jQuery makes to the DOM, and using jQuery can add complexity to a component.
-
-That said, we make use of some of Bootstrap's jQuery plugins. We may replace those in the future, after which we may be able to remove jQuery. With that in mind, if you have a choice between using jQuery and vanilla JavaScript, consider using the latter. Remember though that as with jQuery, Vue will not always know about or respect changes to the DOM that you make using vanilla JavaScript.
-
 ### Bootstrap
 
 ODK Central Frontend uses Bootstrap 3.
 
 Frontend's [global styles](/apps/central/src/assets/scss/app.scss) override some of Bootstrap's, as do the styles of Frontend components that correspond to a Bootstrap component (for example, `Modal`). However, we tend to stick pretty closely to Bootstrap, and you should be able to use many of Bootstrap's examples with only small changes. If you are creating a new component that is similar to an existing Frontend component, you may find it useful to base the new component off the existing one.
-
-We use a limited number of Bootstrap's jQuery plugins: see the [section above](https://github.com/getodk/central-frontend/blob/master/apps/central/docs/CONTRIBUTING.md#jquery) on jQuery.
 
 ### Global Utilities
 
@@ -187,11 +177,7 @@ Also note about comments:
 - `restructure.js` will automatically generate comments for any message whose path ends with `.full`, because such messages are used for component interpolation.
 - Use JSON with comments, but do not use other features of JSON5, which our workflow might not support.
 
-Before each release, we download all translations from Transifex and save them in [`/apps/central/transifex/`](/apps/central/transifex/). Transifex allows translations to be downloaded "for use" or "to translate." We use "to translate," because untranslated strings are included as empty strings; "for use" fills in untranslated strings with the source strings, which we would then have to discard. On the website, Transifex allows the translations to be downloaded "to translate" for an individual locale, but not all locales at once. To download all locales at once, run the Transifex CLI in the root directory of the repository:
-
-```bash
-tx pull --mode translator --force
-```
+Before each release, we download all translations from Transifex and save them in [`/apps/central/transifex/`](/apps/central/transifex/). Transifex allows translations to be downloaded "for use" or "to translate." We use "to translate," because untranslated strings are included as empty strings; "for use" fills in untranslated strings with the source strings, which we would then have to discard. To download all locales "to translate", run `npm run transifex:pull`. Note that you will first need to install the Transifex CLI.
 
 Once they are downloaded, we convert the Structured JSON files to Vue I18n JSON by running `npm run transifex:destructure`.  This generates all locale files in `/apps/central/src/locales/` other than `en.json5`.
 
@@ -306,7 +292,7 @@ Our tests use a number of external packages:
 - Mocha, a test framework
 - Chai, for assertions
 - Sinon.JS, for spies and stubs
-- faker.js, to generate test data
+- [Faker](https://www.npmjs.com/package/@faker-js/faker), to generate test data
 - Vue Test Utils, to test Vue components
 
 `npm run test` runs [`/apps/central/test/index.js`](/apps/central/test/index.js), which mocks global utilities and sets up Mocha hooks.
@@ -327,7 +313,7 @@ it.only('does something', () => {
 
 #### Test Data
 
-We generate and store test data specific to ODK Central using the [`testData`](/apps/central/test/data/index.js) object, which uses faker.js. `testData` will persist data until the end of a test and can be thought of as a mock of ODK Central Backend and its database.
+We generate and store test data specific to ODK Central using the [`testData`](/apps/central/test/data/index.js) object, which uses [Faker](https://www.npmjs.com/package/@faker-js/faker). `testData` will persist data until the end of a test and can be thought of as a mock of ODK Central Backend and its database.
 
 `testData` defines a "store" for each Backend resource. For example, `testData.extendedProjects` is a store that generates and stores projects. A store can also be associated with one or more "views," each of which represents a way to format the data and will transform the data in the store. For example, `testData.extendedProjects` is the canonical store of projects, and the objects it generates have extended metadata properties; `testData.standardProjects` is a view onto that store and transforms the objects in the store by removing their extended metadata properties.
 

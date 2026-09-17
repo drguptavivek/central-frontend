@@ -1,6 +1,6 @@
 {
   "name": "@getodk/xforms-engine",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "description": "XForms engine for ODK Web Forms",
   "type": "module",
@@ -29,7 +29,7 @@
     "README.md"
   ],
   "engines": {
-    "node": "^24.16.0",
+    "node": "^24.20.0",
     "npm": "11"
   },
   "scripts": {
@@ -70,14 +70,14 @@
     "bin-packer": "1.7.0",
     "mdast-util-from-markdown": "^2.0.2",
     "mdast-util-newline-to-break": "^2.0.0",
-    "papaparse": "^5.5.3",
-    "solid-js": "^1.9.11",
+    "papaparse": "^5.5.4",
+    "solid-js": "^1.9.14",
     "temporal-polyfill": "^0.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@getodk/tree-sitter-xpath": "^0.2.2",
-    "@getodk/xpath": "1.0.1",
+    "@getodk/xpath": "1.0.2",
     "@js-joda/core": "^5.7.0",
     "@types/papaparse": "^5.5.0",
     "babel-plugin-transform-jsbi-to-bigint": "^1.4.2",
@@ -88,14 +88,6 @@
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-no-bundle": "^4.0.0",
     "web-tree-sitter": "0.24.5"
-  },
-  "peerDependencies": {
-    "solid-js": "^1.9.7"
-  },
-  "peerDependenciesMeta": {
-    "solid-js": {
-      "optional": true
-    }
   },
   "publishConfig": {
     "access": "public"

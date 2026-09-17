@@ -10,36 +10,54 @@ including this file, may be copied, modified, propagated, or distributed
 except according to the terms contained in the LICENSE file.
 -->
 <template>
-  <file-drop-zone id="entity-upload-file-select" :disabled="parsing"
+  <file-drop-zone id="entity-upload-file-select" :disabled="disabled"
     @drop="$emit('change', $event.dataTransfer.files[0])">
     <div id="entity-upload-file-select-heading">
-      <i18n-t tag="div" keypath="text.full">
-        <template #chooseOne>
-          <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-          <input v-show="false" ref="input" type="file" accept=".csv,.tsv"
-            @change="changeInput">
-          <button type="button" class="btn btn-primary" :aria-disabled="parsing"
-            @click="input.click()">
-            <span class="icon-folder-open"></span>{{ $t('text.chooseOne') }}
-          </button>
+      <p v-if="errors !== 0">{{ $tcn('errors', errors) }}</p>
+      <p v-else-if="dataTemplate">{{ $t('upload') }}</p>
+
+      <div>
+        <i18n-t keypath="text.full">
+          <template #chooseFile>
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+            <input v-show="false" ref="input" type="file" accept=".csv,.tsv"
+              @change="changeInput">
+            <button type="button" class="btn btn-outlined" :aria-disabled="disabled"
+              @click="input.click()">
+              {{ $t('text.chooseFile') }}
+            </button>
+          </template>
+        </i18n-t>
+        <template v-if="dataTemplate">
+          <sentence-separator/>
+          <entity-upload-data-template/>
         </template>
-      </i18n-t>
+      </div>
       <div v-show="parsing"><spinner inline/>{{ $t('parsing') }}</div>
     </div>
-    <slot></slot>
   </file-drop-zone>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 
+import EntityUploadDataTemplate from './data-template.vue';
 import FileDropZone from '../../file-drop-zone.vue';
+import SentenceSeparator from '../../sentence-separator.vue';
 import Spinner from '../../spinner.vue';
 
 defineOptions({
   name: 'EntityUploadFileSelect'
 });
 defineProps({
+  // `true` to render EntityUploadDataTemplate; `false` not to.
+  dataTemplate: Boolean,
+  // Number of errors
+  errors: {
+    type: Number,
+    default: 0
+  },
+  disabled: Boolean,
   parsing: Boolean
 });
 const emit = defineEmits(['change']);
@@ -53,27 +71,33 @@ const changeInput = (event) => {
 
 <style lang="scss">
 #entity-upload-file-select {
-  border-radius: 5px;
-  margin-top: 27px;
-  text-align: left;
+  background-color: transparent;
+  border-radius: 12px;
+  margin-top: 20px;
+  padding: 30px 20px;
 
   &.disabled { opacity: 1; }
-
-  > :first-child { margin-top: -4px; }
-  > :last-child { margin-bottom: -4px; }
 }
 
 #entity-upload-file-select-heading {
-  font-size: 16px;
   margin-bottom: 1px;
   position: relative;
 
-  .disabled > & > :first-child { opacity: 0.09; }
+  .disabled > & > :not(:last-child) { opacity: 0.09; }
 
-  > :nth-child(2) {
-    left: 0;
+  > p:first-child {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  // Spinner container
+  > :last-child {
     position: absolute;
-    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    font-size: 16px;
   }
 
   .spinner {
@@ -86,9 +110,11 @@ const changeInput = (event) => {
 <i18n lang="json5">
 {
   "en": {
+    "upload": "Upload a .csv file",
+    "errors": "{count} error must be fixed before appending Entities | {count} errors must be fixed before appending Entities",
     "text": {
-      "full": "Drag a .csv file here, or {chooseOne} to import.",
-      "chooseOne": "choose one"
+      "full": "Drag and drop a .csv file here, or {chooseFile}",
+      "chooseFile": "choose a file"
     },
     "parsing": "Reading data…"
   }
@@ -99,52 +125,30 @@ const changeInput = (event) => {
 <i18n>
 {
   "de": {
-    "text": {
-      "full": "Fügen Sie hier eine Datei mit Drag-and-Drop ein, oder {chooseOne} zum Hochladen.",
-      "chooseOne": "eine auswählen"
-    },
     "parsing": "Daten lesen..."
   },
   "es": {
-    "text": {
-      "full": "Arrastre un archivo .csv aquí, o {chooseOne} para subir.",
-      "chooseOne": "elige uno"
-    },
     "parsing": "Leyendo datos..."
   },
   "fr": {
+    "upload": "Téléverser un fichier .csv",
+    "errors": "{count} erreur doit être résolue avant d'ajouter les entités | {count} erreurs doivent être résolues avant d'ajouter les entités | {count} erreurs doivent être résolues avant d'ajouter les entités",
     "text": {
-      "full": "Glissez un fichier .csv ici, ou {chooseOne} pour l'importer.",
-      "chooseOne": "Choisissez en un"
+      "full": "Glissez un fichier .csv ici, ou {chooseFile}",
+      "chooseFile": "choisissez un fichier"
     },
     "parsing": "Lecture des données..."
   },
   "it": {
-    "text": {
-      "full": "Trascina un file .csv qui, o {chooseOne} per caricarlo.",
-      "chooseOne": "scegli uno"
-    },
     "parsing": "Lettura dei dati…"
   },
   "pt": {
-    "text": {
-      "full": "Arraste um arquivo .csv aqui ou {chooseOne} para importar.",
-      "chooseOne": "escolha um"
-    },
     "parsing": "Lendo dados…"
   },
   "zh": {
-    "text": {
-      "full": "请将.csv文件拖拽至此，或者{chooseOne}进行导入",
-      "chooseOne": "请选择一个"
-    },
     "parsing": "读取数据..."
   },
   "zh-Hant": {
-    "text": {
-      "full": "拖曳一個 .csv 檔案到這，或者 {chooseOne}進行匯入。",
-      "chooseOne": "選擇一個檔案"
-    },
     "parsing": "讀取資料..."
   }
 }
